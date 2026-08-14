@@ -39,6 +39,7 @@ function initApp() {
   renderCoverflow();
   loadYouTubeAPI();
   bindEvents();
+  setupShayariWidget();
 }
 
 // Render Symmetrical 3D CoverFlow Carousel
@@ -336,4 +337,71 @@ function bindEvents() {
   });
 }
 
+// ─── Shayari Widget (💔 दर्द-ए-दिल) ───────────────────────────────────
+const shayaris = [
+  "दिल के टूटने से कोई आवाज़ नहीं होती, बस कुछ लोग ख़ामोशी से बिखर जाते हैं।",
+  "मोहब्बत की महफ़िल में आज हमारा ज़िक्र हुआ, सबने वाह-वाह कहा और हम मुस्कुरा दिए।",
+  "तेरी बेवफाई का कोई शिकवा नहीं मुझे, बस अफ़सोस इस बात का है कि मैंने तुझसे वफ़ा की उम्मीद की थी।",
+  "हम तो तेरे दिल की महफ़िल सजाने आए थे, पर क्या पता था कि हम सिर्फ तमाशा बनकर रह जाएंगे।",
+  "शीशा टूटे तो आवाज आती है, पर जब दिल टूटता है तो कोई आवाज नहीं आती।",
+  "दर्द ही सही पर तूने कुछ तो दिया, वो लोग भी हैं जिन्होंने सिर्फ उम्मीदें दी थीं।",
+  "पत्थर की दुनिया में शीशे का दिल लेकर निकले थे, टूटना ही था उसे।",
+  "काँच की तरह तोड़ दिया उसने हमें, खुद को ही समेटने में अब उम्र गुज़र रही है।",
+  "वफ़ा का नाम अब कोई मत लेना, हमने वफ़ा करके सिर्फ ज़ख्म पाए हैं।",
+  "ज़िंदगी से कोई शिकवा नहीं, बस मौत का इंतज़ार है, जो तेरे जाने के बाद बेहद हसीन लगती है।",
+  "अब तो तन्हाइयों में जीने की आदत सी हो गई है, महफ़िलें भी अब बेगानी सी लगती हैं।",
+  "तेरे ज़ख्मों को सीने में दबाकर मुस्कुराते हैं, हम तो वो आशिक हैं जो टूट कर भी वफ़ा निभाते हैं।",
+  "वो छोड़ कर गए हमें उस मोड़ पर, जहाँ से वापस जाना मुमकिन न था।",
+  "तुमने तो कह दिया कि हमारा कोई वास्ता नहीं, ज़रा उनसे तो पूछो जिन पर क्या गुज़र गई।"
+];
+
+let currentShayariIndex = 0;
+
+function setupShayariWidget() {
+  const shayariBtn = document.getElementById('shayari-btn');
+  const shayariBox = document.getElementById('shayari-box');
+  const shayariCloseBtn = document.getElementById('shayari-close-btn');
+  const shayariContent = document.getElementById('shayari-content');
+  const shayariNextBtn = document.getElementById('shayari-next-btn');
+
+  if (!shayariBtn || !shayariBox || !shayariCloseBtn || !shayariContent || !shayariNextBtn) return;
+
+  function showNewShayari() {
+    shayariContent.style.transition = 'opacity 0.2s';
+    shayariContent.style.opacity = 0;
+    setTimeout(() => {
+      shayariContent.textContent = shayaris[currentShayariIndex];
+      shayariContent.style.opacity = 1;
+    }, 200);
+  }
+
+  // Set initial shayari
+  currentShayariIndex = Math.floor(Math.random() * shayaris.length);
+  shayariContent.textContent = shayaris[currentShayariIndex];
+
+  shayariBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    shayariBox.classList.toggle('hidden');
+  });
+
+  shayariCloseBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    shayariBox.classList.add('hidden');
+  });
+
+  shayariNextBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    currentShayariIndex = (currentShayariIndex + 1) % shayaris.length;
+    showNewShayari();
+  });
+
+  // Close box on click outside
+  document.addEventListener('click', (e) => {
+    if (!shayariBox.classList.contains('hidden') && !shayariBox.contains(e.target) && e.target !== shayariBtn) {
+      shayariBox.classList.add('hidden');
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', initApp);
+

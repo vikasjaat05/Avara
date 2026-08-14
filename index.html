@@ -35,9 +35,12 @@
     <main class="stage-container" id="stage-container">
       <!-- Live Animated Background Art Container -->
       <div class="background-art" id="background-art">
-        <img
-          src="https://res.cloudinary.com/dh0amtajw/image/upload/v1786683639/ChatGPT_Image_Aug_14_2026_10_30_31_AM_vce6gs.png"
-          alt="Background Art" class="bg-img live-ken-burns" />
+        <picture>
+          <source media="(max-width: 768px)" srcset="https://res.cloudinary.com/dh0amtajw/image/upload/v1786685549/ChatGPT_Image_Aug_14_2026_11_02_21_AM_jdjrwp.png">
+          <img
+            src="https://res.cloudinary.com/dh0amtajw/image/upload/v1786683639/ChatGPT_Image_Aug_14_2026_10_30_31_AM_vce6gs.png"
+            alt="Background Art" class="bg-img live-ken-burns" />
+        </picture>
 
         <!-- Golden Hour Light Ray Shimmer -->
         <div class="sunbeam-light-ray"></div>
@@ -182,6 +185,21 @@
         </div><!-- /sp-card -->
       </div><!-- /sp-wrap -->
     </footer>
+
+    <!-- Shayari Floating UI (Left Bottom Area) -->
+    <div id="shayari-widget" class="shayari-widget">
+      <button id="shayari-btn" class="shayari-btn">💔 दर्द-ए-दिल</button>
+      <div id="shayari-box" class="shayari-box hidden">
+        <div class="shayari-box-header">
+          <span class="shayari-box-title">महफ़िल-ए-दर्द</span>
+          <button id="shayari-close-btn" class="shayari-close-btn">&times;</button>
+        </div>
+        <div class="shayari-body">
+          <p id="shayari-content">दिल के टूटने से कोई आवाज़ नहीं होती, बस कुछ लोग ख़ामोशी से बिखर जाते हैं।</p>
+        </div>
+        <button id="shayari-next-btn" class="shayari-next-btn">अगली शायरी ➔</button>
+      </div>
+    </div>
 
     <!-- Notification Toast -->
     <div id="toast-container" class="toast-container"></div>

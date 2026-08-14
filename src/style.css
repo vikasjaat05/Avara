@@ -611,26 +611,27 @@ button:active { transform: scale(0.92); }
 
 /* ── Mobile ───────────────────────────────────────────────────────── */
 @media (max-width: 720px) {
-  .sp-wrap { padding: 0 60px; }
-  .sp-art-img { width: 82px; height: 82px; }
-  .sp-card { padding-left: 100px; }
-  .sp-vinyl { width: 88px; height: 88px; top: -52px; }
-  .sp-knob-outer { width: 58px; height: 58px; }
-  .sp-knob-inner { width: 40px; height: 40px; }
-  .sp-title { font-size: 14px; }
-  .sp-controls { gap: 16px; }
+  .sp-wrap { padding: 0; width: 100%; }
+  .sp-card { padding: 8px 10px; gap: 8px; }
+  .sp-inner-row { gap: 8px; }
+  .sp-art-img { width: 64px; height: 64px; min-height: 64px; border-radius: 12px; }
+  .sp-controls { gap: 10px; }
+  .sp-play-btn { width: 44px; height: 44px; }
+  .sp-title { font-size: 13px; }
+  .sp-artist { font-size: 11px; }
+}
+@media (max-width: 580px) {
+  .sp-vol-control { display: none !important; }
 }
 @media (max-width: 480px) {
-  .sp-wrap { padding: 0 50px; width: 100%; }
-  .sp-vinyl { display: none; }
-  .sp-art-img { width: 68px; height: 68px; }
-  .sp-card { padding-left: 84px; padding-right: 16px; border-radius: 20px; }
-  .sp-title { font-size: 13px; }
-  .sp-artist { display: none; }
-  .sp-controls { gap: 12px; }
-  .sp-play-btn { width: 40px; height: 40px; }
-  .sp-knob-outer { width: 50px; height: 50px; }
-  .sp-knob-inner { width: 34px; height: 34px; }
+  .sp-wrap { padding: 0 10px; width: 100%; }
+  .sp-card { border-radius: 20px; }
+  .sp-art-img { width: 50px; height: 50px; min-height: 50px; border-radius: 10px; }
+  .sp-controls { gap: 6px; }
+  .sp-play-btn { width: 36px; height: 36px; }
+  .sp-ctrl-btn { width: 28px; height: 28px; }
+  .sp-ctrl-btn svg { width: 14px; height: 14px; }
+  .sp-play-btn svg { width: 16px; height: 16px; }
 }
 
 
@@ -1137,3 +1138,144 @@ button:active { transform: scale(0.92); }
   .time-text      { display: none; }
   .player-bar-container { bottom: 12px; padding: 0 10px; }
 }
+
+/* ─── Shayari Widget (Bottom Left on Desktop, Top Left on Mobile) ─── */
+.shayari-widget {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 100;
+  pointer-events: auto;
+}
+
+.shayari-btn {
+  background: rgba(255, 60, 60, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ff9e9e;
+  padding: 10px 16px;
+  border-radius: 50px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.30);
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.shayari-btn:hover {
+  background: rgba(255, 60, 60, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.40);
+  color: #fff;
+}
+
+.shayari-box {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  width: 280px;
+  background: rgba(15, 10, 10, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.60);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: bottom left;
+}
+
+.shayari-box.hidden {
+  opacity: 0;
+  transform: scale(0.85) translateY(10px);
+  pointer-events: none;
+}
+
+.shayari-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  padding-bottom: 8px;
+}
+
+.shayari-box-title {
+  font-family: 'Eczar', serif;
+  font-weight: 600;
+  color: #ff9e9e;
+  font-size: 15px;
+}
+
+.shayari-close-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.50);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.shayari-close-btn:hover {
+  color: #fff;
+}
+
+.shayari-body {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+}
+
+#shayari-content {
+  font-family: 'Outfit', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.90);
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.50);
+}
+
+.shayari-next-btn {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-end;
+}
+
+.shayari-next-btn:hover {
+  background: rgba(255,255,255,0.20);
+}
+
+/* On mobile, move the Shayari widget to top-left to avoid clashing with the bottom player */
+@media (max-width: 768px) {
+  .shayari-widget {
+    top: 24px;
+    left: 24px;
+    bottom: auto;
+  }
+  .shayari-box {
+    top: 50px;
+    bottom: auto;
+    transform-origin: top left;
+  }
+  .shayari-box.hidden {
+    transform: scale(0.85) translateY(-10px);
+  }
+}
+
