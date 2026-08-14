@@ -1282,35 +1282,46 @@ button:active { transform: scale(0.92); }
 }
 
 /* ─── Playlist Drawer (Right Slide-out) ──────────────────────────────── */
+/* ─── Playlist Drawer (Right Slide-out Liquid UI) ────────────────────── */
 .playlist-toggle-btn {
   position: fixed;
   top: 24px;
   right: 24px;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.20);
   color: #fff;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border-radius: 50px;
   font-family: 'Outfit', sans-serif;
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.30);
-  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   align-items: center;
   gap: 6px;
   pointer-events: auto;
 }
 
+/* Continuous organic liquid morphing on hover */
 .playlist-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.40);
+  background: rgba(255, 220, 120, 0.16);
+  border-color: rgba(255, 220, 120, 0.30);
+  color: #ffdc78;
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.25);
+  animation: liquidMorph 4s infinite alternate ease-in-out;
+}
+
+@keyframes liquidMorph {
+  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
 }
 
 .playlist-drawer {
@@ -1319,20 +1330,48 @@ button:active { transform: scale(0.92); }
   right: 0;
   width: 340px;
   height: 100%;
-  background: rgba(10, 8, 8, 0.88);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background: linear-gradient(135deg, rgba(16, 12, 12, 0.76) 0%, rgba(8, 6, 6, 0.92) 100%);
+  backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(35px);
   border-left: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 200;
   display: flex;
   flex-direction: column;
-  box-shadow: -10px 0 40px rgba(0,0,0,0.70);
-  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: -15px 0 50px rgba(0,0,0,0.80);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: auto;
+  overflow: hidden;
 }
 
 .playlist-drawer.hidden {
   transform: translateX(100%);
+}
+
+/* Ambient Floating Liquid Blobs inside Drawer Background */
+.drawer-liquid-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  z-index: -1;
+  opacity: 0.16;
+  pointer-events: none;
+  animation: blobFloat 14s infinite alternate ease-in-out;
+}
+.blob-1 {
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, var(--amber) 0%, transparent 70%);
+  top: 5%; right: -50px;
+}
+.blob-2 {
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, #ef4444 0%, transparent 70%);
+  bottom: 12%; left: -60px;
+  animation-delay: -7s;
+}
+@keyframes blobFloat {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 40px) scale(1.15) rotate(45deg); }
+  100% { transform: translate(30px, -30px) scale(0.9) rotate(-45deg); }
 }
 
 .drawer-header {
@@ -1345,24 +1384,25 @@ button:active { transform: scale(0.92); }
 
 .drawer-title {
   font-family: 'Eczar', serif;
-  font-size: 18px;
+  font-size: 17.5px;
   font-weight: 700;
   color: #fff;
-  text-shadow: 0 0 10px rgba(255,255,255,0.15);
+  text-shadow: 0 0 12px rgba(255,255,255,0.12);
 }
 
 .drawer-close-btn {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.60);
+  color: rgba(255, 255, 255, 0.50);
   font-size: 26px;
   cursor: pointer;
   line-height: 1;
-  transition: color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .drawer-close-btn:hover {
   color: #ff6b6b;
+  transform: scale(1.15) rotate(90deg);
 }
 
 .drawer-search-wrap {
@@ -1372,21 +1412,21 @@ button:active { transform: scale(0.92); }
 
 #playlist-search {
   width: 100%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   color: #fff;
   padding: 10px 14px;
   font-family: 'Outfit', sans-serif;
   font-size: 13.5px;
   outline: none;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 #playlist-search:focus {
-  background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.12);
 }
 
 .drawer-list {
@@ -1398,21 +1438,22 @@ button:active { transform: scale(0.92); }
   gap: 8px;
 }
 
-/* Custom scrollbar for drawer list */
+/* Custom fluid scrollbar */
 .drawer-list::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 .drawer-list::-webkit-scrollbar-track {
   background: transparent;
 }
 .drawer-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.10);
+  border-radius: 10px;
 }
 .drawer-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.30);
+  background: rgba(245, 158, 11, 0.30);
 }
 
+/* Gel-like spring transition on hover */
 .drawer-item {
   display: flex;
   align-items: center;
@@ -1422,18 +1463,20 @@ button:active { transform: scale(0.92); }
   cursor: pointer;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.02);
-  transition: all 0.2s ease-in-out;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.25);
 }
 
 .drawer-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.06);
-  transform: translateX(-4px);
+  background: rgba(255, 220, 120, 0.06);
+  border-color: rgba(255, 220, 120, 0.15);
+  transform: scale(1.025) translateX(-3px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.30);
 }
 
 .drawer-item.active {
   background: rgba(255, 220, 120, 0.12);
-  border-color: rgba(255, 220, 120, 0.20);
+  border-color: rgba(255, 220, 120, 0.25);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.10);
 }
 
 .drawer-item-thumb {
@@ -1443,6 +1486,11 @@ button:active { transform: scale(0.92); }
   object-fit: cover;
   box-shadow: 0 4px 10px rgba(0,0,0,0.40);
   flex-shrink: 0;
+  transition: transform 0.4s ease;
+}
+
+.drawer-item:hover .drawer-item-thumb {
+  transform: scale(1.05) rotate(2deg);
 }
 
 .drawer-item-meta {
@@ -1461,6 +1509,11 @@ button:active { transform: scale(0.92); }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.3s;
+}
+
+.drawer-item:hover .drawer-item-title {
+  color: #ffdc78;
 }
 
 .drawer-item-artist {
@@ -1473,16 +1526,36 @@ button:active { transform: scale(0.92); }
 }
 
 .drawer-item-status {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 220, 120, 0.85);
   flex-shrink: 0;
 }
 
-/* Adjust drawer button on mobile */
+/* Pulsing Liquid Ripple Indicator for Active Track */
+.drawer-item.active .drawer-item-status {
+  position: relative;
+}
+
+.drawer-item.active .drawer-item-status::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 10px var(--amber);
+  animation: dotRipple 1.4s infinite ease-out;
+}
+
+@keyframes dotRipple {
+  0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+  70% { transform: scale(1.2); box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+  100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+/* Adjust drawer button and layout on mobile */
 @media (max-width: 768px) {
   .playlist-toggle-btn {
     top: auto;
