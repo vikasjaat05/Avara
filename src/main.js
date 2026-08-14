@@ -40,6 +40,7 @@ function initApp() {
   loadYouTubeAPI();
   bindEvents();
   setupShayariWidget();
+  setupPlaylistDrawer();
 }
 
 // Render Symmetrical 3D CoverFlow Carousel
@@ -204,12 +205,14 @@ function updateTrackUI(track) {
   // Song title (new card player)
   songTitleEl.textContent = track.title || 'Unknown Song';
   // Artist field in card player
-  const artistEl = document.querySelector('.gpc-artist');
+  const artistEl = document.querySelector('.sp-artist');
   if (artistEl) artistEl.textContent = track.artist || '';
   // Album art
   if (albumArt) albumArt.src = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
   // Update now playing strip
   updateNowPlayingStrip();
+  // Update active state in playlist drawer
+  updateDrawerActiveState();
 }
 
 const liveSoundwave = document.getElementById('live-soundwave');
@@ -403,5 +406,102 @@ function setupShayariWidget() {
   });
 }
 
+// ─── Playlist Drawer Panel (📋 गीत सूची) ──────────────────────────────
+function populatePlaylistDrawer(songsToRender = currentPlaylist) {
+  const drawerList = document.getElementById('drawer-songs-list');
+  if (!drawerList) return;
+  drawerList.innerHTML = '';
+
+  const activeTrack = currentPlaylist[currentTrackIndex];
+
+  songsToRender.forEach((track) => {
+    // Find correct index in original currentPlaylist
+    const originalIndex = currentPlaylist.findIndex(t => t.id === track.id);
+    const isActive = activeTrack && activeTrack.id === track.id;
+
+    const item = document.createElement('div');
+    item.className = `drawer-item ${isActive ? 'active' : ''}`;
+    item.setAttribute('data-id', track.id);
+    item.innerHTML = `
+      <img src="https://img.youtube.com/vi/${track.id}/hqdefault.jpg" alt="${track.title}" class="drawer-item-thumb" />
+      <div class="drawer-item-meta">
+        <div class="drawer-item-title">${track.title}</div>
+        <div class="drawer-item-artist">${track.artist}</div>
+      </div>
+      <div class="drawer-item-status">
+        ${isActive ? '▶' : ''}
+      </div>
+    `;
+
+    item.addEventListener('click', () => {
+      if (originalIndex !== -1) {
+        playTrackAtIndex(originalIndex);
+        // Close drawer on mobile
+        if (window.innerWidth <= 768) {
+          document.getElementById('playlist-drawer').classList.add('hidden');
+        }
+      }
+    });
+
+    drawerList.appendChild(item);
+  });
+}
+
+function updateDrawerActiveState() {
+  const activeTrack = currentPlaylist[currentTrackIndex];
+  if (!activeTrack) return;
+  const items = document.querySelectorAll('.drawer-item');
+  items.forEach(item => {
+    const id = item.getAttribute('data-id');
+    const isCurrent = id === activeTrack.id;
+    item.classList.toggle('active', isCurrent);
+    const statusDiv = item.querySelector('.drawer-item-status');
+    if (statusDiv) {
+      statusDiv.innerHTML = isCurrent ? '▶' : '';
+    }
+  });
+}
+
+function setupPlaylistDrawer() {
+  const playlistToggleBtn = document.getElementById('playlist-toggle-btn');
+  const playlistDrawer = document.getElementById('playlist-drawer');
+  const drawerCloseBtn = document.getElementById('drawer-close-btn');
+  const searchInput = document.getElementById('playlist-search');
+
+  if (!playlistToggleBtn || !playlistDrawer || !drawerCloseBtn) return;
+
+  // Initial list rendering
+  populatePlaylistDrawer();
+
+  playlistToggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    playlistDrawer.classList.toggle('hidden');
+  });
+
+  drawerCloseBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    playlistDrawer.classList.add('hidden');
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const filtered = currentPlaylist.filter(t => 
+        t.title.toLowerCase().includes(query) || 
+        t.artist.toLowerCase().includes(query)
+      );
+      populatePlaylistDrawer(filtered);
+    });
+  }
+
+  // Close drawer on click outside
+  document.addEventListener('click', (e) => {
+    if (!playlistDrawer.classList.contains('hidden') && !playlistDrawer.contains(e.target) && e.target !== playlistToggleBtn) {
+      playlistDrawer.classList.add('hidden');
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', initApp);
+
 
