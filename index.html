@@ -350,19 +350,37 @@
               </div>
             </div>
 
-            <!-- Rain Ambient Mixer Control -->
-            <div class="sp-rain-control">
-              <button id="rain-toggle-btn" class="sp-rain-btn" title="Toggle Rain Sounds (बारिश का अहसास)">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25" />
-                  <line x1="8" y1="16" x2="8" y2="22" />
-                  <line x1="12" y1="18" x2="12" y2="22" />
-                  <line x1="16" y1="16" x2="16" y2="22" />
-                </svg>
-              </button>
-              <div class="sp-rain-slider-wrap">
-                <div class="sp-rain-fill" id="rain-fill" style="width:0%"></div>
-                <input type="range" id="rain-volume" min="0" max="100" value="0" class="sp-rain-range" />
+            <!-- Ambient Mixer Control Panel (बारिश, टूटना, रोना) -->
+            <div class="sp-ambient-mixer">
+              <!-- Rain Sound -->
+              <div class="sp-ambient-item">
+                <button id="rain-toggle-btn" class="sp-ambient-btn" title="बारिश की आवाज़" data-sound="rain">
+                  <span class="ambient-icon">🌧️</span>
+                </button>
+                <div class="sp-ambient-slider-wrap">
+                  <div class="sp-ambient-fill" id="rain-fill" style="width:0%"></div>
+                  <input type="range" id="rain-volume" min="0" max="100" value="0" class="sp-ambient-range" />
+                </div>
+              </div>
+              <!-- Glass Break Sound -->
+              <div class="sp-ambient-item">
+                <button id="glass-toggle-btn" class="sp-ambient-btn" title="कांच टूटने की आवाज़" data-sound="glass">
+                  <span class="ambient-icon">🪟</span>
+                </button>
+                <div class="sp-ambient-slider-wrap">
+                  <div class="sp-ambient-fill" id="glass-fill" style="width:0%"></div>
+                  <input type="range" id="glass-volume" min="0" max="100" value="0" class="sp-ambient-range" />
+                </div>
+              </div>
+              <!-- Crying Sound -->
+              <div class="sp-ambient-item">
+                <button id="cry-toggle-btn" class="sp-ambient-btn" title="रोने की आवाज़" data-sound="cry">
+                  <span class="ambient-icon">😢</span>
+                </button>
+                <div class="sp-ambient-slider-wrap">
+                  <div class="sp-ambient-fill" id="cry-fill" style="width:0%"></div>
+                  <input type="range" id="cry-volume" min="0" max="100" value="0" class="sp-ambient-range" />
+                </div>
               </div>
             </div>
 

@@ -1620,46 +1620,75 @@ button:active { transform: scale(0.92); }
   box-shadow: 0 4px 20px rgba(245, 158, 11, 0.20);
 }
 
-/* ─── Ambient Rain Mixer Controls ───────────────────────────────────── */
-.sp-rain-control {
+/* ─── Ambient Sound Mixer Panel ────────────────────────────────────── */
+.sp-ambient-mixer {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding-left: 12px;
   border-left: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
 }
 
-.sp-rain-btn {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.50);
+.sp-ambient-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sp-ambient-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.60);
   cursor: pointer;
-  padding: 6px;
+  padding: 5px 7px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.ambient-icon {
+  font-size: 16px;
+  line-height: 1;
   transition: all 0.3s;
 }
 
-.sp-rain-btn:hover {
-  color: #a5f3fc;
-  transform: scale(1.1);
+.sp-ambient-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.20);
+  transform: scale(1.12);
 }
 
-.sp-rain-btn.active {
-  color: #38bdf8;
-  filter: drop-shadow(0 0 8px #38bdf8);
-  animation: rainPulse 2s infinite alternate ease-in-out;
+.sp-ambient-btn.active {
+  border-color: rgba(56, 189, 248, 0.50);
+  background: rgba(56, 189, 248, 0.12);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+  animation: ambientPulse 2s infinite alternate ease-in-out;
 }
 
-@keyframes rainPulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(1.1); opacity: 1; }
+#cry-toggle-btn.active {
+  border-color: rgba(251, 113, 133, 0.50);
+  background: rgba(251, 113, 133, 0.12);
+  box-shadow: 0 0 12px rgba(251, 113, 133, 0.25);
 }
 
-.sp-rain-slider-wrap {
-  width: 60px;
+#glass-toggle-btn.active {
+  border-color: rgba(167, 243, 208, 0.50);
+  background: rgba(167, 243, 208, 0.10);
+  box-shadow: 0 0 12px rgba(167, 243, 208, 0.20);
+}
+
+@keyframes ambientPulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
+
+.sp-ambient-slider-wrap {
+  width: 50px;
   height: 4px;
   background: rgba(255, 255, 255, 0.10);
   border-radius: 2px;
@@ -1667,26 +1696,35 @@ button:active { transform: scale(0.92); }
   transition: width 0.3s ease;
 }
 
-.sp-rain-fill {
+.sp-ambient-fill {
   height: 100%;
-  background: #38bdf8;
+  background: linear-gradient(90deg, #38bdf8, #7dd3fc);
   border-radius: 2px;
   width: 0%;
+  transition: width 0.05s linear;
 }
 
-.sp-rain-range {
+#cry-fill {
+  background: linear-gradient(90deg, #fb7185, #fda4af);
+}
+
+#glass-fill {
+  background: linear-gradient(90deg, #a7f3d0, #6ee7b7);
+}
+
+.sp-ambient-range {
   position: absolute;
-  top: -6px;
+  top: -8px;
   left: 0;
   width: 100%;
-  height: 16px;
+  height: 20px;
   opacity: 0;
   cursor: pointer;
   margin: 0;
 }
 
-.sp-rain-slider-wrap:hover {
-  background: rgba(255, 255, 255, 0.20);
+.sp-ambient-slider-wrap:hover {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 /* ─── Shayari Card Creator Modal ────────────────────────────────────── */
@@ -1699,232 +1737,244 @@ button:active { transform: scale(0.92); }
 
 .shayari-create-card-btn {
   flex: 1;
-  background: rgba(255, 220, 120, 0.12);
-  border: 1px solid rgba(255, 220, 120, 0.20);
-  color: var(--amber);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.20), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #ffdc78;
   padding: 8px 12px;
   border-radius: 8px;
   font-family: 'Outfit', sans-serif;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  white-space: nowrap;
 }
 
 .shayari-create-card-btn:hover {
-  background: rgba(255, 220, 120, 0.20);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(245, 158, 11, 0.15));
   transform: translateY(-1px);
 }
 
-.card-creator-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(10, 8, 8, 0.85);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  z-index: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  transition: opacity 0.4s ease;
-  pointer-events: auto;
+/* Hide Ambient Mixer sliders on very small screens */
+@media (max-width: 480px) {
+  .sp-ambient-slider-wrap {
+    display: none;
+  }
+  .sp-ambient-mixer {
+    gap: 6px;
+    padding-left: 8px;
+  }
 }
 
-.card-creator-modal.hidden {
-  opacity: 0;
-  pointer-events: none;
+/* Creator Modal Mobile Refit */
+@media (max-width: 768px) {
+  .creator-modal-body {
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .creator-controls {
+    width: 100%;
+  }
+  .card-preview {
+    width: 100%;
+    max-width: 300px;
+    height: 240px;
+  }
 }
 
-.creator-modal-content {
-  width: 100%;
-  max-width: 680px;
-  background: linear-gradient(135deg, rgba(24, 18, 18, 0.80) 0%, rgba(12, 10, 10, 0.95) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.60);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transform: scale(1);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+/* ================================================================
+   COMPREHENSIVE MOBILE RESPONSIVE STYLES
+   ================================================================ */
+
+/* --- Player Bar Mobile --- */
+@media (max-width: 700px) {
+  .sp-card {
+    padding: 10px 10px 6px;
+  }
+
+  .sp-inner-row {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .pill-controls {
+    gap: 6px;
+  }
+
+  .pill-play-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+
+  .pill-skip-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .pill-song-capsule {
+    min-width: 0;
+    max-width: 160px;
+  }
+
+  .capsule-title {
+    font-size: 11px;
+  }
+
+  .capsule-artist {
+    font-size: 9px;
+  }
+  
+  /* Volume slider hidden on mobile */
+  .sp-volume-wrap {
+    display: none;
+  }
 }
 
-.card-creator-modal.hidden .creator-modal-content {
-  transform: scale(0.9);
+/* --- Coverflow Mobile --- */
+@media (max-width: 600px) {
+  .coverflow-scene {
+    height: 200px;
+  }
+
+  .cf-track {
+    width: 120px;
+    height: 120px;
+  }
+
+  .cf-track-title {
+    font-size: 9px;
+  }
+
+  .cf-track-artist {
+    font-size: 8px;
+  }
 }
 
-.creator-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+/* --- Mood Filters Mobile --- */
+@media (max-width: 600px) {
+  .mood-filters-container {
+    gap: 6px;
+    padding: 0 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .mood-pill {
+    font-size: 11px;
+    padding: 5px 12px;
+  }
 }
 
-.creator-modal-title {
-  font-family: 'Eczar', serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
+/* --- Shayari Widget Mobile --- */
+@media (max-width: 600px) {
+  .shayari-widget {
+    bottom: 75px;
+    left: 10px;
+  }
+
+  .shayari-btn {
+    font-size: 11px;
+    padding: 7px 14px;
+  }
+
+  .shayari-box {
+    width: 260px;
+    font-size: 12px;
+  }
 }
 
-.creator-close-btn {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.60);
-  font-size: 26px;
-  cursor: pointer;
-  line-height: 1;
-  transition: all 0.2s;
+/* --- Playlist Drawer Mobile (full width) --- */
+@media (max-width: 600px) {
+  .playlist-drawer {
+    width: 100vw;
+    right: 0;
+    border-radius: 0;
+  }
+
+  .playlist-toggle-btn {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
 }
 
-.creator-close-btn:hover {
-  color: #ff6b6b;
-  transform: scale(1.1);
+/* --- Card Creator Modal Mobile (full screen) --- */
+@media (max-width: 600px) {
+  .card-creator-modal {
+    padding: 10px;
+    align-items: flex-start;
+    padding-top: 16px;
+  }
+
+  .creator-modal-content {
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 16px;
+  }
+
+  .creator-modal-header {
+    padding: 14px 16px;
+  }
+
+  .creator-modal-title {
+    font-size: 14px;
+  }
+
+  .creator-modal-body {
+    padding: 12px;
+    gap: 12px;
+    max-height: none;
+  }
+
+  .card-preview-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  .card-preview {
+    width: 240px !important;
+    height: 200px !important;
+    font-size: 11px;
+  }
+
+  .preview-card-text {
+    font-size: 11px !important;
+    line-height: 1.5 !important;
+  }
+
+  .preview-card-stickers {
+    font-size: 28px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .creator-download-btn,
+  .creator-copy-btn {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+
+  .control-group label {
+    font-size: 11px;
+  }
+
+  .theme-select-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .sticker-select-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
 }
 
-.creator-modal-body {
-  display: flex;
-  padding: 24px;
-  gap: 24px;
-}
-
-/* Card Preview Panel (Left) */
-.card-preview-wrapper {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.card-preview {
-  width: 280px;
-  height: 280px;
-  border-radius: 16px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 24px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.40);
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-/* Animated Preview Glow Blob */
-.preview-glow-blob {
-  position: absolute;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  filter: blur(50px);
-  opacity: 0.35;
-  z-index: 1;
-  animation: previewBlobFloat 8s infinite alternate ease-in-out;
-}
-
-@keyframes previewBlobFloat {
-  0% { transform: translate(-30px, -20px) scale(1); }
-  100% { transform: translate(30px, 30px) scale(1.2); }
-}
-
-/* Card Themes */
-.theme-liquid-dark {
-  background: linear-gradient(135deg, #111 0%, #1a1625 100%);
-}
-.theme-liquid-dark .preview-glow-blob {
-  background: var(--amber);
-}
-
-.theme-liquid-red {
-  background: linear-gradient(135deg, #2b0811 0%, #150005 100%);
-}
-.theme-liquid-red .preview-glow-blob {
-  background: #f43f5e;
-}
-
-.theme-liquid-gold {
-  background: linear-gradient(135deg, #1f1b0a 0%, #0a0802 100%);
-}
-.theme-liquid-gold .preview-glow-blob {
-  background: #fbbf24;
-}
-
-.preview-card-stickers {
-  font-size: 28px;
-  margin-bottom: 12px;
-  z-index: 2;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.30));
-}
-
-.preview-card-text {
-  font-family: 'Outfit', sans-serif;
-  font-size: 13.5px;
-  font-weight: 500;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.95);
-  z-index: 2;
-  margin: 0 0 16px 0;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.50);
-}
-
-.preview-card-author {
-  font-family: 'Outfit', sans-serif;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--amber);
-  z-index: 2;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.40);
-}
-
-.theme-liquid-red .preview-card-author {
-  color: #fb7185;
-}
-
-/* Control Panel (Right) */
-.creator-controls {
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.control-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.control-group label {
-  font-family: 'Outfit', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.60);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-#creator-text-input {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  color: #fff;
-  padding: 8px 12px;
-  font-family: 'Outfit', sans-serif;
-  font-size: 12.5px;
-  resize: none;
-  outline: none;
-}
-
+/* Creator Modal Controls */
 #creator-author-input {
   width: 100%;
   background: rgba(255, 255, 255, 0.04);

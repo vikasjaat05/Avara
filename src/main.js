@@ -341,51 +341,174 @@ function bindEvents() {
     }
   });
 
-  // ─── Ambient Rain Mixer Setup ───────────────────────────────────────
-  const rainAudio = new Audio('https://www.soundjay.com/nature/rain-07.mp3');
-  rainAudio.loop = true;
-  rainAudio.volume = 0;
+  // ─── Ambient Sound Mixer Setup (बारिश 🌧️, कांच 🪟, रोना 😢) ─────────────
+  
+  // Helper: create and bind one ambient sound control  
+  function createAmbientControl({ toggleId, volumeId, fillId, audioSrc, loop = true, onStart, onStop }) {
+    const btn = document.getElementById(toggleId);
+    const slider = document.getElementById(volumeId);
+    const fill = document.getElementById(fillId);
+    if (!btn || !slider || !fill) return null;
 
-  const rainToggleBtn = document.getElementById('rain-toggle-btn');
-  const rainVolume = document.getElementById('rain-volume');
-  const rainFill = document.getElementById('rain-fill');
+    let audio = null;
+    let isPlaying = false;
 
-  let isRainPlaying = false;
-
-  if (rainToggleBtn && rainVolume && rainFill) {
-    rainToggleBtn.addEventListener('click', () => {
-      isRainPlaying = !isRainPlaying;
-      rainToggleBtn.classList.toggle('active', isRainPlaying);
-
-      if (isRainPlaying) {
-        if (parseFloat(rainVolume.value) === 0) {
-          rainVolume.value = 40;
-          rainFill.style.width = '40%';
-          rainAudio.volume = 0.4;
-        }
-        rainAudio.play().catch(e => console.log("Rain play blocked:", e));
-      } else {
-        rainAudio.pause();
+    function ensureAudio() {
+      if (!audio && audioSrc) {
+        audio = new Audio(audioSrc);
+        audio.loop = loop;
+        audio.volume = 0;
       }
+    }
+
+    function setVol(val) {
+      fill.style.width = `${val}%`;
+      if (audio) audio.volume = val / 100;
+    }
+
+    function start(vol = 40) {
+      ensureAudio();
+      isPlaying = true;
+      btn.classList.add('active');
+      slider.value = vol;
+      setVol(vol);
+      if (audio) {
+        audio.play().catch(e => console.log(`[${toggleId}] play blocked:`, e));
+      }
+      if (onStart) onStart();
+    }
+
+    function stop() {
+      isPlaying = false;
+      btn.classList.remove('active');
+      if (audio) audio.pause();
+      if (onStop) onStop();
+    }
+
+    btn.addEventListener('click', () => {
+      isPlaying ? stop() : start();
     });
 
-    rainVolume.addEventListener('input', (e) => {
+    slider.addEventListener('input', (e) => {
       const val = parseInt(e.target.value, 10);
-      rainFill.style.width = `${val}%`;
-      rainAudio.volume = val / 100;
+      setVol(val);
+      if (val > 0 && !isPlaying) { start(val); }
+      else if (val === 0 && isPlaying) { stop(); slider.value = 0; fill.style.width = '0%'; }
+    });
 
-      if (val > 0 && !isRainPlaying) {
-        isRainPlaying = true;
-        rainToggleBtn.classList.add('active');
-        rainAudio.play().catch(e => console.log(e));
-      } else if (val === 0 && isRainPlaying) {
-        isRainPlaying = false;
-        rainToggleBtn.classList.remove('active');
-        rainAudio.pause();
+    return { start, stop };
+  }
+
+  // 1. Rain (looping WAV from local public/sounds/)
+  createAmbientControl({
+    toggleId: 'rain-toggle-btn',
+    volumeId: 'rain-volume',
+    fillId: 'rain-fill',
+    audioSrc: '/sounds/rain.wav',
+    loop: true
+  });
+
+  // 2. Glass Break (looping WAV - subtle at low volume)
+  createAmbientControl({
+    toggleId: 'glass-toggle-btn',
+    volumeId: 'glass-volume',
+    fillId: 'glass-fill',
+    audioSrc: '/sounds/glass-break.wav',
+    loop: true
+  });
+
+  // 3. Crying (Web Audio API synthesized crying-like tone)
+  (function setupCryingSound() {
+    const btn = document.getElementById('cry-toggle-btn');
+    const slider = document.getElementById('cry-volume');
+    const fill = document.getElementById('cry-fill');
+    if (!btn || !slider || !fill) return;
+
+    let audioCtx = null;
+    let oscillator = null;
+    let gainNode = null;
+    let lfoGain = null;
+    let lfo = null;
+    let isPlaying = false;
+
+    function createCryingTone(vol) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      // Main carrier oscillator — sine wave at a "crying" frequency
+      oscillator = audioCtx.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(320, audioCtx.currentTime);
+      oscillator.frequency.linearRampToValueAtTime(280, audioCtx.currentTime + 1.5);
+      oscillator.frequency.linearRampToValueAtTime(320, audioCtx.currentTime + 3);
+
+      // LFO for tremolo / sob effect
+      lfo = audioCtx.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 4; // 4 Hz sob tremolo
+
+      lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 40; // depth of tremolo pitch mod
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(oscillator.frequency);
+
+      // Master gain
+      gainNode = audioCtx.createGain();
+      gainNode.gain.value = vol / 100 * 0.15;
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.start();
+      lfo.start();
+    }
+
+    function stopCryingTone() {
+      try {
+        if (oscillator) { oscillator.stop(); oscillator = null; }
+        if (lfo) { lfo.stop(); lfo = null; }
+        if (audioCtx) { audioCtx.close(); audioCtx = null; }
+      } catch(e) {}
+    }
+
+    function setVol(val) {
+      fill.style.width = `${val}%`;
+      if (gainNode) gainNode.gain.value = val / 100 * 0.15;
+    }
+
+    btn.addEventListener('click', () => {
+      if (isPlaying) {
+        isPlaying = false;
+        btn.classList.remove('active');
+        stopCryingTone();
+      } else {
+        isPlaying = true;
+        btn.classList.add('active');
+        const vol = parseInt(slider.value) || 40;
+        slider.value = vol;
+        fill.style.width = `${vol}%`;
+        createCryingTone(vol);
       }
     });
-  }
+
+    slider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      fill.style.width = `${val}%`;
+      if (val > 0 && !isPlaying) {
+        isPlaying = true;
+        btn.classList.add('active');
+        createCryingTone(val);
+      } else if (val === 0 && isPlaying) {
+        isPlaying = false;
+        btn.classList.remove('active');
+        stopCryingTone();
+      } else if (isPlaying) {
+        setVol(val);
+      }
+    });
+  })();
 }
+
 
 // ─── Shayari Widget (💔 दर्द-ए-दिल) ───────────────────────────────────
 const shayaris = [
