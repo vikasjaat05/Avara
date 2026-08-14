@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="hi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>आवारा - 3D CoverFlow Music Player</title>
+
+  <!-- Google Fonts for Devanagari Hindi Calligraphy & Glass UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;600;800&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Hidden YouTube Audio Player Container -->
+    <div id="yt-player-wrapper">
+      <div id="youtube-player"></div>
+    </div>
+
+    <!-- Header Navigation Bar (Top Left 'Avara Music' removed as requested) -->
+    <header class="top-nav">
+      <!-- Top Center Hindi Calligraphy Title "आवारा" (150px Size with Playing Glow) -->
+      <div class="center-title-container">
+        <!-- <h1 class="hindi-brand-title" id="hindi-brand-title">आवारा</h1> -->
+      </div>
+    </header>
+
+    <!-- Main Stage with Alive Animated Background & 3D CoverFlow Carousel -->
+    <main class="stage-container" id="stage-container">
+      <!-- Live Animated Background Art Container -->
+      <div class="background-art" id="background-art">
+        <img
+          src="https://res.cloudinary.com/dh0amtajw/image/upload/v1786683639/ChatGPT_Image_Aug_14_2026_10_30_31_AM_vce6gs.png"
+          alt="Background Art" class="bg-img live-ken-burns" />
+
+        <!-- Golden Hour Light Ray Shimmer -->
+        <div class="sunbeam-light-ray"></div>
+
+        <!-- Floating Atmospheric Golden Dust Particles -->
+        <div class="particles-overlay">
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+          <span class="particle"></span>
+        </div>
+
+        <div class="vignette-overlay"></div>
+      </div>
+
+      <!-- 3D CoverFlow Carousel Stage -->
+      <div class="coverflow-stage" id="coverflow-stage">
+        <div class="coverflow-track" id="coverflow-track">
+          <!-- 3D Album Cards dynamically populated -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Now Playing Strip — single clean info strip above player bar -->
+    <div id="now-playing-strip" class="now-playing-strip">
+      <div class="nps-title">Tujhe Bhoolna To Chaha Lekin Bhoola Na Paye</div>
+      <div class="nps-artist">Nikhil-Vinay / Sonu Nigam</div>
+    </div>
+
+    <!-- Bottom Player — Unified Glass Card -->
+    <footer class="player-bar-container">
+      <div class="sp-wrap">
+        <!-- Single Unified Glass Card -->
+        <div class="sp-card" id="player-bar">
+
+          <!-- Inner row: Art | Content | Volume -->
+          <div class="sp-inner-row">
+
+            <!-- Album Art (left, inside card) -->
+            <div class="sp-art-float">
+              <img id="player-album-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Track Art"
+                class="sp-art-img" />
+            </div>
+
+            <!-- Middle: Title + Seekbar + Controls -->
+            <div class="sp-content">
+              <!-- Title + Soundwave -->
+              <div class="sp-top-row">
+                <div class="sp-info">
+                  <h3 id="player-song-title" class="sp-title">Tujhe Bhoolna To Chaha Lekin Bhoola Na Paye</h3>
+                  <p class="sp-artist">Nikhil-Vinay / Sonu Nigam</p>
+                </div>
+                <div class="sp-status">
+                  <div class="live-soundwave hidden" id="live-soundwave">
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Seekbar -->
+              <div class="sp-seek-row">
+                <span id="current-time" class="sp-time">0:00</span>
+                <div class="sp-seekbar-wrap">
+                  <input type="range" id="progress-bar" min="0" max="100" value="0" step="0.1" class="sp-range" />
+                  <div class="sp-progress-fill" id="progress-fill"></div>
+                </div>
+                <span id="total-time" class="sp-time sp-time-right">0:00</span>
+              </div>
+
+              <!-- Controls -->
+              <div class="sp-controls">
+                <button class="sp-ctrl-btn" title="Shuffle" id="shuffle-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round">
+                    <polyline points="16 3 21 3 21 8" />
+                    <polyline points="4 20 21 3" />
+                    <polyline points="21 16 21 21 16 21" />
+                    <line x1="15" y1="15" x2="21" y2="21" />
+                  </svg>
+                </button>
+                <button id="prev-btn" class="sp-ctrl-btn" title="Previous">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M6 6a1 1 0 0 1 1 1v10a1 1 0 1 1-2 0V7a1 1 0 0 1 1-1zm11.554 1.367A1 1 0 0 1 19 8.234v7.532a1 1 0 0 1-1.446.867l-6.025-3.766a1 1 0 0 1 0-1.734l6.025-3.766z" />
+                  </svg>
+                </button>
+                <button id="play-pause-btn" class="sp-play-btn" title="Play / Pause">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" id="play-icon">
+                    <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86z" />
+                  </svg>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" id="pause-icon" class="hidden">
+                    <path d="M7 5h3v14H7V5zm7 0h3v14h-3V5z" />
+                  </svg>
+                </button>
+                <button id="next-btn" class="sp-ctrl-btn" title="Next">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M18 6a1 1 0 0 1 1 1v10a1 1 0 1 1-2 0V7a1 1 0 0 1 1-1zM6.446 7.367A1 1 0 0 1 5 8.234v7.532a1 1 0 0 0 1.446.867l6.025-3.766a1 1 0 0 0 0-1.734L6.446 7.367z" />
+                  </svg>
+                </button>
+                <button class="sp-ctrl-btn" title="Repeat">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round">
+                    <polyline points="17 1 21 5 17 9" />
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                    <polyline points="7 23 3 19 7 15" />
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                  </svg>
+                </button>
+              </div>
+            </div><!-- /sp-content -->
+
+            <!-- Volume Control (right, inside card) — horizontal pill -->
+            <div class="sp-vol-control">
+              <button id="volume-icon-btn" class="sp-vol-icon-btn" title="Mute/Unmute">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  id="vol-high">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  id="vol-mute" class="hidden">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+                  <line x1="23" y1="9" x2="17" y2="15" />
+                  <line x1="17" y1="9" x2="23" y2="15" />
+                </svg>
+              </button>
+              <div class="sp-vol-slider-wrap">
+                <div class="sp-vol-fill" id="vol-fill" style="width:80%"></div>
+                <input type="range" id="volume-bar" min="0" max="100" value="80" class="sp-vol-range" />
+              </div>
+            </div>
+
+          </div><!-- /sp-inner-row -->
+        </div><!-- /sp-card -->
+      </div><!-- /sp-wrap -->
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="toast-container" class="toast-container"></div>
+  </div>
+
+  <!-- Main Module Script -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
