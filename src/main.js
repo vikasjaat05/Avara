@@ -41,6 +41,8 @@ function initApp() {
   bindEvents();
   setupShayariWidget();
   setupPlaylistDrawer();
+  setupMoodFilters();
+  setupShayariCardCreator();
 }
 
 // Render Symmetrical 3D CoverFlow Carousel
@@ -338,6 +340,51 @@ function bindEvents() {
       volMuteIcon.classList.add('hidden');
     }
   });
+
+  // ─── Ambient Rain Mixer Setup ───────────────────────────────────────
+  const rainAudio = new Audio('https://www.soundjay.com/nature/rain-07.mp3');
+  rainAudio.loop = true;
+  rainAudio.volume = 0;
+
+  const rainToggleBtn = document.getElementById('rain-toggle-btn');
+  const rainVolume = document.getElementById('rain-volume');
+  const rainFill = document.getElementById('rain-fill');
+
+  let isRainPlaying = false;
+
+  if (rainToggleBtn && rainVolume && rainFill) {
+    rainToggleBtn.addEventListener('click', () => {
+      isRainPlaying = !isRainPlaying;
+      rainToggleBtn.classList.toggle('active', isRainPlaying);
+
+      if (isRainPlaying) {
+        if (parseFloat(rainVolume.value) === 0) {
+          rainVolume.value = 40;
+          rainFill.style.width = '40%';
+          rainAudio.volume = 0.4;
+        }
+        rainAudio.play().catch(e => console.log("Rain play blocked:", e));
+      } else {
+        rainAudio.pause();
+      }
+    });
+
+    rainVolume.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      rainFill.style.width = `${val}%`;
+      rainAudio.volume = val / 100;
+
+      if (val > 0 && !isRainPlaying) {
+        isRainPlaying = true;
+        rainToggleBtn.classList.add('active');
+        rainAudio.play().catch(e => console.log(e));
+      } else if (val === 0 && isRainPlaying) {
+        isRainPlaying = false;
+        rainToggleBtn.classList.remove('active');
+        rainAudio.pause();
+      }
+    });
+  }
 }
 
 // ─── Shayari Widget (💔 दर्द-ए-दिल) ───────────────────────────────────
@@ -366,6 +413,7 @@ function setupShayariWidget() {
   const shayariCloseBtn = document.getElementById('shayari-close-btn');
   const shayariContent = document.getElementById('shayari-content');
   const shayariNextBtn = document.getElementById('shayari-next-btn');
+  const shayariCreateCardBtn = document.getElementById('shayari-create-card-btn');
 
   if (!shayariBtn || !shayariBox || !shayariCloseBtn || !shayariContent || !shayariNextBtn) return;
 
@@ -397,6 +445,23 @@ function setupShayariWidget() {
     currentShayariIndex = (currentShayariIndex + 1) % shayaris.length;
     showNewShayari();
   });
+
+  if (shayariCreateCardBtn) {
+    shayariCreateCardBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      shayariBox.classList.add('hidden'); // Close Shayari box
+      
+      const modal = document.getElementById('card-creator-modal');
+      const textInput = document.getElementById('creator-text-input');
+      
+      if (modal && textInput) {
+        textInput.value = shayariContent.textContent; // Set current shayari
+        modal.classList.remove('hidden');
+        // Trigger preview update
+        textInput.dispatchEvent(new Event('input'));
+      }
+    });
+  }
 
   // Close box on click outside
   document.addEventListener('click', (e) => {
@@ -500,6 +565,278 @@ function setupPlaylistDrawer() {
       playlistDrawer.classList.add('hidden');
     }
   });
+}
+
+// ─── Mood Filters Logic (Pills) ───────────────────────────────────────
+function setupMoodFilters() {
+  const pills = document.querySelectorAll('.mood-pill');
+  pills.forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+
+      const category = pill.getAttribute('data-category');
+      
+      // Save previously playing track ID
+      const prevActiveId = currentPlaylist[currentTrackIndex]?.id;
+
+      // Filter currentPlaylist
+      if (category === 'all') {
+        currentPlaylist = [...AVARA_SONGS];
+      } else {
+        currentPlaylist = AVARA_SONGS.filter(s => s.category === category);
+      }
+
+      // Rebuild carousel
+      renderCoverflow();
+
+      // Rebuild drawer
+      populatePlaylistDrawer();
+
+      // Sync active track index
+      const newIdx = currentPlaylist.findIndex(s => s.id === prevActiveId);
+      if (newIdx !== -1) {
+        currentTrackIndex = newIdx;
+      } else {
+        currentTrackIndex = 0;
+      }
+
+      // Load correct track
+      const wasPlaying = isPlaying;
+      loadTrack(currentTrackIndex);
+      if (wasPlaying) {
+        playTrack();
+      } else {
+        pauseTrack();
+      }
+
+      updateCoverflowState();
+    });
+  });
+}
+
+// ─── Shayari Card Creator Modal Logic ─────────────────────────────────
+function setupShayariCardCreator() {
+  const modal = document.getElementById('card-creator-modal');
+  const closeBtn = document.getElementById('creator-close-btn');
+  const textInput = document.getElementById('creator-text-input');
+  const authorInput = document.getElementById('creator-author-input');
+  const previewText = document.getElementById('preview-text');
+  const previewAuthor = document.getElementById('preview-author');
+  const previewSticker = document.getElementById('preview-sticker');
+  const cardPreview = document.getElementById('card-preview');
+
+  const themeBtns = document.querySelectorAll('.theme-select-btn');
+  const stickerBtns = document.querySelectorAll('.sticker-select-btn');
+  const downloadBtn = document.getElementById('creator-download-btn');
+  const copyBtn = document.getElementById('creator-copy-btn');
+
+  if (!modal || !closeBtn || !textInput || !authorInput || !previewText || !previewAuthor || !previewSticker || !cardPreview) return;
+
+  // Sync inputs to preview
+  textInput.addEventListener('input', () => {
+    previewText.textContent = textInput.value;
+  });
+
+  authorInput.addEventListener('input', () => {
+    previewAuthor.textContent = authorInput.value ? `— ${authorInput.value}` : '';
+  });
+
+  // Theme selector
+  themeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      themeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const theme = btn.getAttribute('data-theme');
+      cardPreview.className = `card-preview ${theme}`;
+    });
+  });
+
+  // Sticker selector
+  stickerBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      stickerBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const sticker = btn.getAttribute('data-sticker');
+      previewSticker.textContent = sticker;
+    });
+  });
+
+  // Close modal
+  closeBtn.addEventListener('click', () => {
+    modal.classList.add('hidden');
+  });
+
+  // Close modal on click outside content
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.add('hidden');
+    }
+  });
+
+  // Download Card
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+      drawCardToCanvasAndDownload();
+    });
+  }
+
+  // Copy card text
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      const text = textInput.value;
+      const author = authorInput.value;
+      const copyStr = `${text}\n\n— ${author}`;
+      
+      navigator.clipboard.writeText(copyStr).then(() => {
+        showToast('📋 कॉपी कर लिया गया है!');
+      }).catch(err => {
+        console.error('Copy failed:', err);
+      });
+    });
+  }
+}
+
+// Draw to high-res canvas
+function drawCardToCanvasAndDownload() {
+  const textInput = document.getElementById('creator-text-input');
+  const authorInput = document.getElementById('creator-author-input');
+  
+  if (!textInput || !authorInput) return;
+
+  const text = textInput.value;
+  const author = authorInput.value;
+  const sticker = document.querySelector('.sticker-select-btn.active')?.getAttribute('data-sticker') || '💔';
+  const theme = document.querySelector('.theme-select-btn.active')?.getAttribute('data-theme') || 'theme-liquid-dark';
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 800;
+  canvas.height = 800;
+  const ctx = canvas.getContext('2d');
+
+  // 1. Draw Background Gradient
+  let grad = ctx.createLinearGradient(0, 0, 800, 800);
+  if (theme === 'theme-liquid-red') {
+    grad.addColorStop(0, '#2b0811');
+    grad.addColorStop(1, '#150005');
+  } else if (theme === 'theme-liquid-gold') {
+    grad.addColorStop(0, '#1f1b0a');
+    grad.addColorStop(1, '#0a0802');
+  } else { // dark
+    grad.addColorStop(0, '#111111');
+    grad.addColorStop(1, '#1a1625');
+  }
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 800, 800);
+
+  // 2. Draw Glow Blob (Ambient depth)
+  let blobGrad = ctx.createRadialGradient(400, 400, 50, 400, 400, 300);
+  if (theme === 'theme-liquid-red') {
+    blobGrad.addColorStop(0, 'rgba(244, 63, 94, 0.25)');
+  } else if (theme === 'theme-liquid-gold') {
+    blobGrad.addColorStop(0, 'rgba(251, 191, 36, 0.22)');
+  } else {
+    blobGrad.addColorStop(0, 'rgba(255, 220, 120, 0.20)');
+  }
+  blobGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = blobGrad;
+  ctx.fillRect(0, 0, 800, 800);
+
+  // 3. Draw premium borders
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(24, 24, 752, 752);
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(36, 36, 728, 728);
+
+  // 4. Draw Sticker emoji
+  ctx.font = '72px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(sticker, 400, 200);
+
+  // 5. Draw Wrapped Shayari Text
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  ctx.font = '500 32px "Outfit", sans-serif';
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 6;
+
+  const words = text.split(' ');
+  let line = '';
+  let lines = [];
+  const maxWidth = 640;
+  const lineHeight = 50;
+
+  for (let n = 0; n < words.length; n++) {
+    let testLine = line + words[n] + ' ';
+    let metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && n > 0) {
+      lines.push(line);
+      line = words[n] + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  lines.push(line);
+
+  // Center text blocks vertically
+  let startY = 410 - ((lines.length - 1) * lineHeight) / 2;
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i].trim(), 400, startY + (i * lineHeight));
+  }
+
+  // 6. Draw Author Signature
+  ctx.shadowBlur = 0; // reset shadow
+  if (theme === 'theme-liquid-red') {
+    ctx.fillStyle = '#fb7185';
+  } else {
+    ctx.fillStyle = '#ffdc78';
+  }
+  ctx.font = 'bold 26px "Outfit", sans-serif';
+  ctx.fillText(`— ${author}`, 400, startY + (lines.length * lineHeight) + 60);
+
+  // 7. Trigger download
+  const link = document.createElement('a');
+  link.download = 'avara_shayari_card.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+// Simple Toast message helper
+function showToast(message) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  
+  const toast = document.createElement('div');
+  toast.className = 'toast-msg';
+  toast.textContent = message;
+  
+  // Custom toast styling if not defined in style.css
+  toast.style.background = 'rgba(255, 220, 120, 0.16)';
+  toast.style.backdropFilter = 'blur(10px)';
+  toast.style.border = '1px solid rgba(255, 220, 120, 0.30)';
+  toast.style.color = '#ffdc78';
+  toast.style.padding = '10px 20px';
+  toast.style.borderRadius = '8px';
+  toast.style.margin = '10px';
+  toast.style.fontFamily = '"Outfit", sans-serif';
+  toast.style.fontSize = '13px';
+  toast.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+  toast.style.transition = 'opacity 0.4s';
+  
+  container.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => {
+      toast.remove();
+    }, 400);
+  }, 2000);
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
