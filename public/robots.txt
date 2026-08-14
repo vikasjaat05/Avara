@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://avara.vercel.app/sitemap.xml
+Sitemap: https://avara-ashiq.vercel.app/sitemap.xml
