@@ -254,13 +254,14 @@ button:active { transform: scale(0.92); }
 
 /* ─── NOW PLAYING STRIP ──────────────────────────────────────────────── */
 .now-playing-strip {
+  display: none;
   position: absolute;
   bottom: 92px;
   left: 50%; transform: translateX(-50%);
   text-align: center;
   z-index: 30;
   pointer-events: none;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  flex-direction: column; align-items: center; gap: 2px;
 }
 
 .nps-title {
@@ -619,6 +620,7 @@ button:active { transform: scale(0.92); }
   .sp-play-btn { width: 44px; height: 44px; }
   .sp-title { font-size: 13px; }
   .sp-artist { font-size: 11px; }
+  .now-playing-strip { display: flex !important; bottom: 84px; }
 }
 @media (max-width: 580px) {
   .sp-vol-control { display: none !important; }
