@@ -290,7 +290,7 @@ button:active {
 /* ─── 3-D COVERFLOW STAGE ────────────────────────────────────────────── */
 .coverflow-stage {
   position: absolute;
-  bottom: 130px;
+  bottom: 170px;
   left: 0;
   right: 0;
   height: 220px;
@@ -1417,7 +1417,7 @@ button:active {
   }
 
   .coverflow-stage {
-    bottom: 125px;
+    bottom: 195px;
     height: 170px;
   }
 

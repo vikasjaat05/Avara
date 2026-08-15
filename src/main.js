@@ -48,51 +48,36 @@ function initApp() {
   setupShayariCardCreator();
 }
 
-// Render Symmetrical 3D CoverFlow Carousel
+// Render Symmetrical 3D CoverFlow Carousel (Only 5 visible cards for 60 FPS performance)
 function renderCoverflow() {
   if (!coverflowTrack) return;
   coverflowTrack.innerHTML = '';
 
   const N = currentPlaylist.length;
+  if (N === 0) return;
 
-  currentPlaylist.forEach((track, index) => {
+  // Render ONLY the 5 visible cards around current index (-2, -1, 0, 1, 2)
+  for (let offset = -2; offset <= 2; offset++) {
+    let trackIndex = (currentTrackIndex + offset) % N;
+    if (trackIndex < 0) trackIndex += N;
+
+    const track = currentPlaylist[trackIndex];
+    if (!track) continue;
+
     const card = document.createElement('div');
     card.className = 'cover-card';
-
-    // Calculate symmetrical cyclic offset for 3D fan effect (-2, -1, 0, 1, 2)
-    let offset = index - currentTrackIndex;
-    if (N > 1) {
-      while (offset > Math.floor(N / 2)) offset -= N;
-      while (offset < -Math.floor((N - 1) / 2)) offset += N;
-    }
-
     card.setAttribute('data-offset', offset);
 
-    // Cards show ONLY album art - no text inside to avoid duplication
     card.innerHTML = `
-      <img src="https://img.youtube.com/vi/${track.id}/hqdefault.jpg" alt="${track.title}" />
+      <img src="https://img.youtube.com/vi/${track.id}/hqdefault.jpg" alt="${track.title}" loading="eager" />
     `;
 
+    const targetIdx = trackIndex;
     card.addEventListener('click', () => {
-      playTrackAtIndex(index);
+      playTrackAtIndex(targetIdx);
     });
 
-    coverflowTrack.appendChild(card);
-  });
-
-  // Update the now-playing strip below the coverflow
-  updateNowPlayingStrip();
-}
-
-function updateNowPlayingStrip() {
-  const strip = document.getElementById('now-playing-strip');
-  if (!strip) return;
-  const track = currentPlaylist[currentTrackIndex];
-  if (!track) return;
-  strip.innerHTML = `
-    <div class="nps-title">${track.title}</div>
-    <div class="nps-artist">${track.artist}</div>
-  `;
+  }
 }
 
 // Load YouTube iFrame API for Background Audio
@@ -221,8 +206,6 @@ function updateTrackUI(track) {
   if (artistEl) artistEl.textContent = track.artist || '';
   // Album art
   if (albumArt) albumArt.src = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
-  // Update now playing strip
-  updateNowPlayingStrip();
   // Update active state in playlist drawer
   updateDrawerActiveState();
 }
