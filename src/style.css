@@ -3,7 +3,7 @@
    Full Glassmorphism Design System (High-Performance 60 FPS Mobile & Desktop)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Eczar:wght@400;600;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Eczar:wght@400;600;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   /* Glass Tokens - Optimized for 60 FPS rendering */
@@ -226,19 +226,22 @@ button:active {
 }
 
 .hindi-brand-title {
-  font-family: var(--font-brand);
-  font-size: clamp(48px, 10vw, 120px);
-  font-weight: 400;
-  letter-spacing: 4px;
-  color: #ffffff;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.80), 0 8px 40px rgba(0,0,0,0.60);
+  font-family: 'Cinzel', 'Outfit', serif;
+  font-size: clamp(38px, 7vw, 90px);
+  font-weight: 800;
+  letter-spacing: 12px;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, #ffffff 0%, #ffdf9e 60%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.85));
   line-height: 1;
   margin: 0;
+  transition: filter 0.3s ease;
 }
 
 .hindi-brand-title.playing-glow {
-  color: #ffffff;
-  text-shadow: 0 0 30px rgba(245,158,11,0.45), 0 2px 10px rgba(0,0,0,0.80);
+  filter: drop-shadow(0 0 35px rgba(245, 158, 11, 0.70)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.90));
 }
 
 /* ─── MOOD / CATEGORY FILTERS PILL BAR ───────────────────────────────── */
