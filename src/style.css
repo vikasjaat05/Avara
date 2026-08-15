@@ -3,7 +3,7 @@
    Full Glassmorphism Design System (High-Performance 60 FPS Mobile & Desktop)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Eczar:wght@400;600;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,800;0,6..96,900;1,6..96,800;1,6..96,900&family=Cinzel:wght@700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   /* Glass Tokens - Optimized for 60 FPS rendering */
@@ -218,23 +218,24 @@ button:active {
 .center-title-container {
   pointer-events: auto;
   position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 18px;
+  left: 28px;
+  transform: none;
   z-index: 60;
   white-space: nowrap;
 }
 
 .hindi-brand-title {
-  font-family: 'Cinzel', 'Outfit', serif;
-  font-size: clamp(38px, 7vw, 90px);
-  font-weight: 800;
-  letter-spacing: 12px;
+  font-family: 'Bodoni Moda', 'Cinzel', serif;
+  font-style: italic;
+  font-size: clamp(28px, 4.5vw, 54px);
+  font-weight: 900;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  background: linear-gradient(180deg, #ffffff 0%, #ffdf9e 60%, #f59e0b 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fff2d6 50%, #f59e0b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.85));
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.85));
   line-height: 1;
   margin: 0;
   transition: filter 0.3s ease;
@@ -1415,9 +1416,14 @@ button:active {
 
 /* ─── Mobile Portrait (< 600px) ───────────────────────────────────────── */
 @media (max-width: 600px) {
+  .center-title-container {
+    top: 14px;
+    left: 16px;
+  }
+
   .hindi-brand-title {
-    font-size: 40px;
-    letter-spacing: 2px;
+    font-size: 26px;
+    letter-spacing: 3px;
   }
 
   .mood-filters-container {
