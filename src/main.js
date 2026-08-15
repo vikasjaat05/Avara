@@ -8,7 +8,7 @@ let currentPlaylist = [...AVARA_SONGS];
 let currentTrackIndex = 0;
 let isPlaying = false;
 let isMuted = false;
-let volumeLevel = 80;
+let volumeLevel = 100;
 let isShuffle = false;
 let isRepeat = false;
 let seekInterval = null;
@@ -184,7 +184,10 @@ function createYTPlayer() {
 
 function onPlayerReady() {
   isPlayerReady = true;
-  player.setVolume(volumeLevel);
+  try {
+    player.unMute();
+    player.setVolume(volumeLevel);
+  } catch(e) {}
 
   const currentTrack = currentPlaylist[currentTrackIndex];
   if (currentTrack) {
@@ -221,6 +224,10 @@ function onPlayerStateChange(event) {
   if (event.data === window.YT.PlayerState.PLAYING) {
     isPlaying = true;
     consecutiveErrorCount = 0;
+    try {
+      player.unMute();
+      player.setVolume(volumeLevel);
+    } catch(e) {}
     updatePlayPauseUI(true);
   } else if (event.data === window.YT.PlayerState.PAUSED) {
     isPlaying = false;
@@ -264,6 +271,10 @@ function playTrackAtIndex(index) {
 
   if (isPlayerReady && player) {
     player.loadVideoById(track.id);
+    try {
+      player.unMute();
+      player.setVolume(volumeLevel);
+    } catch(err) {}
     player.playVideo();
   }
 }
