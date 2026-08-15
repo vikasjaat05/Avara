@@ -725,16 +725,8 @@ function setupMoodFilters() {
         currentTrackIndex = 0;
       }
 
-      // Load correct track
-      const wasPlaying = isPlaying;
-      loadTrack(currentTrackIndex);
-      if (wasPlaying) {
-        playTrack();
-      } else {
-        pauseTrack();
-      }
-
-      updateCoverflowState();
+      // Load & play correct track safely
+      playTrackAtIndex(currentTrackIndex);
     });
   });
 }
