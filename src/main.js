@@ -37,8 +37,35 @@ const volHighIcon = document.getElementById('vol-high');
 const volMuteIcon = document.getElementById('vol-mute');
 const volumeBar = document.getElementById('volume-bar');
 
+// Restore last played session state from localStorage
+function restoreSessionState() {
+  try {
+    const savedCategory = localStorage.getItem('avara_last_category');
+    if (savedCategory && savedCategory !== 'all') {
+      const filtered = AVARA_SONGS.filter(s => s.category === savedCategory);
+      if (filtered.length > 0) {
+        currentPlaylist = filtered;
+      }
+    }
+
+    const savedTrackId = localStorage.getItem('avara_last_track_id');
+    if (savedTrackId) {
+      const idx = currentPlaylist.findIndex(s => s.id === savedTrackId);
+      if (idx !== -1) {
+        currentTrackIndex = idx;
+      }
+    } else {
+      const savedIndex = parseInt(localStorage.getItem('avara_last_track_index'), 10);
+      if (!isNaN(savedIndex) && savedIndex >= 0 && savedIndex < currentPlaylist.length) {
+        currentTrackIndex = savedIndex;
+      }
+    }
+  } catch (e) {}
+}
+
 // Initialize App
 function initApp() {
+  restoreSessionState();
   renderCoverflow();
   loadYouTubeAPI();
   bindEvents();
@@ -158,7 +185,35 @@ function createYTPlayer() {
 function onPlayerReady() {
   isPlayerReady = true;
   player.setVolume(volumeLevel);
-  updateTrackUI(currentPlaylist[currentTrackIndex]);
+
+  const currentTrack = currentPlaylist[currentTrackIndex];
+  if (currentTrack) {
+    player.cueVideoById(currentTrack.id);
+    updateTrackUI(currentTrack);
+  }
+
+  // Resume at exact seek time where user left off
+  try {
+    const savedSeekTime = parseFloat(localStorage.getItem('avara_last_seek_time'));
+    if (!isNaN(savedSeekTime) && savedSeekTime > 2) {
+      setTimeout(() => {
+        try {
+          if (player && player.seekTo) {
+            player.seekTo(savedSeekTime, true);
+            if (currentTimeEl) currentTimeEl.textContent = formatTime(savedSeekTime);
+            if (progressBar && player.getDuration) {
+              const dur = player.getDuration() || 1;
+              const percent = (savedSeekTime / dur) * 100;
+              progressBar.value = percent;
+              if (progressFill) progressFill.style.width = `${percent}%`;
+            }
+            showToast(`▶️ जहाँ छोड़ा था वहीं से शुरू (${currentTrack?.title || ''})`);
+          }
+        } catch(err) {}
+      }, 600);
+    }
+  } catch(e) {}
+
   startProgressTracker();
 }
 
@@ -197,6 +252,12 @@ function playTrackAtIndex(index) {
   if (index < 0 || index >= currentPlaylist.length) return;
   currentTrackIndex = index;
   const track = currentPlaylist[currentTrackIndex];
+
+  try {
+    localStorage.setItem('avara_last_track_id', track.id);
+    localStorage.setItem('avara_last_track_index', currentTrackIndex);
+    localStorage.setItem('avara_last_seek_time', 0);
+  } catch(e) {}
 
   updateTrackUI(track);
   renderCoverflow();
@@ -282,6 +343,11 @@ function startProgressTracker() {
       progressBar.value = percent;
       progressFill.style.width = `${percent}%`;
       currentTimeEl.textContent = formatTime(currentTime);
+
+      // Save seek position to localStorage
+      if (Math.floor(currentTime) % 2 === 0) {
+        try { localStorage.setItem('avara_last_seek_time', currentTime); } catch(e) {}
+      }
       
       const totalTimeEl = document.getElementById('total-time');
       if (totalTimeEl && duration > 1) {
@@ -635,6 +701,15 @@ function setupPlaylistDrawer() {
 // ─── Mood Filters Logic (Pills) ───────────────────────────────────────
 function setupMoodFilters() {
   const pills = document.querySelectorAll('.mood-pill');
+  
+  // Restore active category pill from localStorage
+  try {
+    const savedCat = localStorage.getItem('avara_last_category') || 'all';
+    pills.forEach(p => {
+      p.classList.toggle('active', p.getAttribute('data-category') === savedCat);
+    });
+  } catch(e) {}
+
   pills.forEach(pill => {
     pill.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -642,6 +717,7 @@ function setupMoodFilters() {
       pill.classList.add('active');
 
       const category = pill.getAttribute('data-category');
+      try { localStorage.setItem('avara_last_category', category); } catch(err) {}
       
       // Save previously playing track ID
       const prevActiveId = currentPlaylist[currentTrackIndex]?.id;
