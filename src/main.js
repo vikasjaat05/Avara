@@ -93,7 +93,45 @@ function loadYouTubeAPI() {
 
   window.onYouTubeIframeAPIReady = () => {
     createYTPlayer();
+    initAmbientYTPlayers();
   };
+}
+
+// Store for YouTube Ambient Sound Players
+const ambientYTPlayers = {
+  rain:  { videoId: 'C-hzP3mOBGY', player: null, toggleId: 'rain-toggle-btn', volumeId: 'rain-volume', fillId: 'rain-fill', isPlaying: false, label: '🌧️ बारिश' },
+  glass: { videoId: 'CSzA5SOJ7lo', player: null, toggleId: 'glass-toggle-btn', volumeId: 'glass-volume', fillId: 'glass-fill', isPlaying: false, label: '🪟 काँच टूटना' },
+  cry:   { videoId: 'mlgPC_o7rsM', player: null, toggleId: 'cry-toggle-btn', volumeId: 'cry-volume', fillId: 'cry-fill', isPlaying: false, label: '😢 रोना' }
+};
+
+function initAmbientYTPlayers() {
+  if (!window.YT || !window.YT.Player) return;
+
+  Object.keys(ambientYTPlayers).forEach(key => {
+    const item = ambientYTPlayers[key];
+    const containerId = `yt-ambient-${key}`;
+    const el = document.getElementById(containerId);
+    
+    if (el) {
+      item.player = new window.YT.Player(containerId, {
+        height: '1',
+        width: '1',
+        videoId: item.videoId,
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          loop: 1,
+          playlist: item.videoId,
+          enablejsapi: 1
+        },
+        events: {
+          onReady: (e) => {
+            try { e.target.setVolume(40); } catch(err) {}
+          }
+        }
+      });
+    }
+  });
 }
 
 function createYTPlayer() {
@@ -355,172 +393,62 @@ function bindEvents() {
     }
   });
 
-  // ─── Ambient Sound Mixer Setup (बारिश 🌧️, कांच 🪟, रोना 😢) ─────────────
-  
-  // Helper: create and bind one ambient sound control  
-  function createAmbientControl({ toggleId, volumeId, fillId, audioSrc, loop = true, onStart, onStop }) {
-    const btn = document.getElementById(toggleId);
-    const slider = document.getElementById(volumeId);
-    const fill = document.getElementById(fillId);
-    if (!btn || !slider || !fill) return null;
+  // ─── Ambient Sound Mixer Setup (YouTube Streams: बारिश 🌧️, कांच 🪟, रोना 😢) ───
+  function bindAmbientControl(key) {
+    const item = ambientYTPlayers[key];
+    if (!item) return;
 
-    let audio = null;
-    let isPlaying = false;
+    const btn = document.getElementById(item.toggleId);
+    const slider = document.getElementById(item.volumeId);
+    const fill = document.getElementById(item.fillId);
 
-    function ensureAudio() {
-      if (!audio && audioSrc) {
-        audio = new Audio(audioSrc);
-        audio.loop = loop;
-        audio.volume = 0;
-      }
-    }
+    if (!btn || !slider || !fill) return;
 
     function setVol(val) {
       fill.style.width = `${val}%`;
-      if (audio) audio.volume = val / 100;
-    }
-
-    function start(vol = 40) {
-      ensureAudio();
-      isPlaying = true;
-      btn.classList.add('active');
-      slider.value = vol;
-      setVol(vol);
-      if (audio) {
-        audio.play().catch(e => console.log(`[${toggleId}] play blocked:`, e));
+      if (item.player && item.player.setVolume) {
+        try { item.player.setVolume(val); } catch(err) {}
       }
-      if (onStart) onStart();
     }
 
-    function stop() {
-      isPlaying = false;
-      btn.classList.remove('active');
-      if (audio) audio.pause();
-      if (onStop) onStop();
+    function toggleSound() {
+      if (item.isPlaying) {
+        item.isPlaying = false;
+        btn.classList.remove('active');
+        if (item.player && item.player.pauseVideo) {
+          try { item.player.pauseVideo(); } catch(err) {}
+        }
+      } else {
+        item.isPlaying = true;
+        btn.classList.add('active');
+        const vol = parseInt(slider.value, 10) || 50;
+        slider.value = vol;
+        fill.style.width = `${vol}%`;
+        if (item.player && item.player.playVideo) {
+          try {
+            item.player.setVolume(vol);
+            item.player.playVideo();
+          } catch(err) {}
+        }
+      }
     }
 
-    btn.addEventListener('click', () => {
-      isPlaying ? stop() : start();
-    });
+    btn.addEventListener('click', toggleSound);
 
     slider.addEventListener('input', (e) => {
       const val = parseInt(e.target.value, 10);
       setVol(val);
-      if (val > 0 && !isPlaying) { start(val); }
-      else if (val === 0 && isPlaying) { stop(); slider.value = 0; fill.style.width = '0%'; }
+      if (val > 0 && !item.isPlaying) {
+        toggleSound();
+      } else if (val === 0 && item.isPlaying) {
+        toggleSound();
+      }
     });
-
-    return { start, stop };
   }
 
-  // 1. Rain (looping WAV from local public/sounds/)
-  createAmbientControl({
-    toggleId: 'rain-toggle-btn',
-    volumeId: 'rain-volume',
-    fillId: 'rain-fill',
-    audioSrc: '/sounds/rain.wav',
-    loop: true
-  });
-
-  // 2. Glass Break (looping WAV - subtle at low volume)
-  createAmbientControl({
-    toggleId: 'glass-toggle-btn',
-    volumeId: 'glass-volume',
-    fillId: 'glass-fill',
-    audioSrc: '/sounds/glass-break.wav',
-    loop: true
-  });
-
-  // 3. Crying (Web Audio API synthesized crying-like tone)
-  (function setupCryingSound() {
-    const btn = document.getElementById('cry-toggle-btn');
-    const slider = document.getElementById('cry-volume');
-    const fill = document.getElementById('cry-fill');
-    if (!btn || !slider || !fill) return;
-
-    let audioCtx = null;
-    let oscillator = null;
-    let gainNode = null;
-    let lfoGain = null;
-    let lfo = null;
-    let isPlaying = false;
-
-    function createCryingTone(vol) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-      // Main carrier oscillator — sine wave at a "crying" frequency
-      oscillator = audioCtx.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(320, audioCtx.currentTime);
-      oscillator.frequency.linearRampToValueAtTime(280, audioCtx.currentTime + 1.5);
-      oscillator.frequency.linearRampToValueAtTime(320, audioCtx.currentTime + 3);
-
-      // LFO for tremolo / sob effect
-      lfo = audioCtx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.value = 4; // 4 Hz sob tremolo
-
-      lfoGain = audioCtx.createGain();
-      lfoGain.gain.value = 40; // depth of tremolo pitch mod
-
-      lfo.connect(lfoGain);
-      lfoGain.connect(oscillator.frequency);
-
-      // Master gain
-      gainNode = audioCtx.createGain();
-      gainNode.gain.value = vol / 100 * 0.15;
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-
-      oscillator.start();
-      lfo.start();
-    }
-
-    function stopCryingTone() {
-      try {
-        if (oscillator) { oscillator.stop(); oscillator = null; }
-        if (lfo) { lfo.stop(); lfo = null; }
-        if (audioCtx) { audioCtx.close(); audioCtx = null; }
-      } catch(e) {}
-    }
-
-    function setVol(val) {
-      fill.style.width = `${val}%`;
-      if (gainNode) gainNode.gain.value = val / 100 * 0.15;
-    }
-
-    btn.addEventListener('click', () => {
-      if (isPlaying) {
-        isPlaying = false;
-        btn.classList.remove('active');
-        stopCryingTone();
-      } else {
-        isPlaying = true;
-        btn.classList.add('active');
-        const vol = parseInt(slider.value) || 40;
-        slider.value = vol;
-        fill.style.width = `${vol}%`;
-        createCryingTone(vol);
-      }
-    });
-
-    slider.addEventListener('input', (e) => {
-      const val = parseInt(e.target.value, 10);
-      fill.style.width = `${val}%`;
-      if (val > 0 && !isPlaying) {
-        isPlaying = true;
-        btn.classList.add('active');
-        createCryingTone(val);
-      } else if (val === 0 && isPlaying) {
-        isPlaying = false;
-        btn.classList.remove('active');
-        stopCryingTone();
-      } else if (isPlaying) {
-        setVol(val);
-      }
-    });
-  })();
+  bindAmbientControl('rain');
+  bindAmbientControl('glass');
+  bindAmbientControl('cry');
 }
 
 
