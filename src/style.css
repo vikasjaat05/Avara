@@ -587,6 +587,13 @@ button:active {
   transform: scale(1.12);
 }
 
+.sp-ctrl-btn.active {
+  color: var(--amber-light);
+  background: rgba(245, 158, 11, 0.22);
+  border: 1px solid rgba(245, 158, 11, 0.40);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+}
+
 .sp-play-btn {
   width: 46px;
   height: 46px;

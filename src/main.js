@@ -10,6 +10,7 @@ let isPlaying = false;
 let isMuted = false;
 let volumeLevel = 80;
 let isShuffle = false;
+let isRepeat = false;
 let seekInterval = null;
 let isDraggingSeekbar = false;
 let consecutiveErrorCount = 0;
@@ -20,6 +21,8 @@ const playIcon = document.getElementById('play-icon');
 const pauseIcon = document.getElementById('pause-icon');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
+const shuffleBtn = document.getElementById('shuffle-btn');
+const repeatBtn = document.getElementById('repeat-btn');
 const progressBar = document.getElementById('progress-bar');
 const progressFill = document.getElementById('progress-fill');
 const currentTimeEl = document.getElementById('current-time');
@@ -145,7 +148,14 @@ function onPlayerStateChange(event) {
     isPlaying = false;
     updatePlayPauseUI(false);
   } else if (event.data === window.YT.PlayerState.ENDED) {
-    playNextTrack();
+    if (isRepeat) {
+      if (isPlayerReady && player) {
+        player.seekTo(0);
+        player.playVideo();
+      }
+    } else {
+      playNextTrack();
+    }
   }
 }
 
@@ -251,6 +261,11 @@ function startProgressTracker() {
       progressBar.value = percent;
       progressFill.style.width = `${percent}%`;
       currentTimeEl.textContent = formatTime(currentTime);
+      
+      const totalTimeEl = document.getElementById('total-time');
+      if (totalTimeEl && duration > 1) {
+        totalTimeEl.textContent = formatTime(duration);
+      }
 
       // Dynamically update the live Hindi lyrics line RIGHT INSIDE the song capsule
       const currentTrack = currentPlaylist[currentTrackIndex];
@@ -298,6 +313,22 @@ function bindEvents() {
   playPauseBtn.addEventListener('click', togglePlayPause);
   nextBtn.addEventListener('click', playNextTrack);
   prevBtn.addEventListener('click', playPrevTrack);
+
+  if (shuffleBtn) {
+    shuffleBtn.addEventListener('click', () => {
+      isShuffle = !isShuffle;
+      shuffleBtn.classList.toggle('active', isShuffle);
+      showToast(isShuffle ? '🔀 शफ़ल (Shuffle) चालू' : '🔀 शफ़ल (Shuffle) बंद');
+    });
+  }
+
+  if (repeatBtn) {
+    repeatBtn.addEventListener('click', () => {
+      isRepeat = !isRepeat;
+      repeatBtn.classList.toggle('active', isRepeat);
+      showToast(isRepeat ? '🔂 रिपीट (Repeat) चालू' : '🔂 रिपीट (Repeat) बंद');
+    });
+  }
 
   // Volume slider — increase / decrease volume
   const volFill = document.getElementById('vol-fill');
