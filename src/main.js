@@ -42,7 +42,7 @@ function restoreSessionState() {
   try {
     const savedCategory = localStorage.getItem('avara_last_category');
     if (savedCategory && savedCategory !== 'all') {
-      const filtered = AVARA_SONGS.filter(s => s.category === savedCategory);
+      const filtered = AVARA_SONGS.filter(s => s && s.category === savedCategory);
       if (filtered.length > 0) {
         currentPlaylist = filtered;
       }
@@ -50,7 +50,7 @@ function restoreSessionState() {
 
     const savedTrackId = localStorage.getItem('avara_last_track_id');
     if (savedTrackId) {
-      const idx = currentPlaylist.findIndex(s => s.id === savedTrackId);
+      const idx = currentPlaylist.findIndex(s => s && s.id === savedTrackId);
       if (idx !== -1) {
         currentTrackIndex = idx;
       }
@@ -631,8 +631,9 @@ function populatePlaylistDrawer(songsToRender = currentPlaylist) {
   const activeTrack = currentPlaylist[currentTrackIndex];
 
   songsToRender.forEach((track) => {
+    if (!track) return;
     // Find correct index in original currentPlaylist
-    const originalIndex = currentPlaylist.findIndex(t => t.id === track.id);
+    const originalIndex = currentPlaylist.findIndex(t => t && t.id === track.id);
     const isActive = activeTrack && activeTrack.id === track.id;
 
     const item = document.createElement('div');
@@ -750,9 +751,9 @@ function setupMoodFilters() {
 
       // Filter currentPlaylist
       if (category === 'all') {
-        currentPlaylist = [...AVARA_SONGS];
+        currentPlaylist = AVARA_SONGS.filter(Boolean);
       } else {
-        currentPlaylist = AVARA_SONGS.filter(s => s.category === category);
+        currentPlaylist = AVARA_SONGS.filter(s => s && s.category === category);
       }
 
       // Rebuild carousel
@@ -762,7 +763,7 @@ function setupMoodFilters() {
       populatePlaylistDrawer();
 
       // Sync active track index
-      const newIdx = currentPlaylist.findIndex(s => s.id === prevActiveId);
+      const newIdx = currentPlaylist.findIndex(s => s && s.id === prevActiveId);
       if (newIdx !== -1) {
         currentTrackIndex = newIdx;
       } else {
