@@ -40,9 +40,10 @@ const volumeBar = document.getElementById('volume-bar');
 // Restore last played session state from localStorage
 function restoreSessionState() {
   try {
+    currentPlaylist = AVARA_SONGS.filter(s => s && s.id);
     const savedCategory = localStorage.getItem('avara_last_category');
     if (savedCategory && savedCategory !== 'all') {
-      const filtered = AVARA_SONGS.filter(s => s && s.category === savedCategory);
+      const filtered = AVARA_SONGS.filter(s => s && s.id && s.category === savedCategory);
       if (filtered.length > 0) {
         currentPlaylist = filtered;
       }
@@ -61,6 +62,10 @@ function restoreSessionState() {
       }
     }
   } catch (e) {}
+
+  if (currentTrackIndex < 0 || currentTrackIndex >= currentPlaylist.length) {
+    currentTrackIndex = 0;
+  }
 }
 
 // Initialize App
