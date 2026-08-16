@@ -1,6 +1,12 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/avara.apk",
+      "destination": "/public/avara.apk"
+    }
+  ],
   "headers": [
     {
       "source": "/avara.apk",
