@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+# Gradle Wrapper script for Unix/Mac
+exec gradlew "$@"
