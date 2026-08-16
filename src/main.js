@@ -610,7 +610,13 @@ function setupShayariWidget() {
 
   // Close box on click outside
   document.addEventListener('click', (e) => {
-    if (!shayariBox.classList.contains('hidden') && !shayariBox.contains(e.target) && e.target !== shayariBtn) {
+    const tabShayari = document.getElementById('tab-shayari');
+    if (!shayariBox.classList.contains('hidden') && 
+        !shayariBox.contains(e.target) && 
+        e.target !== shayariBtn && 
+        !shayariBtn.contains(e.target) &&
+        e.target !== tabShayari && 
+        !tabShayari?.contains(e.target)) {
       shayariBox.classList.add('hidden');
     }
   });
@@ -706,7 +712,13 @@ function setupPlaylistDrawer() {
 
   // Close drawer on click outside
   document.addEventListener('click', (e) => {
-    if (!playlistDrawer.classList.contains('hidden') && !playlistDrawer.contains(e.target) && e.target !== playlistToggleBtn) {
+    const tabLib = document.getElementById('tab-library');
+    if (!playlistDrawer.classList.contains('hidden') && 
+        !playlistDrawer.contains(e.target) && 
+        e.target !== playlistToggleBtn && 
+        !playlistToggleBtn.contains(e.target) &&
+        e.target !== tabLib && 
+        !tabLib?.contains(e.target)) {
       playlistDrawer.classList.add('hidden');
     }
   });
@@ -994,35 +1006,52 @@ function setupAppBottomNav() {
   const tabAmbient = document.getElementById('tab-ambient');
   const allTabs = [tabPlayer, tabLibrary, tabShayari, tabAmbient];
 
+  const drawer = document.getElementById('playlist-drawer');
+  const shayariBox = document.getElementById('shayari-box');
+  const cardModal = document.getElementById('card-creator-modal');
+
   function setActiveTab(activeBtn) {
     allTabs.forEach(tab => tab?.classList.remove('active'));
     activeBtn?.classList.add('active');
   }
 
   // 1. Player Tab: Close drawer/modal, focus 3D CoverFlow stage
-  tabPlayer?.addEventListener('click', () => {
+  tabPlayer?.addEventListener('click', (e) => {
+    e.stopPropagation();
     setActiveTab(tabPlayer);
-    document.getElementById('playlist-drawer')?.classList.remove('active');
-    document.getElementById('shayari-box')?.classList.add('hidden');
-    document.getElementById('shayari-creator-modal')?.classList.add('hidden');
+    drawer?.classList.add('hidden');
+    shayariBox?.classList.add('hidden');
+    cardModal?.classList.add('hidden');
   });
 
   // 2. Library Tab: Open 1,236 Songs Playlist Drawer
-  tabLibrary?.addEventListener('click', () => {
+  tabLibrary?.addEventListener('click', (e) => {
+    e.stopPropagation();
     setActiveTab(tabLibrary);
-    document.getElementById('playlist-drawer')?.classList.add('active');
+    shayariBox?.classList.add('hidden');
+    cardModal?.classList.add('hidden');
+    drawer?.classList.remove('hidden');
   });
 
   // 3. Shayari Tab: Open Shayari Modal Box
-  tabShayari?.addEventListener('click', () => {
+  tabShayari?.addEventListener('click', (e) => {
+    e.stopPropagation();
     setActiveTab(tabShayari);
-    document.getElementById('shayari-box')?.classList.remove('hidden');
+    drawer?.classList.add('hidden');
+    cardModal?.classList.add('hidden');
+    shayariBox?.classList.remove('hidden');
   });
 
   // 4. Ambient Tab: Focus Ambient Mixer and show toast
-  tabAmbient?.addEventListener('click', () => {
+  tabAmbient?.addEventListener('click', (e) => {
+    e.stopPropagation();
     setActiveTab(tabAmbient);
-    showToast('🌧️ माहौल साउंड्स (बारिश, कांच, रोना) नीचे प्लेयर बार में चालू करें!');
+    const mixer = document.querySelector('.sp-ambient-mixer');
+    if (mixer) {
+      mixer.classList.add('pulse-highlight');
+      setTimeout(() => mixer.classList.remove('pulse-highlight'), 1800);
+    }
+    showToast('🌧️ माहौल साउंड्स (बारिश, कांच, रोना) नीचे चालू करें!');
   });
 }
 
