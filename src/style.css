@@ -1477,91 +1477,134 @@ button:active {
     letter-spacing: 4px;
   }
 
-  .mood-filters-container::-webkit-scrollbar {
-    display: none;
+  /* Ultra-Premium Mobile Music App Native Experience (< 768px) */
+  .top-nav {
+    height: 52px;
+    padding: 0 12px;
   }
 
-  .mood-pill {
-    padding: 6px 14px;
-    font-size: 11.5px;
+  .hindi-brand-title {
+    font-size: 22px;
+    letter-spacing: 4px;
   }
 
-  .coverflow-stage {
-    bottom: 155px;
-    height: 150px;
+  .install-app-btn {
+    font-size: 11px;
+    padding: 5px 12px;
   }
 
-  .cover-card {
-    width: 110px;
-    height: 110px;
+  .playlist-toggle-btn {
+    font-size: 11px;
+    padding: 5px 12px;
   }
 
-  .cover-card[data-offset="-2"] { transform: translateX(-110px) scale(0.68) rotateY(28deg) translateZ(-60px); }
-  .cover-card[data-offset="-1"] { transform: translateX(-55px)  scale(0.84) rotateY(16deg) translateZ(-18px); }
-  .cover-card[data-offset="0"]  { transform: translateX(0) scale(1.05) rotateY(0deg) translateZ(40px); }
-  .cover-card[data-offset="1"]  { transform: translateX(55px)   scale(0.84) rotateY(-16deg) translateZ(-18px); }
-  .cover-card[data-offset="2"]  { transform: translateX(110px)  scale(0.68) rotateY(-28deg) translateZ(-60px); }
-
-  /* Player Bar Mobile Ultra Compact Glass Card */
-  .player-bar-container {
-    bottom: 8px;
-    padding: 0 6px;
-  }
-
-  .sp-wrap {
-    width: 100%;
-  }
-
-  .sp-card {
-    border-radius: 20px;
-    padding: 8px 10px;
+  .mood-pills-bar {
+    padding: 0 10px 6px;
     gap: 6px;
   }
 
+  .mood-pill {
+    padding: 5px 12px;
+    font-size: 11.5px;
+  }
+
+  /* Full Screen Mobile Playlist Sheet */
+  .playlist-drawer {
+    width: 100vw;
+    height: 100dvh;
+    top: 0; right: 0; bottom: 0; left: 0;
+    border-left: none;
+    z-index: 3000;
+  }
+
+  /* Floating Shayari Bottom Sheet */
+  .shayari-box {
+    position: fixed;
+    bottom: 76px;
+    left: 12px; right: 12px;
+    width: auto;
+    max-width: 480px;
+    margin: 0 auto;
+    z-index: 1400;
+    border-radius: 20px;
+    background: rgba(16, 12, 10, 0.95);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(245, 158, 11, 0.30);
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.90);
+  }
+
+  /* Floating Mobile Music Player Card */
+  .player-bar-container {
+    bottom: 72px !important;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    padding: 0;
+    z-index: 1200;
+  }
+
+  .sp-card {
+    border-radius: 22px;
+    padding: 8px 12px;
+    background: rgba(16, 12, 10, 0.92);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85);
+  }
+
   .sp-inner-row {
-    flex-direction: column;
-    gap: 4px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     width: 100%;
   }
 
   .sp-art-img {
-    width: 40px;
-    height: 40px;
-    min-height: 40px;
-    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    border-radius: 12px;
   }
 
   .sp-content {
     min-width: 0;
-    width: 100%;
-    gap: 3px;
+    flex: 1;
+    gap: 2px;
   }
 
   .sp-title {
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .sp-artist {
-    font-size: 10px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .sp-controls {
-    gap: 8px;
+    gap: 6px;
+    flex-shrink: 0;
   }
 
   .sp-play-btn {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #fcd34d, #f59e0b);
+    color: #000;
   }
 
   .sp-ctrl-btn {
-    width: 30px;
-    height: 30px;
-  }
-
-  .sp-ctrl-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 32px;
+    height: 32px;
   }
 
   .sp-vol-control {
@@ -1569,12 +1612,11 @@ button:active {
   }
 
   .sp-ambient-mixer {
+    display: flex;
     padding-left: 0;
     border-left: none;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    margin-top: 2px;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
   .sp-ambient-slider-wrap {
@@ -1582,34 +1624,15 @@ button:active {
   }
 
   .sp-ambient-btn {
-    padding: 4px 8px;
-    border-radius: 20px;
+    padding: 3px 6px;
+    border-radius: 16px;
   }
 
   .ambient-icon {
-    font-size: 15px;
+    font-size: 14px;
   }
 }
 
-/* ─── Ultra Small Phones (< 400px) ────────────────────────────────────── */
-@media (max-width: 400px) {
-  .player-bar-container {
-    padding: 0 4px;
-    bottom: 70px !important;
-  }
-  
-  .sp-card {
-    padding: 6px 10px;
-  }
-
-  .sp-title {
-    font-size: 12px;
-  }
-
-  .sp-time {
-    font-size: 10px;
-  }
-}
 
 /* ==========================================================================
    NATIVE MOBILE APP TAB BAR (BOTTOM NAVIGATION SYSTEM)
