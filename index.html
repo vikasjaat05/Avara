@@ -200,9 +200,12 @@
       <div id="yt-ambient-cry"></div>
     </div>
 
-    <!-- Header Navigation Bar (Top Left 'Avara Music' removed as requested) -->
+    <!-- Header Navigation Bar -->
     <header class="top-nav">
-      <!-- Top Center Hindi Calligraphy Title "आवारा" (150px Size with Playing Glow) -->
+      <button id="install-app-btn" class="install-app-btn" title="Download & Install App">
+        📱 ऐप डाउनलोड / इंस्टॉल
+      </button>
+
       <div class="center-title-container">
         <h1 class="hindi-brand-title" id="hindi-brand-title">AVARA</h1>
       </div>
@@ -543,6 +546,44 @@
       </button>
     </nav>
   </div>
+
+  <!-- Download App Popup -->
+  <div id="download-popup" class="download-popup-overlay popup-hidden">
+    <div class="download-popup-card">
+      <span class="popup-close" id="close-popup">&times;</span>
+      <div class="popup-icon">📻</div>
+      <h2 class="popup-title">AVARA App डाउनलोड करें</h2>
+      <p class="popup-desc">बेहतरीन म्यूजिक एक्सपीरियंस और 60 FPS परफॉरमेंस के लिए हमारा एंड्राइड ऐप अभी इंस्टॉल करें।</p>
+      <a href="/avara.apk" class="popup-btn" id="download-btn">अभी डाउनलोड करें</a>
+    </div>
+  </div>
+
+  <script>
+    // Show popup after 3 seconds
+    setTimeout(() => {
+      const popup = document.getElementById('download-popup');
+      // Check if user already dismissed it this session
+      if (!sessionStorage.getItem('popupDismissed')) {
+        popup.classList.remove('popup-hidden');
+      }
+    }, 3000);
+
+    // Close popup logic
+    const closePopup = () => {
+      document.getElementById('download-popup').classList.add('popup-hidden');
+      sessionStorage.setItem('popupDismissed', 'true');
+    };
+
+    document.getElementById('close-popup').addEventListener('click', closePopup);
+    document.getElementById('download-btn').addEventListener('click', closePopup);
+
+    // Also close on background click
+    document.getElementById('download-popup').addEventListener('click', (e) => {
+      if (e.target.id === 'download-popup') {
+        closePopup();
+      }
+    });
+  </script>
 
   <!-- Main Module Script -->
   <script type="module" src="/src/main.js"></script>

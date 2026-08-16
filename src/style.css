@@ -215,6 +215,37 @@ button:active {
   padding: 16px 24px;
 }
 
+.install-app-btn {
+  pointer-events: auto;
+  position: absolute;
+  top: 18px;
+  left: 24px;
+  z-index: 70;
+  background: rgba(245, 158, 11, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 158, 11, 0.40);
+  color: #fcd34d;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.40);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.install-app-btn:hover {
+  background: rgba(245, 158, 11, 0.35);
+  border-color: #fcd34d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+}
+
 .mood-filters-container {
   position: absolute;
   top: 20px;
@@ -1655,8 +1686,96 @@ button:active {
   .player-bar-container {
     bottom: 70px !important;
   }
-  .coverflow-stage {
-    bottom: 195px !important;
-  }
+}
+/* ─── APP DOWNLOAD POPUP ────────────────────────────────────────────── */
+.download-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  transition: opacity 0.4s ease;
+}
+
+.download-popup-card {
+  background: linear-gradient(135deg, rgba(30, 24, 24, 0.95), rgba(15, 10, 10, 0.98));
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 380px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.15);
+  position: relative;
+  transform: translateY(0);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.popup-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.popup-icon {
+  width: 70px;
+  height: 70px;
+  background: var(--amber);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  font-size: 32px;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+}
+
+.popup-title {
+  font-family: 'Eczar', serif;
+  font-size: 22px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.popup-desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.popup-btn {
+  background: var(--amber);
+  color: #000;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 16px;
+  text-decoration: none;
+  display: block;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.popup-btn:hover {
+  background: #fcd34d;
+  transform: translateY(-2px);
+}
+
+.popup-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.popup-hidden .download-popup-card {
+  transform: translateY(20px);
 }
 

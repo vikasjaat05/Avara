@@ -75,6 +75,7 @@ function initApp() {
   setupShayariCardCreator();
   setupAppBottomNav();
   setupFlutterBridge();
+  setupAppInstaller();
 }
 
 // Render Symmetrical 3D CoverFlow Carousel (Only 5 visible cards for 60 FPS performance)
@@ -1044,6 +1045,36 @@ function setupFlutterBridge() {
 
   // Dispatch custom event to notify Flutter container
   window.dispatchEvent(new CustomEvent('AvaraReady', { detail: { songsCount: currentPlaylist.length } }));
+}
+
+// ─── PWA & Direct APK Download Installer Handler ─────────────────────
+let deferredPrompt = null;
+function setupAppInstaller() {
+  const installBtn = document.getElementById('install-app-btn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  installBtn?.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        showToast('🎉 ऐप सफलतापूर्वक आपके फ़ोन में इंस्टॉल हो गया है!');
+      }
+      deferredPrompt = null;
+    } else {
+      const link = document.createElement('a');
+      link.href = '/avara-music.apk';
+      link.download = 'avara-music.apk';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('📱 एंड्रॉइड ऐप डाउनलोड शुरू हो गया है...');
+    }
+  });
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
