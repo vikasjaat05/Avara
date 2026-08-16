@@ -215,40 +215,9 @@ button:active {
   padding: 16px 24px;
 }
 
-.center-title-container {
-  pointer-events: auto;
-  position: absolute;
-  top: 18px;
-  left: 28px;
-  transform: none;
-  z-index: 60;
-  white-space: nowrap;
-}
-
-.hindi-brand-title {
-  font-family: 'Bodoni Moda', 'Cinzel', serif;
-  font-style: italic;
-  font-size: clamp(28px, 4.5vw, 54px);
-  font-weight: 900;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  background: linear-gradient(135deg, #ffffff 0%, #fff2d6 50%, #f59e0b 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.85));
-  line-height: 1;
-  margin: 0;
-  transition: filter 0.3s ease;
-}
-
-.hindi-brand-title.playing-glow {
-  filter: drop-shadow(0 0 35px rgba(245, 158, 11, 0.70)) drop-shadow(0 4px 20px rgba(0, 0, 0, 0.90));
-}
-
-/* ─── MOOD / CATEGORY FILTERS PILL BAR ───────────────────────────────── */
 .mood-filters-container {
   position: absolute;
-  top: 24px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 60;
@@ -258,6 +227,33 @@ button:active {
   gap: 10px;
   max-width: min(800px, 92vw);
   pointer-events: auto;
+}
+
+.center-title-container {
+  pointer-events: auto;
+  position: absolute;
+  top: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.hindi-brand-title {
+  font-family: 'Bodoni Moda', 'Cinzel', serif;
+  font-style: italic;
+  font-size: clamp(26px, 4.2vw, 48px);
+  font-weight: 900;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ffffff 0%, #fff2d6 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.85));
+  line-height: 1;
+  margin: 0;
+  transition: filter 0.3s ease;
 }
 
 .mood-pill {
@@ -1416,18 +1412,8 @@ button:active {
 
 /* ─── Mobile Portrait (< 600px) ───────────────────────────────────────── */
 @media (max-width: 600px) {
-  .center-title-container {
-    top: 14px;
-    left: 16px;
-  }
-
-  .hindi-brand-title {
-    font-size: 26px;
-    letter-spacing: 3px;
-  }
-
   .mood-filters-container {
-    top: 56px;
+    top: 14px;
     left: 0;
     transform: none;
     width: 100vw;
@@ -1438,6 +1424,17 @@ button:active {
     flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+  }
+
+  .center-title-container {
+    top: 54px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .hindi-brand-title {
+    font-size: 22px;
+    letter-spacing: 4px;
   }
 
   .mood-filters-container::-webkit-scrollbar {
