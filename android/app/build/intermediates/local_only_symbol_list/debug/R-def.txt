@@ -1,0 +1,7 @@
+R_DEF: Internal format may change without notice
+local
+drawable ic_launcher_foreground
+id webView
+layout activity_main
+mipmap ic_launcher
+style Theme.AVARA

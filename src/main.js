@@ -1067,8 +1067,8 @@ function setupAppInstaller() {
       deferredPrompt = null;
     } else {
       const link = document.createElement('a');
-      link.href = '/avara-music.apk';
-      link.download = 'avara-music.apk';
+      link.href = '/avara.apk';
+      link.download = 'avara.apk';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

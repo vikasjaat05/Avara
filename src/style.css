@@ -987,19 +987,19 @@ button:active {
 
 /* ─── PLAYLIST DRAWER (RIGHT SLIDE-OUT) ──────────────────────────────── */
 .playlist-toggle-btn {
-  position: fixed;
-  top: 20px;
+  position: absolute;
+  top: 18px;
   right: 24px;
-  z-index: 100;
+  z-index: 70;
   background: rgba(22, 18, 18, 0.75);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #fff;
-  padding: 9px 18px;
-  border-radius: 50px;
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
   font-family: 'Outfit', sans-serif;
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 20px rgba(0,0,0,0.35);
@@ -1008,6 +1008,15 @@ button:active {
   align-items: center;
   gap: 6px;
   pointer-events: auto;
+}
+
+@media (max-width: 600px) {
+  .playlist-toggle-btn {
+    top: 12px;
+    right: 12px;
+    font-size: 11px;
+    padding: 6px 12px;
+  }
 }
 
 .playlist-toggle-btn:hover {
