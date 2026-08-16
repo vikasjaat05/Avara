@@ -3,7 +3,12 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0e0a08" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AVARA" />
 
   <!-- Primary SEO Meta Tags -->
   <title>आवारा आशिक - दर्द-ए-दिल शायरी और संगीत | Avara Ashiq Sad Songs & Shayari</title>
@@ -500,6 +505,43 @@
 
     <!-- Notification Toast -->
     <div id="toast-container" class="toast-container"></div>
+
+    <!-- Mobile App Native Bottom Navigation Bar (Tab Bar) -->
+    <nav class="app-bottom-nav" id="app-bottom-nav">
+      <button class="app-tab-btn active" id="tab-player" title="Player">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+        </svg>
+        <span>प्लेयर</span>
+      </button>
+
+      <button class="app-tab-btn" id="tab-library" title="Library">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="8" y1="6" x2="21" y2="6" />
+          <line x1="8" y1="12" x2="21" y2="12" />
+          <line x1="8" y1="18" x2="21" y2="18" />
+          <circle cx="3" cy="6" r="1.5" fill="currentColor" />
+          <circle cx="3" cy="12" r="1.5" fill="currentColor" />
+          <circle cx="3" cy="18" r="1.5" fill="currentColor" />
+        </svg>
+        <span>गीत सूची</span>
+      </button>
+
+      <button class="app-tab-btn" id="tab-shayari" title="Shayari">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+        <span>शायरी</span>
+      </button>
+
+      <button class="app-tab-btn" id="tab-ambient" title="Atmosphere Mixer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+        </svg>
+        <span>माहौल</span>
+      </button>
+    </nav>
   </div>
 
   <!-- Main Module Script -->

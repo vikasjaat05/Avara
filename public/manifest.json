@@ -1,0 +1,24 @@
+{
+  "name": "AVARA — आवारा आशिक",
+  "short_name": "AVARA",
+  "description": "दर्द-ए-दिल शायरी और 1,236 सैड हिंदी गानों का 3D म्यूजिक प्लेयर",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0e0a08",
+  "theme_color": "#0e0a08",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dh0amtajw/image/upload/f_auto,q_auto,w_192/v1786685549/ChatGPT_Image_Aug_14_2026_11_02_21_AM_jdjrwp.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://res.cloudinary.com/dh0amtajw/image/upload/f_auto,q_auto,w_512/v1786685549/ChatGPT_Image_Aug_14_2026_11_02_21_AM_jdjrwp.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

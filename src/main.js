@@ -73,6 +73,8 @@ function initApp() {
   setupPlaylistDrawer();
   setupMoodFilters();
   setupShayariCardCreator();
+  setupAppBottomNav();
+  setupFlutterBridge();
 }
 
 // Render Symmetrical 3D CoverFlow Carousel (Only 5 visible cards for 60 FPS performance)
@@ -981,6 +983,67 @@ function showToast(message) {
       toast.remove();
     }, 400);
   }, 2000);
+}
+
+// ─── Native App Bottom Navigation Bar Controller ─────────────────────
+function setupAppBottomNav() {
+  const tabPlayer = document.getElementById('tab-player');
+  const tabLibrary = document.getElementById('tab-library');
+  const tabShayari = document.getElementById('tab-shayari');
+  const tabAmbient = document.getElementById('tab-ambient');
+  const allTabs = [tabPlayer, tabLibrary, tabShayari, tabAmbient];
+
+  function setActiveTab(activeBtn) {
+    allTabs.forEach(tab => tab?.classList.remove('active'));
+    activeBtn?.classList.add('active');
+  }
+
+  // 1. Player Tab: Close drawer/modal, focus 3D CoverFlow stage
+  tabPlayer?.addEventListener('click', () => {
+    setActiveTab(tabPlayer);
+    document.getElementById('playlist-drawer')?.classList.remove('active');
+    document.getElementById('shayari-box')?.classList.add('hidden');
+    document.getElementById('shayari-creator-modal')?.classList.add('hidden');
+  });
+
+  // 2. Library Tab: Open 1,236 Songs Playlist Drawer
+  tabLibrary?.addEventListener('click', () => {
+    setActiveTab(tabLibrary);
+    document.getElementById('playlist-drawer')?.classList.add('active');
+  });
+
+  // 3. Shayari Tab: Open Shayari Modal Box
+  tabShayari?.addEventListener('click', () => {
+    setActiveTab(tabShayari);
+    document.getElementById('shayari-box')?.classList.remove('hidden');
+  });
+
+  // 4. Ambient Tab: Focus Ambient Mixer and show toast
+  tabAmbient?.addEventListener('click', () => {
+    setActiveTab(tabAmbient);
+    showToast('🌧️ माहौल साउंड्स (बारिश, कांच, रोना) नीचे प्लेयर बार में चालू करें!');
+  });
+}
+
+// ─── Flutter Mobile App JS Bridge API ────────────────────────────────
+function setupFlutterBridge() {
+  window.AvaraFlutterBridge = {
+    play: () => playPauseBtn?.click(),
+    pause: () => playPauseBtn?.click(),
+    nextTrack: () => nextBtn?.click(),
+    prevTrack: () => prevBtn?.click(),
+    setVolume: (val) => {
+      if (volumeBar) {
+        volumeBar.value = val;
+        volumeBar.dispatchEvent(new Event('input'));
+      }
+    },
+    getCurrentTrack: () => currentPlaylist[currentTrackIndex] || null,
+    getTotalSongsCount: () => currentPlaylist.length
+  };
+
+  // Dispatch custom event to notify Flutter container
+  window.dispatchEvent(new CustomEvent('AvaraReady', { detail: { songsCount: currentPlaylist.length } }));
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
