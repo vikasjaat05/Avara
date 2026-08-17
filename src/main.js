@@ -9,109 +9,106 @@ let currentTrackIndex = 0;
 let isPlaying = false;
 let seekInterval = null;
 
-// DOM Elements
+// DOM Elements - Views
 const homeView = document.getElementById('home-view');
 const playerView = document.getElementById('player-view');
-const miniPlayer = document.getElementById('mini-player');
-const closePlayerBtn = document.getElementById('close-player-btn');
-const songsListContainer = document.getElementById('songs-list-container');
 
-// Mini Player Elements
-const miniArt = document.getElementById('mini-art');
-const miniTitle = document.getElementById('mini-title');
-const miniArtist = document.getElementById('mini-artist');
+// DOM Elements - Home View
+const collectionsList = document.getElementById('collections-list');
+const recommendedList = document.getElementById('recommended-list');
+
+// DOM Elements - Mini Player
+const miniPlayer = document.getElementById('mini-player');
 const miniPlayPauseBtn = document.getElementById('mini-play-pause-btn');
 const miniPlayIcon = document.getElementById('mini-play-icon');
 const miniPauseIcon = document.getElementById('mini-pause-icon');
+const miniTitle = document.getElementById('mini-title');
+const miniArtist = document.getElementById('mini-artist');
+const miniPrevBtn = document.getElementById('mini-prev-btn');
+const miniNextBtn = document.getElementById('mini-next-btn');
 
-// Full Player Elements
+// DOM Elements - Full Player
+const backBtn = document.getElementById('back-btn');
 const fullArt = document.getElementById('full-player-art');
 const fullTitle = document.getElementById('full-player-title');
 const fullArtist = document.getElementById('full-player-artist');
 const fullPlayPauseBtn = document.getElementById('full-play-pause-btn');
 const fullPlayIcon = document.getElementById('full-play-icon');
 const fullPauseIcon = document.getElementById('full-pause-icon');
+const fullPrevBtn = document.getElementById('full-prev-btn');
+const fullNextBtn = document.getElementById('full-next-btn');
+const progressBarFill = document.getElementById('progress-bar-fill');
+const progressBarBg = document.getElementById('progress-bar-bg');
 const fullTimeEl = document.getElementById('full-player-time');
-const progressArc = document.getElementById('circular-progress-arc');
 
-// Full Controls
-const rewindBtn = document.getElementById('rewind-btn');
-const forwardBtn = document.getElementById('forward-btn');
-const prevBtn = document.getElementById('full-prev-btn');
-const nextBtn = document.getElementById('full-next-btn');
+// DOM Elements - Nav
+const navHome = document.getElementById('nav-home');
+const navSearch = document.getElementById('nav-search');
+const navHeart = document.getElementById('nav-heart');
 
 // Initialize App
 function initApp() {
-  renderSongsList();
+  renderHomeView();
   loadYouTubeAPI();
   bindEvents();
 }
 
-// Render Songs List
-function renderSongsList() {
-  if (!songsListContainer) return;
-  songsListContainer.innerHTML = '';
-  
-  currentPlaylist.forEach((song, index) => {
-    if (!song) return;
-    const el = document.createElement('div');
-    el.className = `song-item ${index === currentTrackIndex ? 'active' : ''}`;
-    el.innerHTML = `
-      <div class="song-thumb-wrapper">
-        <img class="song-thumb" src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" alt="${song.title}">
-        <div class="song-play-overlay">
-           <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+// Render Home View Data
+function renderHomeView() {
+  // Render Collections (First 5 songs as collections just for UI)
+  if (collectionsList) {
+    collectionsList.innerHTML = '';
+    currentPlaylist.slice(0, 5).forEach((song, idx) => {
+      const el = document.createElement('div');
+      el.className = 'collection-card';
+      el.innerHTML = `
+        <div class="collection-img-box">
+          <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" alt="${song.title}">
         </div>
-      </div>
-      <div class="song-info">
-        <div class="song-name">${song.title}</div>
-        <div class="song-artist">${song.artist}</div>
-      </div>
-      <div class="song-time">3:45</div>
-      <button class="heart-btn ${Math.random() > 0.5 ? 'liked' : ''}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-        </svg>
-      </button>
-    `;
-    
-    // Play song on click
-    el.addEventListener('click', (e) => {
-      // Don't play if clicking heart
-      if (e.target.closest('.heart-btn')) {
-        const heart = e.target.closest('.heart-btn');
-        heart.classList.toggle('liked');
-        return;
-      }
-      playTrackAtIndex(index);
-      openFullPlayer();
+        <h4>${song.title.substring(0, 15)}</h4>
+        <p>${Math.floor(Math.random() * 200) + 50} songs</p>
+      `;
+      el.addEventListener('click', () => {
+        playTrackAtIndex(idx);
+        openFullPlayer();
+      });
+      collectionsList.appendChild(el);
     });
-    
-    songsListContainer.appendChild(el);
-  });
-}
+  }
 
-// Update Active Song in List
-function updateActiveSongListItem() {
-  const items = songsListContainer.querySelectorAll('.song-item');
-  items.forEach((item, index) => {
-    if (index === currentTrackIndex) {
-      item.classList.add('active');
-    } else {
-      item.classList.remove('active');
-    }
-  });
+  // Render Recommended (All songs)
+  if (recommendedList) {
+    recommendedList.innerHTML = '';
+    currentPlaylist.forEach((song, index) => {
+      const el = document.createElement('div');
+      el.className = 'song-row';
+      el.innerHTML = `
+        <div class="song-row-info">
+          <div class="song-row-title">${song.title.length > 25 ? song.title.substring(0,25)+'...' : song.title}</div>
+          <div class="song-row-artist">${song.artist}</div>
+        </div>
+        <button class="glass-btn song-row-play">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#e63946" style="margin-left:2px;"><path d="M8 5v14l11-7z" /></svg>
+        </button>
+      `;
+      el.addEventListener('click', () => {
+        playTrackAtIndex(index);
+        openFullPlayer();
+      });
+      recommendedList.appendChild(el);
+    });
+  }
 }
 
 // View Navigation
 function openFullPlayer() {
   playerView.classList.remove('hidden-view');
-  miniPlayer.style.display = 'none'; // Hide mini player when full player is open
+  navHome.classList.remove('active');
 }
 
 function closeFullPlayer() {
   playerView.classList.add('hidden-view');
-  miniPlayer.style.display = 'flex';
+  navHome.classList.add('active');
 }
 
 // YouTube Player Initialization
@@ -150,19 +147,6 @@ function onPlayerReady() {
   if (currentTrack) {
     updateTrackUI(currentTrack);
   }
-  
-  // Setup SVG Circle Math
-  if (progressArc) {
-    const radius = progressArc.r.baseVal.value;
-    const circumference = radius * 2 * Math.PI;
-    // We only want a half circle arc (bottom part)
-    // By offsetting dasharray, we can create an arc of specific length
-    const arcLength = circumference * 0.45; // 45% of the circle
-    progressArc.style.strokeDasharray = `${arcLength} ${circumference - arcLength}`;
-    progressArc.style.strokeDashoffset = arcLength; // Start empty
-    progressArc.dataset.arcLength = arcLength;
-  }
-  
   startProgressTracker();
 }
 
@@ -185,7 +169,6 @@ function playTrackAtIndex(index) {
   const track = currentPlaylist[currentTrackIndex];
 
   updateTrackUI(track);
-  updateActiveSongListItem();
 
   if (isPlayerReady && player) {
     player.loadVideoById(track.id);
@@ -212,13 +195,6 @@ function playPrevTrack() {
   playTrackAtIndex(prevIndex);
 }
 
-// Rewind / Forward Logic
-function skipTime(seconds) {
-  if (!isPlayerReady || !player) return;
-  const currentTime = player.getCurrentTime() || 0;
-  player.seekTo(currentTime + seconds, true);
-}
-
 // UI Updates
 function updateTrackUI(track) {
   if (!track) return;
@@ -227,33 +203,10 @@ function updateTrackUI(track) {
   // Mini Player
   miniTitle.textContent = track.title;
   miniArtist.textContent = track.artist;
-  miniArt.src = thumbUrl;
   
-  // Apply Marquee if title is long
-  if (track.title.length > 20) {
-    miniTitle.classList.add('scroll');
-  } else {
-    miniTitle.classList.remove('scroll');
-  }
-
   // Full Player
-  fullTitle.textContent = `"${track.title}"`;
-  
-  // Dynamic font sizing for artist name
-  let nameLines = track.artist.split(' ');
-  if(nameLines.length > 1) {
-    fullArtist.innerHTML = nameLines[0] + '<br>' + nameLines.slice(1).join(' ');
-  } else {
-    fullArtist.innerHTML = track.artist;
-  }
-  
-  // Scale down font if artist name is super long
-  if (track.artist.length > 15) {
-    fullArtist.style.fontSize = '36px';
-  } else {
-    fullArtist.style.fontSize = '52px';
-  }
-  
+  fullTitle.textContent = track.title.length > 20 ? track.title.substring(0,20)+'...' : track.title;
+  fullArtist.textContent = track.artist;
   fullArt.src = thumbUrl;
 }
 
@@ -278,19 +231,16 @@ function startProgressTracker() {
     try {
       const currentTime = player.getCurrentTime() || 0;
       const duration = player.getDuration() || 1;
+      const percent = (currentTime / duration) * 100;
       
       // Update text time
-      fullTimeEl.textContent = formatTime(currentTime);
+      const remaining = duration - currentTime;
+      fullTimeEl.textContent = `-${formatTime(remaining)}`;
       
-      // Update Circular Progress
-      if (progressArc && progressArc.dataset.arcLength) {
-        const percent = currentTime / duration;
-        const arcLength = parseFloat(progressArc.dataset.arcLength);
-        // strokeDashoffset goes from arcLength (empty) to 0 (full arc)
-        const offset = arcLength - (arcLength * percent);
-        progressArc.style.strokeDashoffset = offset;
+      // Update Horizontal Progress
+      if (progressBarFill) {
+        progressBarFill.style.width = `${percent}%`;
       }
-      
     } catch (err) {}
   }, 250);
 }
@@ -300,6 +250,20 @@ function formatTime(seconds) {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
+// Seek Functionality (Click on progress bar)
+function bindProgressSeek() {
+  if (progressBarBg) {
+    progressBarBg.addEventListener('click', (e) => {
+      if (!isPlayerReady || !player) return;
+      const rect = progressBarBg.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const percent = clickX / rect.width;
+      const duration = player.getDuration() || 0;
+      player.seekTo(duration * percent, true);
+    });
+  }
 }
 
 // Event Bindings
@@ -312,16 +276,34 @@ function bindEvents() {
   fullPlayPauseBtn.addEventListener('click', togglePlayPause);
   
   // Next/Prev
-  nextBtn.addEventListener('click', playNextTrack);
-  prevBtn.addEventListener('click', playPrevTrack);
+  miniNextBtn.addEventListener('click', (e) => { e.stopPropagation(); playNextTrack(); });
+  miniPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); playPrevTrack(); });
+  fullNextBtn.addEventListener('click', playNextTrack);
+  fullPrevBtn.addEventListener('click', playPrevTrack);
   
-  // Rewind/Forward
-  rewindBtn.addEventListener('click', () => skipTime(-10));
-  forwardBtn.addEventListener('click', () => skipTime(10));
-  
-  // Open/Close Full Player
+  // Progress Bar Seek
+  bindProgressSeek();
+
+  // Navigation
   miniPlayer.addEventListener('click', openFullPlayer);
-  closePlayerBtn.addEventListener('click', closeFullPlayer);
+  backBtn.addEventListener('click', closeFullPlayer);
+  
+  // Bottom Nav
+  navHome.addEventListener('click', () => {
+    navHome.classList.add('active');
+    navHeart.classList.remove('active');
+    closeFullPlayer();
+  });
+  
+  navHeart.addEventListener('click', () => {
+    navHeart.classList.toggle('liked'); // Custom toggle for wishlist
+  });
+  
+  navSearch.addEventListener('click', () => {
+    // Just a placeholder, we can open home and scroll to top for now
+    closeFullPlayer();
+    document.querySelector('.view-container').scrollTop = 0;
+  });
 }
 
 // Boot
