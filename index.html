@@ -119,10 +119,12 @@
       <div class="hero-art-wrapper">
         <div class="song-quote" id="full-player-title">"Stick with You"</div>
         
-        <div class="circular-art-container">
-          <img id="full-player-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Album Art">
+        <div class="art-inner-wrapper">
+          <div class="circular-art-container">
+            <img id="full-player-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Album Art">
+          </div>
           
-          <!-- Center Play/Pause Overlay -->
+          <!-- Center Play/Pause Overlay (Moved outside so it doesn't get clipped by circle overflow) -->
           <button class="center-play-btn" id="full-play-pause-btn">
             <svg id="full-play-icon" width="32" height="32" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 4px;">
               <path d="M8 5v14l11-7z" />
@@ -131,16 +133,15 @@
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
           </button>
+
+          <!-- SVG Circular Progress -->
+          <svg class="circular-progress-svg" viewBox="0 0 320 320">
+            <circle class="progress-bg" cx="160" cy="160" r="150" fill="none" stroke="transparent" stroke-width="4"></circle>
+            <circle class="progress-value" id="circular-progress-arc" cx="160" cy="160" r="150" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round"></circle>
+          </svg>
+
+          <div class="progress-time" id="full-player-time">3:24</div>
         </div>
-
-        <!-- SVG Circular Progress (Wraps around bottom left of image) -->
-        <svg class="circular-progress-svg" viewBox="0 0 320 320">
-          <circle class="progress-bg" cx="160" cy="160" r="150" fill="none" stroke="transparent" stroke-width="4"></circle>
-          <!-- Active green arc -->
-          <circle class="progress-value" id="circular-progress-arc" cx="160" cy="160" r="150" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round"></circle>
-        </svg>
-
-        <div class="progress-time" id="full-player-time">3:24</div>
       </div>
 
       <!-- Bottom Controls -->
