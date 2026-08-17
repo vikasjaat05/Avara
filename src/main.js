@@ -1,3 +1,4 @@
+import './style.css';
 import { AVARA_SONGS } from './songs.js';
 
 // ─── State ───
