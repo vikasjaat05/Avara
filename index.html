@@ -6,18 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>">
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#d9d2ff" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="AVARA" />
 
-  <title>Favorite Music Player</title>
+  <title>Avara Player - Purple Vibe</title>
 
-  <!-- Google Fonts for Clean Minimalist Look -->
+  <!-- Google Fonts: Playfair Display for Serifs, Inter for Sans-serif -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/src/style.css">
 </head>
@@ -29,120 +29,228 @@
       <div id="youtube-player"></div>
     </div>
 
-    <!-- Main Container -->
-    <div class="app-container">
+    <!-- 1. HOME / PLAYLIST VIEW -->
+    <main id="home-view" class="view-container">
       
-      <!-- Left Sidebar (Dark Grey Curved) -->
-      <aside class="sidebar">
-        <div class="music-icon-bubble">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 18V5L21 3V16" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <circle cx="6" cy="18" r="3" fill="#ffffff"/>
-            <circle cx="18" cy="16" r="3" fill="#ffffff"/>
+      <!-- Top Bar -->
+      <header class="home-header">
+        <button class="icon-btn search-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
+        </button>
+        <button class="icon-btn bell-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="bell-dot"></span>
+        </button>
+      </header>
+
+      <!-- Chips Filter -->
+      <div class="chips-container">
+        <button class="chip active">New</button>
+        <button class="chip">Top 50</button>
+        <button class="chip">90's</button>
+        <button class="chip">Pop</button>
+        <button class="chip">Hip-hop</button>
+      </div>
+
+      <!-- Playlists Section -->
+      <section class="playlists-section">
+        <div class="section-header">
+          <h2 class="section-title">Playlists</h2>
+          <button class="see-all-btn">See All</button>
         </div>
-      </aside>
-
-      <!-- Main White Content Area -->
-      <main class="main-content">
-        
-        <!-- Header -->
-        <header class="top-header">
-          <h1 class="header-title">Favorite music</h1>
-          <button class="menu-btn" title="Menu">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="10" y1="8" x2="21" y2="8"></line>
-              <line x1="4" y1="16" x2="21" y2="16"></line>
-            </svg>
-          </button>
-        </header>
-
-        <!-- Hero: Album Art -->
-        <section class="hero-section">
-          <div class="album-art-container">
-            <div class="vinyl-record">
-              <div class="vinyl-inner"></div>
-              <div class="vinyl-center"></div>
+        <div class="cards-scroll">
+          <div class="playlist-card">
+            <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=400&auto=format&fit=crop" alt="Top-Pop Culture">
+            <div class="card-overlay">
+              <span class="card-title">Top-Pop<br>Culture</span>
             </div>
-            <img id="player-album-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Album Cover" class="album-cover-img" />
           </div>
-        </section>
-
-        <!-- Track Info -->
-        <section class="track-info">
-          <h2 id="player-song-title" class="track-title">Tujhe Bhoolna To Chaha</h2>
-          <p id="player-artist" class="track-artist">Sonu Nigam - Bewafa Sanam</p>
-        </section>
-
-        <!-- Seekbar Area -->
-        <section class="seekbar-section">
-          <div class="wave-container">
-            <!-- Simulated Wave SVG -->
-            <svg class="wave-svg" viewBox="0 0 300 40" preserveAspectRatio="none">
-              <!-- Background wave path -->
-              <path id="wave-bg-path" class="wave-bg" d="M0,20 C50,40 100,40 150,20 C200,0 250,0 300,20" fill="none" stroke="#d1d5db" stroke-width="3" stroke-linecap="round"></path>
-              <!-- Progress wave path (clipped by JS or overlaid) -->
-              <path id="wave-progress" class="wave-fill" d="M0,20 C50,40 100,40 150,20 C200,0 250,0 300,20" fill="none" stroke="#475b75" stroke-width="3" stroke-linecap="round" stroke-dasharray="320" stroke-dashoffset="320"></path>
-            </svg>
-            
-            <!-- Hidden native range input for functional scrubbing -->
-            <input type="range" id="progress-bar" min="0" max="100" value="0" step="0.1" class="native-range" />
-            
-            <!-- Custom dot matching the screenshot -->
-            <div id="progress-dot" class="progress-dot"></div>
+          <div class="playlist-card">
+            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=400&auto=format&fit=crop" alt="Chill Place One">
+            <div class="card-overlay">
+              <span class="card-title">Chill<br>Place One</span>
+            </div>
           </div>
-          <div class="time-labels">
-            <span id="current-time">00:00</span>
-            <span id="total-time">00:00</span>
-          </div>
-        </section>
+        </div>
+      </section>
 
-        <!-- Playback Controls -->
-        <section class="controls-container">
-          <button id="repeat-btn" class="ctrl-btn sm-btn" title="Repeat">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475b75" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="17 1 21 5 17 9"></polyline>
-              <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-              <polyline points="7 23 3 19 7 15"></polyline>
-              <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
-            </svg>
-          </button>
+      <!-- Song List Section -->
+      <section class="songs-list-section" id="songs-list-container">
+        <!-- Songs will be injected here via JS -->
+      </section>
+
+    </main>
+
+    <!-- 2. FULL PLAYER VIEW (Sliding Over) -->
+    <main id="player-view" class="view-container hidden-view">
+      
+      <!-- Player Header -->
+      <header class="player-header">
+        <button class="icon-btn back-btn" id="close-player-btn">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="icon-btn bell-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="bell-dot"></span>
+        </button>
+      </header>
+
+      <!-- Player Typography Title -->
+      <div class="player-titles">
+        <h1 class="big-serif-title" id="full-player-artist">Zara<br>Larsson</h1>
+        <div class="tag-pill">
+          <span class="cd-icon">💿</span>
+          <span class="tag-text">Poster Girl</span>
+        </div>
+      </div>
+
+      <!-- Circular Hero & Progress Art -->
+      <div class="hero-art-wrapper">
+        <div class="song-quote" id="full-player-title">"Stick with You"</div>
+        
+        <div class="circular-art-container">
+          <img id="full-player-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Album Art">
           
-          <button id="prev-btn" class="ctrl-btn" title="Previous">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#475b75">
-              <path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z" />
-            </svg>
-          </button>
-          
-          <button id="play-pause-btn" class="play-btn" title="Play">
-            <svg id="play-icon" width="28" height="28" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 4px;">
+          <!-- Center Play/Pause Overlay -->
+          <button class="center-play-btn" id="full-play-pause-btn">
+            <svg id="full-play-icon" width="32" height="32" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 4px;">
               <path d="M8 5v14l11-7z" />
             </svg>
-            <svg id="pause-icon" width="28" height="28" viewBox="0 0 24 24" fill="#ffffff" class="hidden">
+            <svg id="full-pause-icon" width="32" height="32" viewBox="0 0 24 24" fill="#ffffff" class="hidden">
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
           </button>
-          
-          <button id="next-btn" class="ctrl-btn" title="Next">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#475b75">
-              <path d="M5 4l10 8-10 8V4zm14 1v14h-2V5h2z" />
-            </svg>
-          </button>
-          
-          <button id="eq-btn" class="ctrl-btn sm-btn" title="Equalizer">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#475b75">
-              <rect x="4" y="10" width="4" height="10" rx="2" />
-              <rect x="10" y="4" width="4" height="16" rx="2" />
-              <rect x="16" y="14" width="4" height="6" rx="2" />
-            </svg>
-          </button>
-        </section>
+        </div>
 
-      </main>
+        <!-- SVG Circular Progress (Wraps around bottom left of image) -->
+        <svg class="circular-progress-svg" viewBox="0 0 320 320">
+          <circle class="progress-bg" cx="160" cy="160" r="150" fill="none" stroke="transparent" stroke-width="4"></circle>
+          <!-- Active green arc -->
+          <circle class="progress-value" id="circular-progress-arc" cx="160" cy="160" r="150" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round"></circle>
+        </svg>
+
+        <div class="progress-time" id="full-player-time">3:24</div>
+      </div>
+
+      <!-- Bottom Controls -->
+      <div class="player-controls">
+        <button class="ctrl-btn sm" id="shuffle-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 3 21 3 21 8"></polyline>
+            <line x1="4" y1="20" x2="21" y2="3"></line>
+            <polyline points="21 16 21 21 16 21"></polyline>
+            <line x1="15" y1="15" x2="21" y2="21"></line>
+            <line x1="4" y1="4" x2="9" y2="9"></line>
+          </svg>
+        </button>
+
+        <button class="ctrl-btn sm" id="full-prev-btn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#111">
+            <path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z" />
+          </svg>
+        </button>
+
+        <!-- 10s Rewind -->
+        <button class="ctrl-btn time-skip" id="rewind-btn">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="18" fill="#0f172a"></circle>
+            <text x="20" y="24" fill="#fff" font-size="12" font-family="Inter" font-weight="600" text-anchor="middle">10</text>
+            <path d="M15 14 A 8 8 0 0 1 28 14" stroke="#fff" stroke-width="1.5" fill="none"></path>
+            <polygon points="15 12 15 16 11 14" fill="#fff"></polygon>
+          </svg>
+        </button>
+
+        <!-- 10s Forward -->
+        <button class="ctrl-btn time-skip" id="forward-btn">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="18" fill="#0f172a"></circle>
+            <text x="20" y="24" fill="#fff" font-size="12" font-family="Inter" font-weight="600" text-anchor="middle">10</text>
+            <path d="M12 14 A 8 8 0 0 1 25 14" stroke="#fff" stroke-width="1.5" fill="none"></path>
+            <polygon points="25 12 25 16 29 14" fill="#fff"></polygon>
+          </svg>
+        </button>
+
+        <button class="ctrl-btn sm" id="full-next-btn">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#111">
+            <path d="M5 4l10 8-10 8V4zm14 1v14h-2V5h2z" />
+          </svg>
+        </button>
+
+        <button class="ctrl-btn sm" id="options-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="19" cy="12" r="1"></circle>
+            <circle cx="5" cy="12" r="1"></circle>
+          </svg>
+        </button>
+      </div>
+    </main>
+
+    <!-- FLOATING MINI PLAYER (Visible on Home View) -->
+    <div id="mini-player" class="mini-player">
+      <img id="mini-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Thumb">
+      <div class="mini-info">
+        <!-- Title wrapper for marquee -->
+        <div class="marquee-wrapper">
+          <div class="mini-title" id="mini-title">Stick with You</div>
+        </div>
+        <div class="mini-artist" id="mini-artist">Zara Larsson</div>
+      </div>
+      <button class="mini-play-btn" id="mini-play-pause-btn">
+        <svg id="mini-play-icon" width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px;">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+        <svg id="mini-pause-icon" width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" class="hidden">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+        </svg>
+      </button>
     </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+      <button class="nav-item active">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+        </svg>
+      </button>
+      <button class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+      <button class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </button>
+      <button class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </button>
+      <button class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </nav>
+
   </div>
 
-  <!-- Main Module Script -->
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
