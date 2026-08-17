@@ -26,6 +26,24 @@
       <div class="bar"></div>
     </div>
   </div>
+  <script>
+    (function() {
+      var preloader = document.getElementById('preloader');
+      var removed = false;
+      function removePre() {
+        if(removed || !preloader) return;
+        removed = true;
+        preloader.style.opacity = '0';
+        setTimeout(function() {
+          if(preloader.parentNode) preloader.parentNode.removeChild(preloader);
+        }, 500);
+      }
+      setTimeout(removePre, 2500); // 2.5s absolute max display
+      window.addEventListener('load', function() {
+        setTimeout(removePre, 800);
+      });
+    })();
+  </script>
 
   <div id="app">
     <!-- YouTube iframe (hidden but not display:none for mobile playback) -->

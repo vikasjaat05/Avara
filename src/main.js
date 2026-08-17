@@ -348,23 +348,3 @@ if (document.readyState === 'loading') {
 } else {
   initApp();
 }
-
-// Preloader Removal
-let preloaderRemoved = false;
-function removePreloader() {
-  if (preloaderRemoved) return;
-  preloaderRemoved = true;
-  const preloader = document.getElementById('preloader');
-  if(preloader) {
-    preloader.classList.add('fade-out');
-    setTimeout(() => preloader.remove(), 500);
-  }
-}
-
-// Fallback: Force removal after max 2.5s (so total time with fadeout is max 3s)
-setTimeout(removePreloader, 2500);
-
-window.addEventListener('load', () => {
-  // If loaded fast, remove it but leave it for at least 800ms for a nice effect
-  setTimeout(removePreloader, 800);
-});
