@@ -1482,10 +1482,11 @@ button:active {
    SPOTIFY/LOGIC EXACT FULL-SCREEN MOBILE PLAYER UI (MATCHING USER SCREENSHOT)
    ========================================================================== */
 @media (max-width: 768px) {
-
   body {
-    background: #b04318 !important; /* Exact warm rust-orange brown from screenshot */
+    background: #b04318 !important;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
   }
 
   #app {
@@ -1493,340 +1494,356 @@ button:active {
     flex-direction: column;
     height: 100dvh;
     justify-content: space-between;
-    padding: 12px 20px max(16px, env(safe-area-inset-bottom));
+    padding: max(12px, env(safe-area-inset-top)) 16px max(12px, env(safe-area-inset-bottom));
     background: #b04318;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
   }
 
-  /* Hide background images & desktop light rays on mobile */
-  .background-art {
+  .background-art,
+  .light-beam,
+  .particles-canvas,
+  #ambient-visualizer {
     display: none !important;
   }
 
-  /* Top Navigation Bar: ← | Daily Mix 1 | ⋮ */
+  /* 1. TOP HEADER BAR */
   .top-nav {
-    position: relative;
-    top: auto; left: auto; right: auto;
-    height: 48px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: transparent;
+    position: relative !important;
+    top: 0 !important; left: 0 !important; right: 0 !important;
+    height: 44px !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
     z-index: 100;
   }
 
   .install-app-btn {
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.15);
-    border: none;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    box-shadow: none;
+    position: relative !important;
+    top: auto !important; left: auto !important; right: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+    border-radius: 20px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: none !important;
+    color: #ffffff !important;
+    width: auto !important;
+    height: auto !important;
+    line-height: normal !important;
   }
-
-  .install-app-btn::after {
-    content: "←";
-    font-size: 20px;
-    color: #fff;
-  }
+  .install-app-btn::after { content: none !important; }
 
   .center-title-container {
-    position: relative;
-    top: auto; left: auto;
-    transform: none;
+    position: relative !important;
+    top: auto !important; left: auto !important;
+    transform: none !important;
+    margin: 0 !important;
   }
 
   .hindi-brand-title {
-    font-family: 'Outfit', sans-serif;
-    font-style: normal;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #ffffff;
-    background: none;
-    -webkit-text-fill-color: #ffffff;
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    letter-spacing: 2px !important;
+    color: #ffffff !important;
+    background: none !important;
+    -webkit-text-fill-color: #ffffff !important;
+    margin: 0 !important;
   }
 
   .playlist-toggle-btn {
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.15);
-    border: none;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    box-shadow: none;
+    position: relative !important;
+    top: auto !important; left: auto !important; right: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+    border-radius: 20px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: none !important;
+    color: #ffffff !important;
+    width: auto !important;
+    height: auto !important;
+    line-height: normal !important;
+  }
+  .playlist-toggle-btn::after { content: none !important; }
+
+  /* Hide Desktop Floating Shayari Widget (since mobile accesses Shayari via bottom button) */
+  .shayari-widget {
+    display: none !important;
   }
 
-  .playlist-toggle-btn::after {
-    content: "⋮";
-    font-size: 22px;
-    color: #fff;
-  }
-
-  /* Hide Category bar on mobile for pure screen focus */
   .mood-filters-container {
     display: none !important;
   }
 
-  /* Stage Container: Holds the Hero Album Cover */
+  /* 2. CENTER HERO ALBUM COVER STAGE */
   .stage-container {
-    position: relative;
-    top: auto; left: auto; right: auto; bottom: auto;
-    height: auto;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 10px 0;
+    position: relative !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    flex: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 240px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 8px 0 !important;
   }
 
   .coverflow-stage {
-    position: relative;
-    top: auto; left: auto; right: auto; bottom: auto;
-    width: 100%;
-    height: 310px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    width: 100% !important;
+    height: 250px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    perspective: none !important;
+    pointer-events: auto !important;
   }
 
   .coverflow-track {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transform-style: flat !important;
   }
 
   .cover-card {
-    width: 300px;
-    height: 300px;
-    border-radius: 16px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.50);
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 250px !important;
+    height: 250px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+    overflow: hidden !important;
+    bottom: auto !important;
   }
 
-  .cover-card[data-offset="0"] {
-    transform: scale(1) rotateY(0deg) translateZ(0);
+  .cover-card img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 16px !important;
   }
 
   .cover-card[data-offset="-1"],
   .cover-card[data-offset="1"],
   .cover-card[data-offset="-2"],
   .cover-card[data-offset="2"] {
-    display: none;
+    display: none !important;
   }
 
-  /* Player Bar Container: Exact Song Title, Seekbar, Controls from Screenshot */
+  /* 3. PLAYER CONTROLS AREA */
   .player-bar-container {
-    position: relative;
-    bottom: auto !important;
-    left: auto; right: auto;
-    width: 100%;
-    padding: 0;
+    position: relative !important;
+    bottom: 0 !important; left: 0 !important; right: 0 !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin-top: 4px !important;
     z-index: 100;
   }
 
   .sp-card {
-    background: transparent;
-    border: none;
-    backdrop-filter: none;
-    box-shadow: none;
-    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
   }
 
   .sp-inner-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
   }
 
   .sp-art-float {
-    display: none; /* Hide 40px mini thumbnail on mobile */
-  }
-
-  .sp-content {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  /* Song Title & Artist (Left-aligned under album art) */
-  .sp-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-
-  .sp-info {
-    text-align: left;
-  }
-
-  .sp-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: #ffffff;
-    line-height: 1.2;
-    margin: 0;
-    max-width: 280px;
-  }
-
-  .sp-artist {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.75);
-    margin-top: 4px;
-  }
-
-  /* Seek Bar (Full Width with White Thumb & Elapsed/Remaining Timestamps) */
-  .sp-seek-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    width: 100%;
-    margin-top: 4px;
-  }
-
-  .sp-seekbar-wrap {
-    width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.30);
-    border-radius: 2px;
-  }
-
-  .sp-range::-webkit-slider-thumb {
-    width: 12px;
-    height: 12px;
-    background: #ffffff;
-  }
-
-  .sp-progress-fill {
-    background: #ffffff;
-  }
-
-  .sp-time-container {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .sp-time {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.75);
-    font-weight: 500;
-  }
-
-  /* Main Controls (Heart | Prev | BIG WHITE PLAY CIRCLE | Next | Repeat/Shuffle) */
-  .sp-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 8px;
-    padding: 0 4px;
-  }
-
-  .sp-ctrl-btn {
-    width: 44px;
-    height: 44px;
-    background: transparent;
-    color: #ffffff;
-  }
-
-  .sp-play-btn {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    background: #ffffff !important;
-    color: #000000 !important;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.30);
-  }
-
-  .sp-play-btn svg {
-    width: 26px;
-    height: 26px;
-    fill: #000000 !important;
-  }
-
-  .sp-vol-control {
     display: none !important;
   }
 
+  .sp-content {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  .sp-top-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+  }
+
+  .sp-info {
+    text-align: left !important;
+  }
+
+  .sp-title {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 19px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    max-width: 280px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .sp-artist {
+    font-size: 13px !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    margin-top: 2px !important;
+  }
+
+  .sp-seek-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    width: 100% !important;
+  }
+
+  .sp-seekbar-wrap {
+    width: 100% !important;
+    height: 4px !important;
+    background: rgba(255, 255, 255, 0.30) !important;
+    border-radius: 2px !important;
+  }
+
+  .sp-range::-webkit-slider-thumb {
+    width: 12px !important;
+    height: 12px !important;
+    background: #ffffff !important;
+  }
+
+  .sp-progress-fill {
+    background: #ffffff !important;
+  }
+
+  .sp-time-container {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  .sp-time {
+    font-size: 11px !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-weight: 500 !important;
+  }
+
+  .sp-controls {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin-top: 4px !important;
+    padding: 0 4px !important;
+  }
+
+  .sp-ctrl-btn {
+    width: 40px !important;
+    height: 40px !important;
+    background: transparent !important;
+    color: #ffffff !important;
+  }
+
+  .sp-play-btn {
+    width: 54px !important;
+    height: 54px !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.30) !important;
+  }
+
+  .sp-play-btn svg {
+    width: 24px !important;
+    height: 24px !important;
+    fill: #000000 !important;
+  }
+
+  .sp-vol-control,
   .sp-ambient-mixer {
     display: none !important;
   }
 
-  /* Bottom Orange Lyrics Capsule Button */
+  /* 4. BOTTOM NAVIGATION CAPSULE BAR */
   .app-bottom-nav {
-    position: relative;
-    bottom: auto; left: auto;
-    transform: none;
-    width: 100%;
-    height: 44px;
-    margin-top: 14px;
-    padding: 0;
-    background: transparent;
-    border-top: none;
-    box-shadow: none;
+    position: relative !important;
+    bottom: 0 !important; left: 0 !important; right: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    height: 44px !important;
+    margin-top: 8px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border-top: none !important;
+    box-shadow: none !important;
+    display: flex !important;
+    gap: 8px !important;
   }
 
   .app-tab-btn {
-    display: none;
+    flex: 1 !important;
+    height: 42px !important;
+    border-radius: 12px !important;
+    background: rgba(0, 0, 0, 0.25) !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
   }
 
   .app-tab-btn[id="tab-shayari"] {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 44px;
-    background: #ea580c !important; /* Orange Lyrics Capsule from screenshot */
-    color: #ffffff !important;
-    border-radius: 14px;
-    font-size: 15px;
-    font-weight: 700;
-    box-shadow: 0 4px 15px rgba(234, 88, 12, 0.40);
+    flex: 2 !important;
+    background: #ea580c !important;
+    border-color: #ea580c !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 15px rgba(234, 88, 12, 0.40) !important;
   }
 
-  .app-tab-btn[id="tab-shayari"] svg {
-    display: none;
-  }
-
-  .app-tab-btn[id="tab-shayari"]::after {
-    content: "Lyrics / महफ़िल-ए-दर्द शायरी";
-  }
-
-  /* Drawer & Modals Overlays */
+  /* Drawer & Modals */
   .playlist-drawer {
-    width: 100vw;
-    height: 100dvh;
-    top: 0; right: 0; bottom: 0; left: 0;
-    z-index: 3000;
-    background: #1e0b04;
+    width: 100vw !important;
+    height: 100dvh !important;
+    top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important;
+    z-index: 3000 !important;
+    background: #1e0b04 !important;
   }
 
   .shayari-box {
-    position: fixed;
-    bottom: 20px;
-    left: 16px; right: 16px;
-    width: auto;
-    z-index: 2400;
-    border-radius: 20px;
-    background: rgba(30, 12, 6, 0.96);
-    backdrop-filter: blur(28px);
-    border: 1px solid rgba(234, 88, 12, 0.40);
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 16px !important; right: 16px !important;
+    width: auto !important;
+    z-index: 2400 !important;
+    border-radius: 20px !important;
+    background: rgba(30, 12, 6, 0.96) !important;
+    backdrop-filter: blur(28px) !important;
+    border: 1px solid rgba(234, 88, 12, 0.40) !important;
   }
 }
+
 
 
 
