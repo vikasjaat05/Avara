@@ -1,350 +1,412 @@
-import './style.css';
 import { AVARA_SONGS } from './songs.js';
 
-// Application State
-let player = null;
-let isPlayerReady = false;
-let currentPlaylist = [...AVARA_SONGS];
-let currentTrackIndex = 0;
-let isPlaying = false;
-let seekInterval = null;
+// ─── State ───────────────────────────────────────────────────
+let ytPlayer       = null;
+let ytReady        = false;
+let currentIndex   = 0;
+let isPlaying      = false;
+let playlist       = [...AVARA_SONGS];
+let filteredList   = [...AVARA_SONGS];
+let likedSongs     = new Set();
+let progressTimer  = null;
+let isInPlayerView = false;
 
-// DOM Elements - Views
-const homeView = document.getElementById('home-view');
-const playerView = document.getElementById('player-view');
+// ─── DOM (grabbed AFTER DOMContentLoaded) ────────────────────
+let DOM = {};
 
-// DOM Elements - Home View
-const collectionsList = document.getElementById('collections-list');
-const recommendedList = document.getElementById('recommended-list');
+function grabDOM() {
+  DOM = {
+    homeView:         document.getElementById('home-view'),
+    playerView:       document.getElementById('player-view'),
+    collectionsEl:    document.getElementById('collections-container'),
+    songList:         document.getElementById('song-list'),
 
-// DOM Elements - Mini Player
-const miniPlayer = document.getElementById('mini-player');
-const miniPlayPauseBtn = document.getElementById('mini-play-pause-btn');
-const miniPlayIcon = document.getElementById('mini-play-icon');
-const miniPauseIcon = document.getElementById('mini-pause-icon');
-const miniTitle = document.getElementById('mini-title');
-const miniArtist = document.getElementById('mini-artist');
-const miniPrevBtn = document.getElementById('mini-prev-btn');
-const miniNextBtn = document.getElementById('mini-next-btn');
+    // Player
+    backBtn:          document.getElementById('back-btn'),
+    albumArt:         document.getElementById('album-art'),
+    songTitle:        document.getElementById('song-title'),
+    songArtist:       document.getElementById('song-artist'),
+    playPauseBtn:     document.getElementById('play-pause-btn'),
+    playIcon:         document.getElementById('play-icon'),
+    pauseIcon:        document.getElementById('pause-icon'),
+    prevBtn:          document.getElementById('prev-btn'),
+    nextBtn:          document.getElementById('next-btn'),
+    progressTrack:    document.getElementById('progress-track'),
+    progressFill:     document.getElementById('progress-fill'),
+    timeCurrent:      document.getElementById('time-current'),
+    timeRemaining:    document.getElementById('time-remaining'),
+    lyricsBox:        document.getElementById('lyrics-box'),
+    playerHeartBtn:   document.getElementById('player-heart-btn'),
+    playerHeartSvg:   document.getElementById('player-heart-svg'),
 
-// DOM Elements - Full Player
-const backBtn = document.getElementById('back-btn');
-const fullArt = document.getElementById('full-player-art');
-const fullTitle = document.getElementById('full-player-title');
-const fullArtist = document.getElementById('full-player-artist');
-const fullPlayPauseBtn = document.getElementById('full-play-pause-btn');
-const fullPlayIcon = document.getElementById('full-play-icon');
-const fullPauseIcon = document.getElementById('full-pause-icon');
-const fullPrevBtn = document.getElementById('full-prev-btn');
-const fullNextBtn = document.getElementById('full-next-btn');
-const progressBarFill = document.getElementById('progress-bar-fill');
-const progressBarBg = document.getElementById('progress-bar-bg');
-const fullTimeEl = document.getElementById('full-player-time');
+    // Mini Player
+    miniPlayer:       document.getElementById('mini-player'),
+    miniPlayerInner:  document.getElementById('mini-player-inner'),
+    miniArt:          document.getElementById('mini-art'),
+    miniTitle:        document.getElementById('mini-title'),
+    miniArtist:       document.getElementById('mini-artist'),
+    miniPrev:         document.getElementById('mini-prev'),
+    miniPlayPause:    document.getElementById('mini-play-pause'),
+    miniPlayIcon:     document.getElementById('mini-play-icon'),
+    miniPauseIcon:    document.getElementById('mini-pause-icon'),
+    miniNext:         document.getElementById('mini-next'),
+    miniProgressFill: document.getElementById('mini-progress-fill'),
 
-// DOM Elements - Nav
-const navHome = document.getElementById('nav-home');
-const navSearch = document.getElementById('nav-search');
-const navHeart = document.getElementById('nav-heart');
-const searchTriggers = document.querySelectorAll('.search-trigger');
-const searchContainer = document.getElementById('search-input-container');
-const searchInput = document.getElementById('search-input');
+    // Nav
+    navHome:          document.getElementById('nav-home'),
+    navSearchBtn:     document.getElementById('nav-search-btn'),
+    navHeart:         document.getElementById('nav-heart'),
+    navHeartSvg:      document.getElementById('nav-heart-svg'),
 
-// Initialize App
-function initApp() {
-  renderHomeView();
-  loadYouTubeAPI();
-  bindEvents();
-}
-
-// Render Home View Data
-function renderHomeView() {
-  // Render Collections (First 5 songs)
-  if (collectionsList) {
-    collectionsList.innerHTML = '';
-    currentPlaylist.slice(0, 5).forEach((song, idx) => {
-      const el = document.createElement('div');
-      el.className = 'collection-card';
-      el.innerHTML = `
-        <div class="collection-img-box">
-          <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" alt="${song.title}">
-        </div>
-        <h4>${song.title.substring(0, 15)}</h4>
-        <p>${Math.floor(Math.random() * 200) + 50} songs</p>
-      `;
-      el.addEventListener('click', () => {
-        playTrackAtIndex(idx);
-        openFullPlayer();
-      });
-      collectionsList.appendChild(el);
-    });
-  }
-
-  // Render Recommended
-  if (recommendedList) {
-    recommendedList.innerHTML = '';
-    currentPlaylist.forEach((song, index) => {
-      const el = document.createElement('div');
-      el.className = 'song-row';
-      el.innerHTML = `
-        <div class="song-row-info">
-          <div class="song-row-title">${song.title.length > 25 ? song.title.substring(0,25)+'...' : song.title}</div>
-          <div class="song-row-artist">${song.artist}</div>
-        </div>
-        <button class="red-play-btn song-row-play">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffffff" style="margin-left:2px;"><path d="M8 5v14l11-7z" /></svg>
-        </button>
-      `;
-      // Ensure clicking anywhere in the row plays the song
-      el.addEventListener('click', () => {
-        playTrackAtIndex(index);
-        openFullPlayer();
-      });
-      recommendedList.appendChild(el);
-    });
-  }
-}
-
-// View Navigation
-function openFullPlayer() {
-  playerView.classList.remove('hidden-view');
-  navHome.classList.remove('active');
-}
-
-function closeFullPlayer() {
-  playerView.classList.add('hidden-view');
-  navHome.classList.add('active');
-}
-
-// YouTube Player Initialization
-function loadYouTubeAPI() {
-  if (window.YT && window.YT.Player) {
-    createYTPlayer();
-    return;
-  }
-  const tag = document.createElement('script');
-  tag.src = 'https://www.youtube.com/iframe_api';
-  const firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-  window.onYouTubeIframeAPIReady = () => {
-    createYTPlayer();
+    // Search
+    searchToggle:     document.getElementById('search-toggle'),
+    searchBar:        document.getElementById('search-bar'),
+    searchInput:      document.getElementById('search-input'),
+    searchClose:      document.getElementById('search-close'),
   };
 }
 
-function createYTPlayer() {
-  const firstVideoId = currentPlaylist[currentTrackIndex]?.id || 'xAHS7PhfI6Q';
-  player = new window.YT.Player('youtube-player', {
-    height: '1',
-    width: '1',
-    videoId: firstVideoId,
-    playerVars: { autoplay: 0, controls: 0, playsinline: 1 },
+// ─── YouTube API ──────────────────────────────────────────────
+function loadYouTubeAPI() {
+  const tag = document.createElement('script');
+  tag.src   = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+}
+
+window.onYouTubeIframeAPIReady = function () {
+  ytPlayer = new window.YT.Player('yt-player', {
+    height: '1', width: '1',
+    videoId: playlist[0].id,
+    playerVars: {
+      autoplay:      0,
+      controls:      0,
+      playsinline:   1,
+      rel:           0,
+      modestbranding: 1,
+    },
     events: {
-      onReady: onPlayerReady,
-      onStateChange: onPlayerStateChange
-    }
+      onReady:       onYTReady,
+      onStateChange: onYTStateChange,
+    },
   });
+};
+
+function onYTReady(event) {
+  ytReady = true;
+  updateTrackUI(playlist[currentIndex]);
 }
 
-function onPlayerReady() {
-  isPlayerReady = true;
-  const currentTrack = currentPlaylist[currentTrackIndex];
-  if (currentTrack) {
-    updateTrackUI(currentTrack);
-  }
-  startProgressTracker();
-}
-
-function onPlayerStateChange(event) {
-  if (event.data === window.YT.PlayerState.PLAYING) {
+function onYTStateChange(event) {
+  const S = window.YT.PlayerState;
+  if (event.data === S.PLAYING) {
     isPlaying = true;
-    updatePlayPauseUI(true);
-  } else if (event.data === window.YT.PlayerState.PAUSED || event.data === window.YT.PlayerState.CUED) {
+    updatePlayUI(true);
+    startProgressTimer();
+  } else if (event.data === S.PAUSED) {
     isPlaying = false;
-    updatePlayPauseUI(false);
-  } else if (event.data === window.YT.PlayerState.ENDED) {
-    playNextTrack();
+    updatePlayUI(false);
+  } else if (event.data === S.ENDED) {
+    nextTrack();
   }
 }
 
-// Playback Logic
-function playTrackAtIndex(index) {
-  if (index < 0 || index >= currentPlaylist.length) return;
-  currentTrackIndex = index;
-  const track = currentPlaylist[currentTrackIndex];
-
+// ─── Playback ─────────────────────────────────────────────────
+function playTrack(index) {
+  if (index < 0) index = filteredList.length - 1;
+  if (index >= filteredList.length) index = 0;
+  currentIndex = index;
+  const track = filteredList[currentIndex];
   updateTrackUI(track);
-
-  if (isPlayerReady && player) {
-    player.loadVideoById(track.id);
-    player.playVideo();
+  if (ytReady && ytPlayer) {
+    ytPlayer.loadVideoById(track.id);
+    ytPlayer.playVideo();
   }
+  showMiniPlayer();
 }
 
 function togglePlayPause() {
-  if (!isPlayerReady || !player) return;
-  if (isPlaying) {
-    player.pauseVideo();
-  } else {
-    player.playVideo();
-  }
+  if (!ytReady || !ytPlayer) return;
+  if (isPlaying) { ytPlayer.pauseVideo(); }
+  else           { ytPlayer.playVideo(); }
 }
 
-function playNextTrack() {
-  const nextIndex = (currentTrackIndex + 1) % currentPlaylist.length;
-  playTrackAtIndex(nextIndex);
+function prevTrack() {
+  playTrack(currentIndex - 1);
+}
+function nextTrack() {
+  playTrack(currentIndex + 1);
 }
 
-function playPrevTrack() {
-  const prevIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-  playTrackAtIndex(prevIndex);
-}
-
-// UI Updates
+// ─── UI Updates ───────────────────────────────────────────────
 function updateTrackUI(track) {
   if (!track) return;
-  const thumbUrl = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
-  
-  // Mini Player
-  if (miniTitle) miniTitle.textContent = track.title;
-  if (miniArtist) miniArtist.textContent = track.artist;
-  
-  // Full Player
-  if (fullTitle) fullTitle.textContent = track.title.length > 20 ? track.title.substring(0,20)+'...' : track.title;
-  if (fullArtist) fullArtist.textContent = track.artist;
-  if (fullArt) fullArt.src = thumbUrl;
-}
+  const thumb = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
 
-function updatePlayPauseUI(playing) {
-  if (playing) {
-    miniPlayIcon.classList.add('hidden');
-    miniPauseIcon.classList.remove('hidden');
-    fullPlayIcon.classList.add('hidden');
-    fullPauseIcon.classList.remove('hidden');
-  } else {
-    miniPlayIcon.classList.remove('hidden');
-    miniPauseIcon.classList.add('hidden');
-    fullPlayIcon.classList.remove('hidden');
-    fullPauseIcon.classList.add('hidden');
-  }
-}
+  // Player view
+  if (DOM.albumArt)    DOM.albumArt.src = thumb;
+  if (DOM.songTitle)   DOM.songTitle.textContent  = track.title;
+  if (DOM.songArtist)  DOM.songArtist.textContent = track.artist;
 
-function startProgressTracker() {
-  if (seekInterval) clearInterval(seekInterval);
-  seekInterval = setInterval(() => {
-    if (!isPlayerReady || !player || !isPlaying) return;
-    try {
-      const currentTime = player.getCurrentTime() || 0;
-      const duration = player.getDuration() || 1;
-      const percent = (currentTime / duration) * 100;
-      
-      // Update text time
-      const remaining = duration - currentTime;
-      if (fullTimeEl) fullTimeEl.textContent = `-${formatTime(remaining)}`;
-      
-      // Update Horizontal Progress
-      if (progressBarFill) {
-        progressBarFill.style.width = `${percent}%`;
-      }
-    } catch (err) {}
-  }, 250);
-}
-
-function formatTime(seconds) {
-  if (!seconds || isNaN(seconds)) return "0:00";
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-}
-
-// Seek Functionality
-function bindProgressSeek() {
-  if (progressBarBg) {
-    progressBarBg.addEventListener('click', (e) => {
-      if (!isPlayerReady || !player) return;
-      const rect = progressBarBg.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const percent = clickX / rect.width;
-      const duration = player.getDuration() || 0;
-      player.seekTo(duration * percent, true);
-    });
-  }
-}
-
-// Event Bindings
-function bindEvents() {
-  // Mini Player Controls
-  if (miniPlayPauseBtn) {
-    miniPlayPauseBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      togglePlayPause();
-    });
-  }
-  if (miniNextBtn) {
-    miniNextBtn.addEventListener('click', (e) => { e.stopPropagation(); playNextTrack(); });
-  }
-  if (miniPrevBtn) {
-    miniPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); playPrevTrack(); });
-  }
-  if (miniPlayer) {
-    miniPlayer.addEventListener('click', openFullPlayer);
+  // Lyrics
+  if (DOM.lyricsBox && track.lyrics) {
+    DOM.lyricsBox.innerHTML = track.lyrics
+      .map(l => `<div class="lyrics-line">${l}</div>`).join('');
+  } else if (DOM.lyricsBox) {
+    DOM.lyricsBox.innerHTML = '';
   }
 
-  // Full Player Controls
-  if (fullPlayPauseBtn) fullPlayPauseBtn.addEventListener('click', togglePlayPause);
-  if (fullNextBtn) fullNextBtn.addEventListener('click', playNextTrack);
-  if (fullPrevBtn) fullPrevBtn.addEventListener('click', playPrevTrack);
-  if (backBtn) backBtn.addEventListener('click', closeFullPlayer);
-  
-  // Progress Bar Seek
-  bindProgressSeek();
+  // Mini player
+  if (DOM.miniArt)    DOM.miniArt.src = thumb;
+  if (DOM.miniTitle)  DOM.miniTitle.textContent  = track.title;
+  if (DOM.miniArtist) DOM.miniArtist.textContent = track.artist;
 
-  // Bottom Navigation
-  if (navHome) {
-    navHome.addEventListener('click', () => {
-      navHome.classList.add('active');
-      if (navHeart) navHeart.classList.remove('active');
-      closeFullPlayer();
-    });
-  }
-  
-  if (navHeart) {
-    navHeart.addEventListener('click', (e) => {
-      e.stopPropagation(); // ensure it doesn't bubble if needed
-      navHeart.classList.toggle('liked');
-    });
-  }
-  
-  // Search Triggers
-  searchTriggers.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      closeFullPlayer();
-      const scrollContent = homeView.querySelector('.scroll-content');
-      if (scrollContent) scrollContent.scrollTo({ top: 0, behavior: 'smooth' });
-      
-      // Toggle search bar visibility
-      if (searchContainer) {
-        searchContainer.classList.toggle('active');
-        if (searchContainer.classList.contains('active') && searchInput) {
-           setTimeout(() => searchInput.focus(), 100);
-        }
-      }
-    });
+  // Heart state
+  updateHeartUI(likedSongs.has(currentIndex));
+
+  // Highlight playing song in list
+  document.querySelectorAll('.song-row').forEach((row, i) => {
+    row.classList.toggle('playing', i === currentIndex);
   });
-  
-  // Close search when clicking outside
-  document.addEventListener('click', (e) => {
-    if (searchContainer && searchContainer.classList.contains('active')) {
-      if (!searchContainer.contains(e.target) && !e.target.closest('.search-trigger')) {
-        searchContainer.classList.remove('active');
-      }
+}
+
+function updatePlayUI(playing) {
+  // Player view icons
+  if (DOM.playIcon)  DOM.playIcon.style.display  = playing ? 'none' : '';
+  if (DOM.pauseIcon) DOM.pauseIcon.style.display = playing ? ''     : 'none';
+
+  // Mini player icons
+  if (DOM.miniPlayIcon)  DOM.miniPlayIcon.style.display  = playing ? 'none' : '';
+  if (DOM.miniPauseIcon) DOM.miniPauseIcon.style.display = playing ? ''     : 'none';
+}
+
+function updateHeartUI(liked) {
+  // Player heart
+  if (DOM.playerHeartBtn) DOM.playerHeartBtn.classList.toggle('liked', liked);
+  if (DOM.playerHeartSvg) {
+    DOM.playerHeartSvg.setAttribute('fill', liked ? '#ff4d4f' : 'none');
+    DOM.playerHeartSvg.setAttribute('stroke', liked ? '#ff4d4f' : 'currentColor');
+  }
+}
+
+// ─── Progress ─────────────────────────────────────────────────
+function startProgressTimer() {
+  if (progressTimer) clearInterval(progressTimer);
+  progressTimer = setInterval(tickProgress, 300);
+}
+
+function tickProgress() {
+  if (!ytReady || !ytPlayer || !isPlaying) return;
+  try {
+    const current  = ytPlayer.getCurrentTime() || 0;
+    const duration = ytPlayer.getDuration() || 1;
+    const pct      = (current / duration) * 100;
+    const remain   = duration - current;
+
+    if (DOM.progressFill)      DOM.progressFill.style.width = pct + '%';
+    if (DOM.miniProgressFill)  DOM.miniProgressFill.style.width = pct + '%';
+    if (DOM.timeCurrent)       DOM.timeCurrent.textContent  = fmtTime(current);
+    if (DOM.timeRemaining)     DOM.timeRemaining.textContent = '-' + fmtTime(remain);
+  } catch (_) {}
+}
+
+function fmtTime(s) {
+  if (!s || isNaN(s)) return '0:00';
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+}
+
+// ─── View Switching ───────────────────────────────────────────
+function showPlayerView() {
+  isInPlayerView = true;
+  DOM.homeView.classList.remove('active-view');
+  DOM.homeView.classList.add('hidden-view');
+  DOM.playerView.classList.remove('hidden-view');
+  DOM.playerView.classList.add('active-view');
+  DOM.navHome.classList.remove('active');
+  hideMiniPlayer();
+}
+
+function showHomeView() {
+  isInPlayerView = false;
+  DOM.playerView.classList.remove('active-view');
+  DOM.playerView.classList.add('hidden-view');
+  DOM.homeView.classList.remove('hidden-view');
+  DOM.homeView.classList.add('active-view');
+  DOM.navHome.classList.add('active');
+  if (isPlaying || ytReady) showMiniPlayer();
+}
+
+function showMiniPlayer() {
+  if (!isInPlayerView && DOM.miniPlayer) {
+    DOM.miniPlayer.style.display = 'block';
+  }
+}
+function hideMiniPlayer() {
+  if (DOM.miniPlayer) DOM.miniPlayer.style.display = 'none';
+}
+
+// ─── Render Home ──────────────────────────────────────────────
+function renderHome(songs) {
+  // Collections = first 5 unique songs as cards
+  if (DOM.collectionsEl) {
+    DOM.collectionsEl.innerHTML = '';
+    playlist.slice(0, 5).forEach((song, i) => {
+      const card = document.createElement('div');
+      card.className = 'collection-card';
+      card.innerHTML = `
+        <div class="collection-thumb">
+          <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" alt="${song.title}" loading="lazy">
+        </div>
+        <div class="c-title">${song.title.substring(0, 14)}</div>
+        <div class="c-sub">${song.category || ''}</div>
+      `;
+      card.addEventListener('click', () => {
+        filteredList = [...playlist];
+        playTrack(i);
+        showPlayerView();
+      });
+      DOM.collectionsEl.appendChild(card);
+    });
+  }
+
+  // Song list
+  if (DOM.songList) {
+    DOM.songList.innerHTML = '';
+    songs.forEach((song, i) => {
+      const row = document.createElement('div');
+      row.className = 'song-row';
+      if (i === currentIndex && (isPlaying || ytReady)) row.classList.add('playing');
+      row.innerHTML = `
+        <div class="song-thumb">
+          <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" alt="${song.title}" loading="lazy">
+        </div>
+        <div class="song-row-info">
+          <div class="song-row-title">${song.title}</div>
+          <div class="song-row-artist">${song.artist}</div>
+        </div>
+        <button class="song-play-btn" aria-label="Play ${song.title}">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+      `;
+      const playFn = (e) => {
+        e.stopPropagation();
+        filteredList = [...songs];
+        playTrack(i);
+        showPlayerView();
+      };
+      row.addEventListener('click', playFn);
+      row.querySelector('.song-play-btn').addEventListener('click', playFn);
+      DOM.songList.appendChild(row);
+    });
+  }
+}
+
+// ─── Search ───────────────────────────────────────────────────
+function openSearch() {
+  if (DOM.searchBar) {
+    DOM.searchBar.classList.remove('hidden');
+    if (DOM.searchInput) DOM.searchInput.focus();
+  }
+}
+function closeSearch() {
+  if (DOM.searchBar) {
+    DOM.searchBar.classList.add('hidden');
+    if (DOM.searchInput) DOM.searchInput.value = '';
+    renderHome(playlist);
+  }
+}
+
+// ─── Wishlist Nav ─────────────────────────────────────────────
+let wishlistView = false;
+function toggleWishlistView() {
+  wishlistView = !wishlistView;
+  if (wishlistView) {
+    DOM.navHeart.classList.add('active', 'liked');
+    DOM.navHome.classList.remove('active');
+    showHomeView();
+    const liked = playlist.filter((_, i) => likedSongs.has(i));
+    renderHome(liked.length ? liked : playlist);
+  } else {
+    DOM.navHeart.classList.remove('active', 'liked');
+    DOM.navHome.classList.add('active');
+    renderHome(playlist);
+  }
+}
+
+// ─── Event Bindings ───────────────────────────────────────────
+function bindEvents() {
+  // Back button
+  DOM.backBtn.addEventListener('click', showHomeView);
+
+  // Play/Pause
+  DOM.playPauseBtn.addEventListener('click', togglePlayPause);
+
+  // Next / Prev
+  DOM.nextBtn.addEventListener('click', nextTrack);
+  DOM.prevBtn.addEventListener('click', prevTrack);
+
+  // Mini player
+  DOM.miniPlayerInner.addEventListener('click', showPlayerView);
+  DOM.miniPlayPause.addEventListener('click', (e) => { e.stopPropagation(); togglePlayPause(); });
+  DOM.miniNext.addEventListener('click', (e) => { e.stopPropagation(); nextTrack(); });
+  DOM.miniPrev.addEventListener('click', (e) => { e.stopPropagation(); prevTrack(); });
+
+  // Progress bar seek
+  DOM.progressTrack.addEventListener('click', (e) => {
+    if (!ytReady || !ytPlayer) return;
+    const rect = DOM.progressTrack.getBoundingClientRect();
+    const pct  = (e.clientX - rect.left) / rect.width;
+    ytPlayer.seekTo((ytPlayer.getDuration() || 0) * pct, true);
+  });
+
+  // Player heart / like
+  DOM.playerHeartBtn.addEventListener('click', () => {
+    if (likedSongs.has(currentIndex)) {
+      likedSongs.delete(currentIndex);
+      updateHeartUI(false);
+    } else {
+      likedSongs.add(currentIndex);
+      updateHeartUI(true);
     }
   });
+
+  // Bottom nav
+  DOM.navHome.addEventListener('click', () => {
+    wishlistView = false;
+    DOM.navHeart.classList.remove('active', 'liked');
+    DOM.navHome.classList.add('active');
+    showHomeView();
+    renderHome(playlist);
+  });
+
+  DOM.navHeart.addEventListener('click', toggleWishlistView);
+
+  DOM.navSearchBtn.addEventListener('click', () => {
+    DOM.navSearchBtn.classList.add('active');
+    DOM.navHome.classList.remove('active');
+    DOM.navHeart.classList.remove('active', 'liked');
+    wishlistView = false;
+    showHomeView();
+    openSearch();
+  });
+
+  // Search bar
+  DOM.searchToggle.addEventListener('click', openSearch);
+  DOM.searchClose.addEventListener('click', closeSearch);
+  DOM.searchInput.addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    const results = q
+      ? playlist.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
+      : playlist;
+    renderHome(results);
+  });
 }
 
-// Boot
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
-}
+// ─── Boot ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  grabDOM();
+  renderHome(playlist);
+  loadYouTubeAPI();
+  bindEvents();
+});

@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#8b78e6" />
+  <meta name="theme-color" content="#ffffff" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Avara Ashiq - Glassmorphism Player</title>
-  
-  <!-- Fonts -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Avara Ashiq - Music Player</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
 </head>
 <body>
-  
+
   <!-- Preloader -->
   <div id="preloader">
     <div class="bars">
@@ -25,168 +25,178 @@
       <div class="bar"></div>
       <div class="bar"></div>
     </div>
+    <p class="preloader-text">Avara Ashiq</p>
   </div>
-  <script>
-    (function() {
-      var preloader = document.getElementById('preloader');
-      var removed = false;
-      function removePre() {
-        if(removed || !preloader) return;
-        removed = true;
-        preloader.style.opacity = '0';
-        setTimeout(function() {
-          if(preloader.parentNode) preloader.parentNode.removeChild(preloader);
-        }, 500);
-      }
-      setTimeout(removePre, 2500); // 2.5s absolute max display
-      window.addEventListener('load', function() {
-        setTimeout(removePre, 800);
-      });
-    })();
-  </script>
 
+  <!-- App Shell -->
   <div id="app">
-    <!-- YouTube iframe (hidden but not display:none for mobile playback) -->
-    <div id="youtube-player" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; top:0; left:0;"></div>
 
-    <!-- ==============================================
-         HOME VIEW
-         ============================================== -->
-    <div id="home-view" class="view-container glass-panel">
-      <!-- SCROLLABLE CONTENT AREA (Fixes mini-player scroll issue) -->
-      <div class="scroll-content">
-        <!-- Header -->
-        <header class="top-header">
-          <!-- Hidden Search Input -->
-          <div class="search-input-container" id="search-input-container">
-            <input type="text" placeholder="Search songs..." id="search-input">
-          </div>
-          
-          <button class="glass-btn icon-btn search-trigger" id="search-toggle-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          </button>
-          <button class="glass-btn icon-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-          </button>
-        </header>
+    <!-- YouTube Player (invisible) -->
+    <div id="yt-player-container" style="position:absolute;width:1px;height:1px;overflow:hidden;top:-1px;left:-1px;opacity:0;pointer-events:none;">
+      <div id="yt-player"></div>
+    </div>
 
-        <!-- Collections -->
-        <section class="section">
-          <h3 class="section-title">Collections</h3>
-          <div class="collections-scroll" id="collections-list">
-            <!-- Populated by JS -->
-          </div>
-        </section>
+    <!-- ===================== HOME VIEW ===================== -->
+    <div id="home-view" class="view active-view">
 
-        <!-- Recommended -->
-        <section class="section recommended-section">
-          <h3 class="section-title">Recommended</h3>
-          <div class="recommended-list" id="recommended-list">
-            <!-- Populated by JS -->
+      <!-- Top Header -->
+      <div class="home-header">
+        <div class="home-header-left">
+          <div class="app-logo">🎵</div>
+          <div>
+            <div class="app-name">Avara Ashiq</div>
+            <div class="app-sub">Your Playlist</div>
           </div>
-        </section>
+        </div>
+        <button id="search-toggle" class="icon-btn" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
       </div>
 
-      <!-- FIXED Mini Player -->
-      <div id="mini-player" class="glass-panel mini-player">
-        <div class="mini-player-left">
-          <button class="red-play-btn mini-btn" id="mini-play-pause-btn">
-            <svg id="mini-play-icon" width="14" height="14" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px;"><path d="M8 5v14l11-7z" /></svg>
-            <svg id="mini-pause-icon" width="14" height="14" viewBox="0 0 24 24" fill="#ffffff" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
-          </button>
-          <div class="mini-info">
-            <div class="mini-title" id="mini-title">Secrets</div>
-            <div class="mini-artist" id="mini-artist">Tiesto & KSHMR</div>
+      <!-- Search Bar (hidden by default) -->
+      <div id="search-bar" class="search-bar hidden">
+        <input id="search-input" type="text" placeholder="Search songs, artists..." autocomplete="off">
+        <button id="search-close" class="icon-btn-sm" aria-label="Close search">✕</button>
+      </div>
+
+      <!-- Collections -->
+      <div class="section-title">Collections</div>
+      <div id="collections-container" class="collections-scroll"></div>
+
+      <!-- Song List -->
+      <div class="section-title" style="margin-top:20px;">All Songs</div>
+      <div id="song-list" class="song-list"></div>
+
+    </div>
+
+    <!-- ===================== PLAYER VIEW ===================== -->
+    <div id="player-view" class="view hidden-view">
+
+      <!-- Player Header -->
+      <div class="player-header">
+        <button id="back-btn" class="icon-btn" aria-label="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <span class="player-header-title">Now Playing</span>
+        <button id="player-heart-btn" class="icon-btn heart-btn" aria-label="Wishlist">
+          <svg id="player-heart-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
+
+      <!-- Album Art -->
+      <div class="album-art-wrapper">
+        <div class="album-art-frame">
+          <img id="album-art" src="" alt="Album Art">
+        </div>
+      </div>
+
+      <!-- Song Info -->
+      <div class="song-info">
+        <div id="song-title" class="song-title-big">Song Title</div>
+        <div id="song-artist" class="song-artist-big">Artist</div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-wrapper">
+        <div id="progress-track" class="progress-track">
+          <div id="progress-fill" class="progress-fill">
+            <div class="progress-thumb"></div>
           </div>
         </div>
-        <div class="mini-player-right">
-          <button class="glass-btn icon-btn mini-skip" id="mini-prev-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" /></svg>
+        <div class="progress-times">
+          <span id="time-current">0:00</span>
+          <span id="time-remaining">-0:00</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="player-controls">
+        <button id="prev-btn" class="ctrl-btn" aria-label="Previous">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        <button id="play-pause-btn" class="ctrl-btn play-btn" aria-label="Play/Pause">
+          <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <button id="next-btn" class="ctrl-btn" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+      </div>
+
+      <!-- Lyrics Preview -->
+      <div id="lyrics-box" class="lyrics-box"></div>
+
+    </div>
+
+    <!-- ===================== MINI PLAYER ===================== -->
+    <div id="mini-player" class="mini-player" style="display:none;">
+      <div id="mini-player-inner" class="mini-player-inner">
+        <img id="mini-art" src="" alt="art" class="mini-art">
+        <div class="mini-info">
+          <div id="mini-title" class="mini-title">Song</div>
+          <div id="mini-artist" class="mini-artist">Artist</div>
+        </div>
+        <div class="mini-controls">
+          <button id="mini-prev" class="mini-btn" aria-label="Previous">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
           </button>
-          <button class="glass-btn icon-btn mini-skip" id="mini-next-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" /></svg>
+          <button id="mini-play-pause" class="mini-btn mini-play-btn" aria-label="Play/Pause">
+            <svg id="mini-play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="mini-pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <button id="mini-next" class="mini-btn" aria-label="Next">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
           </button>
         </div>
+      </div>
+      <!-- mini progress bar -->
+      <div id="mini-progress-track" class="mini-progress-track">
+        <div id="mini-progress-fill" class="mini-progress-fill"></div>
       </div>
     </div>
 
-    <!-- ==============================================
-         PLAYER VIEW
-         ============================================== -->
-    <div id="player-view" class="view-container glass-panel hidden-view">
-      <div class="scroll-content">
-        <!-- Header -->
-        <header class="top-header player-header">
-          <button class="glass-btn icon-btn" id="back-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-          <span class="header-title">Listen now</span>
-          <button class="glass-btn icon-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-          </button>
-        </header>
-
-        <!-- Rounded Square Art -->
-        <div class="player-art-wrapper">
-          <div class="glass-art-frame">
-            <img id="full-player-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Album Art">
-          </div>
-        </div>
-
-        <!-- Info -->
-        <div class="player-info">
-          <h2 id="full-player-title">Psychodelic</h2>
-          <p id="full-player-artist">D3m0n X Diablo</p>
-        </div>
-
-        <!-- Progress Line -->
-        <div class="progress-container">
-          <div class="progress-bar-bg" id="progress-bar-bg">
-            <div class="progress-bar-fill" id="progress-bar-fill">
-              <div class="progress-dot">
-                <div class="progress-dot-inner"></div>
-              </div>
-            </div>
-          </div>
-          <div class="progress-time" id="full-player-time">-3:06</div>
-        </div>
-
-        <!-- Controls -->
-        <div class="player-controls">
-          <button class="glass-btn control-btn" id="full-prev-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" /></svg>
-          </button>
-          <button class="red-play-btn large" id="full-play-pause-btn">
-            <svg id="full-play-icon" width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 4px;"><path d="M8 5v14l11-7z" /></svg>
-            <svg id="full-pause-icon" width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
-          </button>
-          <button class="glass-btn control-btn" id="full-next-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" /></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==============================================
-         BOTTOM NAVIGATION
-         ============================================== -->
-    <nav class="glass-bottom-nav glass-panel">
-      <button class="nav-item active" id="nav-home">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    <!-- ===================== BOTTOM NAV ===================== -->
+    <nav class="bottom-nav">
+      <button id="nav-home" class="nav-btn active" aria-label="Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
       </button>
-      <button class="nav-item search-trigger" id="nav-search">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <button id="nav-search-btn" class="nav-btn" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Search</span>
       </button>
-      <button class="nav-item" id="nav-heart">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+      <button id="nav-heart" class="nav-btn" aria-label="Wishlist">
+        <svg id="nav-heart-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>Wishlist</span>
       </button>
     </nav>
+
   </div>
 
-  <div style="display: none;">
+  <!-- Hidden attribution -->
+  <div hidden>
     <a href="https://www.flaticon.com/free-icons/music" title="music icons">Music icons created by Magnific - Flaticon</a>
   </div>
 
+  <!-- Inline preloader removal (no dependencies) -->
+  <script>
+    (function() {
+      var removed = false;
+      function hidePre() {
+        if (removed) return;
+        removed = true;
+        var el = document.getElementById('preloader');
+        if (!el) return;
+        el.style.transition = 'opacity 0.4s ease';
+        el.style.opacity = '0';
+        setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 400);
+      }
+      setTimeout(hidePre, 2500);
+      window.addEventListener('load', function() { setTimeout(hidePre, 800); });
+    })();
+  </script>
+
+  <!-- Main App Script -->
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
