@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#7c60e0" />
+  <meta name="theme-color" content="#8b78e6" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Avara Ashiq - Glassmorphism Player</title>
@@ -13,7 +13,6 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Using Inter for a clean modern Glass UI look -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -22,42 +21,49 @@
     <!-- YouTube iframe (hidden) -->
     <div id="youtube-player" style="display:none; position:absolute;"></div>
 
+    <!-- 3D Abstract Background Elements -->
+    <div class="bg-shape shape-torus"></div>
+    <div class="bg-shape shape-sphere"></div>
+
     <!-- ==============================================
-         HOME VIEW (Right screen in mockup)
+         HOME VIEW
          ============================================== -->
     <div id="home-view" class="view-container glass-panel">
-      <!-- Header -->
-      <header class="top-header">
-        <button class="glass-btn icon-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        </button>
-        <button class="glass-btn icon-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-        </button>
-      </header>
+      <!-- SCROLLABLE CONTENT AREA (Fixes mini-player scroll issue) -->
+      <div class="scroll-content">
+        <!-- Header -->
+        <header class="top-header">
+          <button class="glass-btn icon-btn search-trigger">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+          <button class="glass-btn icon-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </button>
+        </header>
 
-      <!-- Collections (Horizontal Scroll) -->
-      <section class="section">
-        <h3 class="section-title">Collections</h3>
-        <div class="collections-scroll" id="collections-list">
-          <!-- Populated by JS -->
-        </div>
-      </section>
+        <!-- Collections -->
+        <section class="section">
+          <h3 class="section-title">Collections</h3>
+          <div class="collections-scroll" id="collections-list">
+            <!-- Populated by JS -->
+          </div>
+        </section>
 
-      <!-- Recommended (Vertical List) -->
-      <section class="section flex-grow">
-        <h3 class="section-title">Recommended</h3>
-        <div class="recommended-list" id="recommended-list">
-          <!-- Populated by JS -->
-        </div>
-      </section>
+        <!-- Recommended -->
+        <section class="section recommended-section">
+          <h3 class="section-title">Recommended</h3>
+          <div class="recommended-list" id="recommended-list">
+            <!-- Populated by JS -->
+          </div>
+        </section>
+      </div>
 
-      <!-- Floating Mini Player -->
+      <!-- FIXED Mini Player -->
       <div id="mini-player" class="glass-panel mini-player">
         <div class="mini-player-left">
-          <button class="red-play-btn" id="mini-play-pause-btn">
-            <svg id="mini-play-icon" width="16" height="16" viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5v14l11-7z" /></svg>
-            <svg id="mini-pause-icon" width="16" height="16" viewBox="0 0 24 24" fill="#ffffff" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+          <button class="red-play-btn mini-btn" id="mini-play-pause-btn">
+            <svg id="mini-play-icon" width="14" height="14" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 2px;"><path d="M8 5v14l11-7z" /></svg>
+            <svg id="mini-pause-icon" width="14" height="14" viewBox="0 0 24 24" fill="#ffffff" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
           </button>
           <div class="mini-info">
             <div class="mini-title" id="mini-title">Secrets</div>
@@ -66,86 +72,88 @@
         </div>
         <div class="mini-player-right">
           <button class="glass-btn icon-btn mini-skip" id="mini-prev-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" /></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" /></svg>
           </button>
           <button class="glass-btn icon-btn mini-skip" id="mini-next-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" /></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" /></svg>
           </button>
         </div>
       </div>
     </div>
 
     <!-- ==============================================
-         PLAYER VIEW (Left screen in mockup)
+         PLAYER VIEW
          ============================================== -->
     <div id="player-view" class="view-container glass-panel hidden-view">
-      <!-- Header -->
-      <header class="top-header player-header">
-        <button class="glass-btn icon-btn" id="back-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        </button>
-        <span class="header-title">Listen now</span>
-        <button class="glass-btn icon-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-        </button>
-      </header>
+      <div class="scroll-content">
+        <!-- Header -->
+        <header class="top-header player-header">
+          <button class="glass-btn icon-btn" id="back-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <span class="header-title">Listen now</span>
+          <button class="glass-btn icon-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+          </button>
+        </header>
 
-      <!-- Rounded Square Art -->
-      <div class="player-art-wrapper">
-        <div class="glass-art-frame">
-          <img id="full-player-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Album Art">
-        </div>
-      </div>
-
-      <!-- Info -->
-      <div class="player-info">
-        <h2 id="full-player-title">Psychodelic</h2>
-        <p id="full-player-artist">D3m0n X Diablo</p>
-      </div>
-
-      <!-- Progress Line -->
-      <div class="progress-container" id="progress-container">
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="progress-bar-fill">
-            <div class="progress-dot"></div>
+        <!-- Rounded Square Art -->
+        <div class="player-art-wrapper">
+          <div class="glass-art-frame">
+            <img id="full-player-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Album Art">
           </div>
         </div>
-        <div class="progress-time" id="full-player-time">-3:06</div>
-      </div>
 
-      <!-- Controls -->
-      <div class="player-controls">
-        <button class="glass-btn control-btn" id="full-prev-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" /></svg>
-        </button>
-        <button class="red-play-btn large" id="full-play-pause-btn">
-          <svg id="full-play-icon" width="24" height="24" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 4px;"><path d="M8 5v14l11-7z" /></svg>
-          <svg id="full-pause-icon" width="24" height="24" viewBox="0 0 24 24" fill="#ffffff" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
-        </button>
-        <button class="glass-btn control-btn" id="full-next-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" /></svg>
-        </button>
+        <!-- Info -->
+        <div class="player-info">
+          <h2 id="full-player-title">Psychodelic</h2>
+          <p id="full-player-artist">D3m0n X Diablo</p>
+        </div>
+
+        <!-- Progress Line -->
+        <div class="progress-container">
+          <div class="progress-bar-bg" id="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-bar-fill">
+              <div class="progress-dot">
+                <div class="progress-dot-inner"></div>
+              </div>
+            </div>
+          </div>
+          <div class="progress-time" id="full-player-time">-3:06</div>
+        </div>
+
+        <!-- Controls -->
+        <div class="player-controls">
+          <button class="glass-btn control-btn" id="full-prev-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" /></svg>
+          </button>
+          <button class="red-play-btn large" id="full-play-pause-btn">
+            <svg id="full-play-icon" width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 4px;"><path d="M8 5v14l11-7z" /></svg>
+            <svg id="full-pause-icon" width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+          </button>
+          <button class="glass-btn control-btn" id="full-next-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" /></svg>
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- ==============================================
-         BOTTOM NAVIGATION (Glass)
-         Only Home, Search, Wishlist
+         BOTTOM NAVIGATION
          ============================================== -->
     <nav class="glass-bottom-nav glass-panel">
       <button class="nav-item active" id="nav-home">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
       </button>
-      <button class="nav-item" id="nav-search">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <button class="nav-item search-trigger" id="nav-search">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       </button>
       <button class="nav-item" id="nav-heart">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
       </button>
     </nav>
   </div>
 
-  <!-- Attribution -->
   <div style="display: none;">
     <a href="https://www.flaticon.com/free-icons/music" title="music icons">Music icons created by Magnific - Flaticon</a>
   </div>

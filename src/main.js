@@ -45,6 +45,7 @@ const fullTimeEl = document.getElementById('full-player-time');
 const navHome = document.getElementById('nav-home');
 const navSearch = document.getElementById('nav-search');
 const navHeart = document.getElementById('nav-heart');
+const searchTriggers = document.querySelectorAll('.search-trigger');
 
 // Initialize App
 function initApp() {
@@ -55,7 +56,7 @@ function initApp() {
 
 // Render Home View Data
 function renderHomeView() {
-  // Render Collections (First 5 songs as collections just for UI)
+  // Render Collections (First 5 songs)
   if (collectionsList) {
     collectionsList.innerHTML = '';
     currentPlaylist.slice(0, 5).forEach((song, idx) => {
@@ -76,7 +77,7 @@ function renderHomeView() {
     });
   }
 
-  // Render Recommended (All songs)
+  // Render Recommended
   if (recommendedList) {
     recommendedList.innerHTML = '';
     currentPlaylist.forEach((song, index) => {
@@ -87,10 +88,11 @@ function renderHomeView() {
           <div class="song-row-title">${song.title.length > 25 ? song.title.substring(0,25)+'...' : song.title}</div>
           <div class="song-row-artist">${song.artist}</div>
         </div>
-        <button class="glass-btn song-row-play">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="#e63946" style="margin-left:2px;"><path d="M8 5v14l11-7z" /></svg>
+        <button class="red-play-btn song-row-play">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffffff" style="margin-left:2px;"><path d="M8 5v14l11-7z" /></svg>
         </button>
       `;
+      // Ensure clicking anywhere in the row plays the song
       el.addEventListener('click', () => {
         playTrackAtIndex(index);
         openFullPlayer();
@@ -133,7 +135,7 @@ function createYTPlayer() {
     height: '1',
     width: '1',
     videoId: firstVideoId,
-    playerVars: { autoplay: 0, controls: 0 },
+    playerVars: { autoplay: 0, controls: 0, playsinline: 1 },
     events: {
       onReady: onPlayerReady,
       onStateChange: onPlayerStateChange
@@ -154,7 +156,7 @@ function onPlayerStateChange(event) {
   if (event.data === window.YT.PlayerState.PLAYING) {
     isPlaying = true;
     updatePlayPauseUI(true);
-  } else if (event.data === window.YT.PlayerState.PAUSED) {
+  } else if (event.data === window.YT.PlayerState.PAUSED || event.data === window.YT.PlayerState.CUED) {
     isPlaying = false;
     updatePlayPauseUI(false);
   } else if (event.data === window.YT.PlayerState.ENDED) {
@@ -201,13 +203,13 @@ function updateTrackUI(track) {
   const thumbUrl = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
   
   // Mini Player
-  miniTitle.textContent = track.title;
-  miniArtist.textContent = track.artist;
+  if (miniTitle) miniTitle.textContent = track.title;
+  if (miniArtist) miniArtist.textContent = track.artist;
   
   // Full Player
-  fullTitle.textContent = track.title.length > 20 ? track.title.substring(0,20)+'...' : track.title;
-  fullArtist.textContent = track.artist;
-  fullArt.src = thumbUrl;
+  if (fullTitle) fullTitle.textContent = track.title.length > 20 ? track.title.substring(0,20)+'...' : track.title;
+  if (fullArtist) fullArtist.textContent = track.artist;
+  if (fullArt) fullArt.src = thumbUrl;
 }
 
 function updatePlayPauseUI(playing) {
@@ -235,7 +237,7 @@ function startProgressTracker() {
       
       // Update text time
       const remaining = duration - currentTime;
-      fullTimeEl.textContent = `-${formatTime(remaining)}`;
+      if (fullTimeEl) fullTimeEl.textContent = `-${formatTime(remaining)}`;
       
       // Update Horizontal Progress
       if (progressBarFill) {
@@ -252,7 +254,7 @@ function formatTime(seconds) {
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
-// Seek Functionality (Click on progress bar)
+// Seek Functionality
 function bindProgressSeek() {
   if (progressBarBg) {
     progressBarBg.addEventListener('click', (e) => {
@@ -268,41 +270,54 @@ function bindProgressSeek() {
 
 // Event Bindings
 function bindEvents() {
-  // Play/Pause
-  miniPlayPauseBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    togglePlayPause();
-  });
-  fullPlayPauseBtn.addEventListener('click', togglePlayPause);
-  
-  // Next/Prev
-  miniNextBtn.addEventListener('click', (e) => { e.stopPropagation(); playNextTrack(); });
-  miniPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); playPrevTrack(); });
-  fullNextBtn.addEventListener('click', playNextTrack);
-  fullPrevBtn.addEventListener('click', playPrevTrack);
+  // Mini Player Controls
+  if (miniPlayPauseBtn) {
+    miniPlayPauseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePlayPause();
+    });
+  }
+  if (miniNextBtn) {
+    miniNextBtn.addEventListener('click', (e) => { e.stopPropagation(); playNextTrack(); });
+  }
+  if (miniPrevBtn) {
+    miniPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); playPrevTrack(); });
+  }
+  if (miniPlayer) {
+    miniPlayer.addEventListener('click', openFullPlayer);
+  }
+
+  // Full Player Controls
+  if (fullPlayPauseBtn) fullPlayPauseBtn.addEventListener('click', togglePlayPause);
+  if (fullNextBtn) fullNextBtn.addEventListener('click', playNextTrack);
+  if (fullPrevBtn) fullPrevBtn.addEventListener('click', playPrevTrack);
+  if (backBtn) backBtn.addEventListener('click', closeFullPlayer);
   
   // Progress Bar Seek
   bindProgressSeek();
 
-  // Navigation
-  miniPlayer.addEventListener('click', openFullPlayer);
-  backBtn.addEventListener('click', closeFullPlayer);
+  // Bottom Navigation
+  if (navHome) {
+    navHome.addEventListener('click', () => {
+      navHome.classList.add('active');
+      if (navHeart) navHeart.classList.remove('active');
+      closeFullPlayer();
+    });
+  }
   
-  // Bottom Nav
-  navHome.addEventListener('click', () => {
-    navHome.classList.add('active');
-    navHeart.classList.remove('active');
-    closeFullPlayer();
-  });
+  if (navHeart) {
+    navHeart.addEventListener('click', () => {
+      navHeart.classList.toggle('liked');
+    });
+  }
   
-  navHeart.addEventListener('click', () => {
-    navHeart.classList.toggle('liked'); // Custom toggle for wishlist
-  });
-  
-  navSearch.addEventListener('click', () => {
-    // Just a placeholder, we can open home and scroll to top for now
-    closeFullPlayer();
-    document.querySelector('.view-container').scrollTop = 0;
+  // Search Triggers (just scrolls to top or provides UI feedback for now)
+  searchTriggers.forEach(btn => {
+    btn.addEventListener('click', () => {
+      closeFullPlayer();
+      const scrollContent = homeView.querySelector('.scroll-content');
+      if (scrollContent) scrollContent.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   });
 }
 
