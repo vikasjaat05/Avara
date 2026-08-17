@@ -46,6 +46,8 @@ const navHome = document.getElementById('nav-home');
 const navSearch = document.getElementById('nav-search');
 const navHeart = document.getElementById('nav-heart');
 const searchTriggers = document.querySelectorAll('.search-trigger');
+const searchContainer = document.getElementById('search-input-container');
+const searchInput = document.getElementById('search-input');
 
 // Initialize App
 function initApp() {
@@ -306,18 +308,37 @@ function bindEvents() {
   }
   
   if (navHeart) {
-    navHeart.addEventListener('click', () => {
+    navHeart.addEventListener('click', (e) => {
+      e.stopPropagation(); // ensure it doesn't bubble if needed
       navHeart.classList.toggle('liked');
     });
   }
   
-  // Search Triggers (just scrolls to top or provides UI feedback for now)
+  // Search Triggers
   searchTriggers.forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       closeFullPlayer();
       const scrollContent = homeView.querySelector('.scroll-content');
       if (scrollContent) scrollContent.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Toggle search bar visibility
+      if (searchContainer) {
+        searchContainer.classList.toggle('active');
+        if (searchContainer.classList.contains('active') && searchInput) {
+           setTimeout(() => searchInput.focus(), 100);
+        }
+      }
     });
+  });
+  
+  // Close search when clicking outside
+  document.addEventListener('click', (e) => {
+    if (searchContainer && searchContainer.classList.contains('active')) {
+      if (!searchContainer.contains(e.target) && !e.target.closest('.search-trigger')) {
+        searchContainer.classList.remove('active');
+      }
+    }
   });
 }
 
@@ -327,3 +348,15 @@ if (document.readyState === 'loading') {
 } else {
   initApp();
 }
+
+// Preloader Removal
+window.addEventListener('load', () => {
+  const preloader = document.getElementById('preloader');
+  if(preloader) {
+    // Artificial slight delay so user can see the nice animation
+    setTimeout(() => {
+       preloader.classList.add('fade-out');
+       setTimeout(() => preloader.remove(), 500);
+    }, 800); 
+  }
+});
