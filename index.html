@@ -18,8 +18,8 @@
 <body>
   
   <div id="app">
-    <!-- YouTube iframe (hidden) -->
-    <div id="youtube-player" style="display:none; position:absolute;"></div>
+    <!-- YouTube iframe (hidden but not display:none for mobile playback) -->
+    <div id="youtube-player" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; top:0; left:0;"></div>
 
     <!-- 3D Abstract Background Elements -->
     <div class="bg-shape shape-torus"></div>
