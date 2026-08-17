@@ -4,552 +4,145 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💔</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>">
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#0e0a08" />
+  <meta name="theme-color" content="#ffffff" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="AVARA" />
 
-  <!-- Primary SEO Meta Tags -->
-  <title>आवारा आशिक - दर्द-ए-दिल शायरी और संगीत | Avara Ashiq Sad Songs & Shayari</title>
-  <meta name="title" content="आवारा आशिक - दर्द-ए-दिल शायरी और संगीत | Avara Ashiq Sad Songs & Shayari" />
-  <meta name="description"
-    content="आवारा आशिकों के लिए महफ़िल-ए-दर्द। दिल टूटने वाली दर्द भरी हिंदी शायरी (Broken Heart Shayari), बेवफाई स्टेटस, सैड सॉन्ग्स (Sad Songs) और 3D म्यूजिक प्लेयर का बेहतरीन संगम।" />
-  <meta name="keywords"
-    content="avara ashiq, आवारा आशिक, दर्द-ए-दिल, टूटे दिल की शायरी, broken heart shayari in hindi, sad songs player, bewafa shayari, dil toota aashiq, hindi sad shayari, sonu nigam sad songs, dukh dard status" />
-  <meta name="robots" content="index, follow" />
-  <meta name="language" content="Hindi" />
-  <meta name="author" content="Avara Ashiq" />
+  <title>Favorite Music Player</title>
 
-  <!-- Open Graph / Facebook (Social SEO) -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="आवारा आशिक - दर्द-ए-दिल शायरी और संगीत" />
-  <meta property="og:description"
-    content="दिल टूटने वाली दर्द भरी हिंदी शायरी (Broken Heart Shayari) और सैड सॉन्ग्स 3D प्लेयर का बेहतरीन संगम।" />
-  <meta property="og:image"
-    content="https://res.cloudinary.com/dh0amtajw/image/upload/v1786683639/ChatGPT_Image_Aug_14_2026_10_30_31_AM_vce6gs.png" />
-
-  <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:title" content="आवारा आशिक - दर्द-ए-दिल शायरी और संगीत" />
-  <meta property="twitter:description"
-    content="दिल टूटने वाली दर्द भरी हिंदी शायरी (Broken Heart Shayari) और सैड सॉन्ग्स 3D प्लेयर का बेहतरीन संगम।" />
-  <meta property="twitter:image"
-    content="https://res.cloudinary.com/dh0amtajw/image/upload/v1786683639/ChatGPT_Image_Aug_14_2026_10_30_31_AM_vce6gs.png" />
-
-  <!-- Google Fonts for Devanagari Hindi Calligraphy & Glass UI -->
+  <!-- Google Fonts for Clean Minimalist Look -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;600;800&family=Outfit:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/src/style.css">
-
-  <!-- Canonical link to avoid duplicate content indexing -->
-  <link rel="canonical" href="https://avara-ashiq.vercel.app/" />
-
-  <!-- Google Site Verification -->
-  <meta name="google-site-verification" content="U5huw9R97lwtTJD3vxKt68aYrJFGC123qT8b8DGsg4M" />
-
-  <!-- Schema.org JSON-LD Structured Data for high Google search bots ranking -->
-  <script type="application/ld+json">
-  [
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "आवारा आशिक - 3D CoverFlow Music Player",
-      "url": "https://avara-ashiq.vercel.app/",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://avara-ashiq.vercel.app/?search={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "MusicPlaylist",
-      "name": "आवारा आशिक - दर्द-ए-दिल संगीत और शायरी",
-      "description": "आवारा आशिकों के लिए दिल टूटने वाली दर्द भरी हिंदी शायरी (Broken Heart Shayari) और बेवफा सनम के सदाबहार सैड सॉन्ग्स का पूरा संग्रह।",
-      "genre": "Sad / Broken Heart Hindi Music",
-      "numTracks": 40,
-      "keywords": "Avara Ashiq, दर्द-ए-दिल, टूटे दिल की शायरी, Broken Heart Shayari",
-      "track": [
-        {
-          "@type": "MusicRecording",
-          "name": "Tujhe Bhoolna To Chaha Lekin Bhoola Na Paye",
-          "byArtist": {
-            "@type": "MusicGroup",
-            "name": "Sonu Nigam"
-          },
-          "inAlbum": {
-            "@type": "MusicAlbum",
-            "name": "Bewafa Sanam"
-          }
-        },
-        {
-          "@type": "MusicRecording",
-          "name": "Ishq Mein Hum Tumhein Kya Batayen",
-          "byArtist": {
-            "@type": "MusicGroup",
-            "name": "Sonu Nigam"
-          },
-          "inAlbum": {
-            "@type": "MusicAlbum",
-            "name": "Bewafa Sanam"
-          }
-        },
-        {
-          "@type": "MusicRecording",
-          "name": "Dil Tod Ke Hansti Ho Mera",
-          "byArtist": {
-            "@type": "MusicGroup",
-            "name": "Sonu Nigam"
-          },
-          "inAlbum": {
-            "@type": "MusicAlbum",
-            "name": "Bewafa Sanam"
-          }
-        },
-        {
-          "@type": "MusicRecording",
-          "name": "Tere Bina Dil Mera Ikpal",
-          "byArtist": {
-            "@type": "MusicGroup",
-            "name": "Sonu Nigam"
-          },
-          "inAlbum": {
-            "@type": "MusicAlbum",
-            "name": "Bewafa Sanam"
-          }
-        },
-        {
-          "@type": "MusicRecording",
-          "name": "Bedardi Se Payr Ka Sahara Na Mila",
-          "byArtist": {
-            "@type": "MusicGroup",
-            "name": "Attaullah Khan"
-          },
-          "inAlbum": {
-            "@type": "MusicAlbum",
-            "name": "Bewafa Sanam"
-          }
-        },
-        {
-          "@type": "MusicRecording",
-          "name": "Achha Sila Diya Tune Mere Pyar Ka",
-          "byArtist": {
-            "@type": "MusicGroup",
-            "name": "Sonu Nigam"
-          },
-          "inAlbum": {
-            "@type": "MusicAlbum",
-            "name": "Bewafa Sanam"
-          }
-        }
-      ]
-    }
-  ]
-  </script>
 </head>
 
 <body>
-  <!-- High-Level SEO Semantic Content Area for Search Engine Indexing (Hidden from view, readable by Google crawlers) -->
-  <div
-    style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">
-    <h1>आवारा आशिक - दर्द-ए-दिल शायरी, बेवफाई स्टेटस और दर्द भरे नगमे</h1>
-    <h2>Avara Ashiq - Sad Hindi Shayari & Broken Heart Status</h2>
-    <p>
-      यहाँ आवारा आशिकों के लिए दुनिया की सबसे बेहतरीन दर्द भरी हिंदी शायरी (Hindi Sad Shayari), दिल टूटने वाले स्टेटस
-      (Broken Heart Status), और प्यार में मिले जख्मों को बयां करने वाले सैड सॉन्ग्स का पूरा कलेक्शन है।
-    </p>
-
-    <h3>टूटे दिल की दर्द भरी शायरी (Sad Shayari Collection):</h3>
-    <ul>
-      <li>दिल के टूटने से कोई आवाज़ नहीं होती, बस कुछ लोग ख़ामोशी से बिखर जाते हैं।</li>
-      <li>मोहब्बत की महफ़िल में आज हमारा ज़िक्र हुआ, सबने वाह-वाह कहा और हम मुस्कुरा दिए।</li>
-      <li>तेरी बेवफाई का कोई शिकवा नहीं मुझे, बस अफ़सोस इस बात का है कि मैंने तुझसे वफ़ा की उम्मीद की थी।</li>
-      <li>हम तो तेरे दिल की महफ़िल सजाने आए थे, पर क्या पता था कि हम सिर्फ तमाशा बनकर रह जाएंगे।</li>
-      <li>शीशा टूटे तो आवाज आती है, पर जब दिल टूटता है तो कोई आवाज नहीं आती।</li>
-      <li>दर्द ही सही पर तूने कुछ तो दिया, वो लोग भी हैं जिन्होंने सिर्फ उम्मीदें दी थीं।</li>
-      <li>पत्थर की दुनिया में शीशे का दिल लेकर निकले थे, टूटना ही था उसे।</li>
-      <li>काँच की तरह तोड़ दिया उसने हमें, खुद को ही समेटने में अब उम्र गुज़र रही है।</li>
-      <li>वफ़ा का नाम अब कोई मत लेना, हमने वफ़ा करके सिर्फ ज़ख्म पाए हैं।</li>
-      <li>ज़िंदगी से कोई शिकवा नहीं, बस मौत का इंतज़ार है, जो तेरे जाने के बाद बेहद हसीन लगती है।</li>
-      <li>अब तो तन्हाइयों में जीने की आदत सी हो गई है, महफ़िलें भी अब बेगानी सी लगती हैं।</li>
-      <li>तेरे ज़ख्मों को सीने में दबाकर मुस्कुराते हैं, हम तो वो आशिक हैं जो टूट कर भी वफ़ा निभाते हैं।</li>
-      <li>तुमने तो कह दिया कि हमारा कोई वास्ता नहीं, ज़रा उनसे तो पूछो जिन पर क्या गुज़र गई।</li>
-    </ul>
-
-    <h3>Sad Songs Playlist (दर्द भरे गीत):</h3>
-    <ul>
-      <li>Tujhe Bhoolna To Chaha Lekin Bhoola Na Paye - Sonu Nigam</li>
-      <li>Dil Tod Ke Hasti Ho Mera</li>
-      <li>Ishq Mein Hum Tumhein Kya Batayein</li>
-      <li>Ae Mere Humsafar Sad Version</li>
-      <li>Pehla Nasha Sad Instrumentals</li>
-    </ul>
-  </div>
-
   <div id="app">
     <!-- Hidden YouTube Audio Player Container -->
-    <div id="yt-player-wrapper">
+    <div id="yt-player-wrapper" style="display: none;">
       <div id="youtube-player"></div>
-      <div id="yt-ambient-rain"></div>
-      <div id="yt-ambient-glass"></div>
-      <div id="yt-ambient-cry"></div>
     </div>
 
-    <!-- Header Navigation Bar -->
-    <header class="top-nav">
-      <button id="install-app-btn" class="install-app-btn" title="Download & Install App">
-        📱 ऐप इंस्टॉल
-      </button>
-
-      <div class="center-title-container">
-        <h1 class="hindi-brand-title" id="hindi-brand-title">AVARA</h1>
-      </div>
-
-      <button id="playlist-toggle-btn" class="playlist-toggle-btn">📋 गीत सूची</button>
-    </header>
-
-    <!-- Main Stage with Alive Animated Background & 3D CoverFlow Carousel -->
-    <main class="stage-container" id="stage-container">
-      <!-- Live Animated Background Art Container -->
-      <div class="background-art" id="background-art">
-        <picture>
-          <source media="(max-width: 768px)"
-            srcset="https://res.cloudinary.com/dh0amtajw/image/upload/f_auto,q_auto,w_800/v1786685549/ChatGPT_Image_Aug_14_2026_11_02_21_AM_jdjrwp.png">
-          <img
-            src="https://res.cloudinary.com/dh0amtajw/image/upload/f_auto,q_auto,w_1920/v1786683639/ChatGPT_Image_Aug_14_2026_10_30_31_AM_vce6gs.png"
-            alt="Background Art" class="bg-img live-ken-burns" />
-        </picture>
-
-        <!-- Golden Hour Light Ray Shimmer -->
-        <div class="sunbeam-light-ray"></div>
-
-        <!-- Floating Atmospheric Golden Dust Particles -->
-        <div class="particles-overlay">
-          <span class="particle"></span>
-          <span class="particle"></span>
-          <span class="particle"></span>
-          <span class="particle"></span>
-          <span class="particle"></span>
-          <span class="particle"></span>
-          <span class="particle"></span>
-          <span class="particle"></span>
-          <span class="particle"></span>
-          <span class="particle"></span>
+    <!-- Main Container -->
+    <div class="app-container">
+      
+      <!-- Left Sidebar (Dark Grey Curved) -->
+      <aside class="sidebar">
+        <div class="music-icon-bubble">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18V5L21 3V16" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <circle cx="6" cy="18" r="3" fill="#ffffff"/>
+            <circle cx="18" cy="16" r="3" fill="#ffffff"/>
+          </svg>
         </div>
+      </aside>
 
-        <div class="vignette-overlay"></div>
-      </div>
+      <!-- Main White Content Area -->
+      <main class="main-content">
+        
+        <!-- Header -->
+        <header class="top-header">
+          <h1 class="header-title">Favorite music</h1>
+          <button class="menu-btn" title="Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="10" y1="8" x2="21" y2="8"></line>
+              <line x1="4" y1="16" x2="21" y2="16"></line>
+            </svg>
+          </button>
+        </header>
 
-      <!-- Mood / Category Filters Pill Bar -->
-      <div class="mood-filters-container" id="mood-filters">
-        <button class="mood-pill active" data-category="all">✨ सभी नगमे</button>
-        <button class="mood-pill" data-category="💔 बेवफाई">💔 बेवफाई</button>
-        <button class="mood-pill" data-category="🔥 अत्यधिक दर्द">🔥 अत्यधिक दर्द</button>
-        <button class="mood-pill" data-category="🌌 यादें">🌌 यादें</button>
-      </div>
-
-      <!-- 3D CoverFlow Carousel Stage -->
-      <div class="coverflow-stage" id="coverflow-stage">
-        <div class="coverflow-track" id="coverflow-track">
-          <!-- 3D Album Cards dynamically populated -->
-        </div>
-      </div>
-    </main>
-
-    <!-- Bottom Player — Unified Glass Card -->
-    <footer class="player-bar-container">
-      <div class="sp-wrap">
-        <!-- Single Unified Glass Card -->
-        <div class="sp-card" id="player-bar">
-
-          <!-- Inner row: Art | Content | Volume -->
-          <div class="sp-inner-row">
-
-            <!-- Album Art (left, inside card) -->
-            <div class="sp-art-float">
-              <img id="player-album-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Track Art"
-                class="sp-art-img" />
+        <!-- Hero: Album Art -->
+        <section class="hero-section">
+          <div class="album-art-container">
+            <div class="vinyl-record">
+              <div class="vinyl-inner"></div>
+              <div class="vinyl-center"></div>
             </div>
-
-            <!-- Middle: Title + Seekbar + Controls -->
-            <div class="sp-content">
-              <!-- Title + Soundwave -->
-              <div class="sp-top-row">
-                <div class="sp-info">
-                  <h3 id="player-song-title" class="sp-title">Tujhe Bhoolna To Chaha Lekin Bhoola Na Paye</h3>
-                  <p class="sp-artist">Nikhil-Vinay / Sonu Nigam</p>
-                </div>
-                <div class="sp-status">
-                  <div class="live-soundwave hidden" id="live-soundwave">
-                    <span></span><span></span><span></span><span></span><span></span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Seekbar -->
-              <div class="sp-seek-row">
-                <span id="current-time" class="sp-time">0:00</span>
-                <div class="sp-seekbar-wrap">
-                  <input type="range" id="progress-bar" min="0" max="100" value="0" step="0.1" class="sp-range" />
-                  <div class="sp-progress-fill" id="progress-fill"></div>
-                </div>
-                <span id="total-time" class="sp-time sp-time-right">0:00</span>
-              </div>
-
-              <!-- Controls -->
-              <div class="sp-controls">
-                <button class="sp-ctrl-btn" title="Shuffle" id="shuffle-btn">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round">
-                    <polyline points="16 3 21 3 21 8" />
-                    <polyline points="4 20 21 3" />
-                    <polyline points="21 16 21 21 16 21" />
-                    <line x1="15" y1="15" x2="21" y2="21" />
-                  </svg>
-                </button>
-                <button id="prev-btn" class="sp-ctrl-btn" title="Previous">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M6 6a1 1 0 0 1 1 1v10a1 1 0 1 1-2 0V7a1 1 0 0 1 1-1zm11.554 1.367A1 1 0 0 1 19 8.234v7.532a1 1 0 0 1-1.446.867l-6.025-3.766a1 1 0 0 1 0-1.734l6.025-3.766z" />
-                  </svg>
-                </button>
-                <button id="play-pause-btn" class="sp-play-btn" title="Play / Pause">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" id="play-icon">
-                    <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86z" />
-                  </svg>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" id="pause-icon" class="hidden">
-                    <path d="M7 5h3v14H7V5zm7 0h3v14h-3V5z" />
-                  </svg>
-                </button>
-                <button id="next-btn" class="sp-ctrl-btn" title="Next">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M18 6a1 1 0 0 1 1 1v10a1 1 0 1 1-2 0V7a1 1 0 0 1 1-1zM6.446 7.367A1 1 0 0 1 5 8.234v7.532a1 1 0 0 0 1.446.867l6.025-3.766a1 1 0 0 0 0-1.734L6.446 7.367z" />
-                  </svg>
-                </button>
-                <button class="sp-ctrl-btn" title="Repeat" id="repeat-btn">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round">
-                    <polyline points="17 1 21 5 17 9" />
-                    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-                    <polyline points="7 23 3 19 7 15" />
-                    <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-                  </svg>
-                </button>
-              </div>
-            </div><!-- /sp-content -->
-
-            <!-- Volume Control (right, inside card) — horizontal pill -->
-            <div class="sp-vol-control">
-              <button id="volume-icon-btn" class="sp-vol-icon-btn" title="Mute/Unmute">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  id="vol-high">
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
-                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-                </svg>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  id="vol-mute" class="hidden">
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
-                  <line x1="23" y1="9" x2="17" y2="15" />
-                  <line x1="17" y1="9" x2="23" y2="15" />
-                </svg>
-              </button>
-              <div class="sp-vol-slider-wrap">
-                <div class="sp-vol-fill" id="vol-fill" style="width:100%"></div>
-                <input type="range" id="volume-bar" min="0" max="100" value="100" class="sp-vol-range" />
-              </div>
-            </div>
-
-            <!-- Ambient Mixer Control Panel (बारिश, टूटना, रोना) -->
-            <div class="sp-ambient-mixer">
-              <!-- Rain Sound -->
-              <div class="sp-ambient-item">
-                <button id="rain-toggle-btn" class="sp-ambient-btn" title="बारिश की आवाज़" data-sound="rain">
-                  <span class="ambient-icon">🌧️</span>
-                </button>
-                <div class="sp-ambient-slider-wrap">
-                  <div class="sp-ambient-fill" id="rain-fill" style="width:0%"></div>
-                  <input type="range" id="rain-volume" min="0" max="100" value="0" class="sp-ambient-range" />
-                </div>
-              </div>
-              <!-- Glass Break Sound -->
-              <div class="sp-ambient-item">
-                <button id="glass-toggle-btn" class="sp-ambient-btn" title="कांच टूटने की आवाज़" data-sound="glass">
-                  <span class="ambient-icon">🪟</span>
-                </button>
-                <div class="sp-ambient-slider-wrap">
-                  <div class="sp-ambient-fill" id="glass-fill" style="width:0%"></div>
-                  <input type="range" id="glass-volume" min="0" max="100" value="0" class="sp-ambient-range" />
-                </div>
-              </div>
-              <!-- Crying Sound -->
-              <div class="sp-ambient-item">
-                <button id="cry-toggle-btn" class="sp-ambient-btn" title="रोने की आवाज़" data-sound="cry">
-                  <span class="ambient-icon">😢</span>
-                </button>
-                <div class="sp-ambient-slider-wrap">
-                  <div class="sp-ambient-fill" id="cry-fill" style="width:0%"></div>
-                  <input type="range" id="cry-volume" min="0" max="100" value="0" class="sp-ambient-range" />
-                </div>
-              </div>
-            </div>
-
-          </div><!-- /sp-inner-row -->
-        </div><!-- /sp-card -->
-      </div><!-- /sp-wrap -->
-    </footer>
-
-    <!-- Shayari Floating UI (Left Bottom Area) -->
-    <div id="shayari-widget" class="shayari-widget">
-      <button id="shayari-btn" class="shayari-btn">💔 दर्द-ए-दिल</button>
-      <div id="shayari-box" class="shayari-box hidden">
-        <div class="shayari-box-header">
-          <span class="shayari-box-title">महफ़िल-ए-दर्द</span>
-          <button id="shayari-close-btn" class="shayari-close-btn">&times;</button>
-        </div>
-        <div class="shayari-body">
-          <p id="shayari-content">दिल के टूटने से कोई आवाज़ नहीं होती, बस कुछ लोग ख़ामोशी से बिखर जाते हैं।</p>
-        </div>
-        <div class="shayari-box-actions">
-          <button id="shayari-create-card-btn" class="shayari-create-card-btn">🎨 कार्ड मेकर</button>
-          <button id="shayari-next-btn" class="shayari-next-btn">अगला ➔</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Shayari Card Creator Modal Overlay -->
-    <div id="card-creator-modal" class="card-creator-modal hidden">
-      <div class="creator-modal-content">
-        <div class="creator-modal-header">
-          <span class="creator-modal-title">🎨 शायरी कार्ड मेकर (Card Creator)</span>
-          <button id="creator-close-btn" class="creator-close-btn">&times;</button>
-        </div>
-
-        <div class="creator-modal-body">
-          <!-- Live Preview Container -->
-          <div class="card-preview-wrapper">
-            <div id="card-preview" class="card-preview theme-liquid-dark">
-              <!-- Animated background glass design -->
-              <div class="preview-glow-blob"></div>
-              <div class="preview-card-stickers" id="preview-sticker">💔</div>
-              <p class="preview-card-text" id="preview-text">दिल के टूटने से कोई आवाज़ नहीं होती, बस कुछ लोग ख़ामोशी से
-                बिखर जाते हैं।</p>
-              <div class="preview-card-author" id="preview-author">— एक आवारा आशिक़</div>
-            </div>
+            <img id="player-album-art" src="https://img.youtube.com/vi/xAHS7PhfI6Q/hqdefault.jpg" alt="Album Cover" class="album-cover-img" />
           </div>
+        </section>
 
-          <!-- Creator Controls panel -->
-          <div class="creator-controls">
-            <div class="control-group">
-              <label>📝 शायरी का टेक्स्ट (Shayari Text)</label>
-              <textarea id="creator-text-input" rows="3" placeholder="अपनी शायरी यहाँ लिखें..."></textarea>
-            </div>
+        <!-- Track Info -->
+        <section class="track-info">
+          <h2 id="player-song-title" class="track-title">Tujhe Bhoolna To Chaha</h2>
+          <p id="player-artist" class="track-artist">Sonu Nigam - Bewafa Sanam</p>
+        </section>
 
-            <div class="control-group">
-              <label>✍️ दस्तख़त (Signature / Name)</label>
-              <input type="text" id="creator-author-input" value="एक आवारा आशिक़" placeholder="नाम लिखें..." />
-            </div>
-
-            <div class="control-group">
-              <label>🎨 बैकग्राउंड थीम (Background Theme)</label>
-              <div class="theme-selectors">
-                <button class="theme-select-btn active" data-theme="theme-liquid-dark"
-                  style="background: linear-gradient(135deg, #1f1c2c, #928dab);"></button>
-                <button class="theme-select-btn" data-theme="theme-liquid-red"
-                  style="background: linear-gradient(135deg, #4b134f, #c94b4b);"></button>
-                <button class="theme-select-btn" data-theme="theme-liquid-gold"
-                  style="background: linear-gradient(135deg, #111, #d4af37);"></button>
-              </div>
-            </div>
-
-            <div class="control-group">
-              <label>💔 स्टिकर (Sticker)</label>
-              <div class="sticker-selectors">
-                <button class="sticker-select-btn active" data-sticker="💔">💔</button>
-                <button class="sticker-select-btn" data-sticker="🥀">🥀</button>
-                <button class="sticker-select-btn" data-sticker="🌧️">🌧️</button>
-                <button class="sticker-select-btn" data-sticker="🖤">🖤</button>
-              </div>
-            </div>
-
-            <div class="creator-actions">
-              <button id="creator-download-btn" class="creator-download-btn">💾 डाउनलोड करें</button>
-              <button id="creator-copy-btn" class="creator-copy-btn">📋 टेक्स्ट कॉपी करें</button>
-            </div>
+        <!-- Seekbar Area -->
+        <section class="seekbar-section">
+          <div class="wave-container">
+            <!-- Simulated Wave SVG -->
+            <svg class="wave-svg" viewBox="0 0 300 40" preserveAspectRatio="none">
+              <!-- Background wave path -->
+              <path id="wave-bg-path" class="wave-bg" d="M0,20 C50,40 100,40 150,20 C200,0 250,0 300,20" fill="none" stroke="#d1d5db" stroke-width="3" stroke-linecap="round"></path>
+              <!-- Progress wave path (clipped by JS or overlaid) -->
+              <path id="wave-progress" class="wave-fill" d="M0,20 C50,40 100,40 150,20 C200,0 250,0 300,20" fill="none" stroke="#475b75" stroke-width="3" stroke-linecap="round" stroke-dasharray="320" stroke-dashoffset="320"></path>
+            </svg>
+            
+            <!-- Hidden native range input for functional scrubbing -->
+            <input type="range" id="progress-bar" min="0" max="100" value="0" step="0.1" class="native-range" />
+            
+            <!-- Custom dot matching the screenshot -->
+            <div id="progress-dot" class="progress-dot"></div>
           </div>
-        </div>
-      </div>
+          <div class="time-labels">
+            <span id="current-time">00:00</span>
+            <span id="total-time">00:00</span>
+          </div>
+        </section>
+
+        <!-- Playback Controls -->
+        <section class="controls-container">
+          <button id="repeat-btn" class="ctrl-btn sm-btn" title="Repeat">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475b75" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="17 1 21 5 17 9"></polyline>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+              <polyline points="7 23 3 19 7 15"></polyline>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+            </svg>
+          </button>
+          
+          <button id="prev-btn" class="ctrl-btn" title="Previous">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#475b75">
+              <path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z" />
+            </svg>
+          </button>
+          
+          <button id="play-pause-btn" class="play-btn" title="Play">
+            <svg id="play-icon" width="28" height="28" viewBox="0 0 24 24" fill="#ffffff" style="margin-left: 4px;">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <svg id="pause-icon" width="28" height="28" viewBox="0 0 24 24" fill="#ffffff" class="hidden">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+          </button>
+          
+          <button id="next-btn" class="ctrl-btn" title="Next">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#475b75">
+              <path d="M5 4l10 8-10 8V4zm14 1v14h-2V5h2z" />
+            </svg>
+          </button>
+          
+          <button id="eq-btn" class="ctrl-btn sm-btn" title="Equalizer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#475b75">
+              <rect x="4" y="10" width="4" height="10" rx="2" />
+              <rect x="10" y="4" width="4" height="16" rx="2" />
+              <rect x="16" y="14" width="4" height="6" rx="2" />
+            </svg>
+          </button>
+        </section>
+
+      </main>
     </div>
-
-    <!-- Playlist Drawer Panel (Right Slide-out) -->
-    <div id="playlist-drawer" class="playlist-drawer hidden">
-      <!-- Floating Ambient Liquid Blobs for Glass Depth -->
-      <div class="drawer-liquid-blob blob-1"></div>
-      <div class="drawer-liquid-blob blob-2"></div>
-
-      <div class="drawer-header">
-        <span class="drawer-title">📋 गीत सूची (Playlist)</span>
-        <button id="drawer-close-btn" class="drawer-close-btn">&times;</button>
-      </div>
-      <div class="drawer-search-wrap">
-        <input type="text" id="playlist-search" placeholder="गाना या कलाकार खोजें..." />
-      </div>
-      <div class="drawer-list" id="drawer-songs-list">
-        <!-- Dynamically populated -->
-      </div>
-    </div>
-
-    <!-- Notification Toast -->
-    <div id="toast-container" class="toast-container"></div>
-
-    <!-- Mobile App Native Bottom Navigation Bar (Tab Bar) -->
-    <nav class="app-bottom-nav" id="app-bottom-nav">
-      <button class="app-tab-btn active" id="tab-player" title="Player">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
-          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-        </svg>
-        <span>प्लेयर</span>
-      </button>
-
-      <button class="app-tab-btn" id="tab-library" title="Library">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="8" y1="6" x2="21" y2="6" />
-          <line x1="8" y1="12" x2="21" y2="12" />
-          <line x1="8" y1="18" x2="21" y2="18" />
-          <circle cx="3" cy="6" r="1.5" fill="currentColor" />
-          <circle cx="3" cy="12" r="1.5" fill="currentColor" />
-          <circle cx="3" cy="18" r="1.5" fill="currentColor" />
-        </svg>
-        <span>गीत सूची</span>
-      </button>
-
-      <button class="app-tab-btn" id="tab-shayari" title="Shayari">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-        </svg>
-        <span>शायरी</span>
-      </button>
-
-      <button class="app-tab-btn" id="tab-ambient" title="Atmosphere Mixer">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-        </svg>
-        <span>माहौल</span>
-      </button>
-    </nav>
   </div>
 
   <!-- Main Module Script -->
   <script type="module" src="/src/main.js"></script>
 </body>
-
 </html>
