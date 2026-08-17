@@ -1476,36 +1476,315 @@ button:active {
     font-size: 22px;
     letter-spacing: 4px;
   }
+}
 
-  /* Ultra-Premium Mobile Music App Native Experience (< 768px) */
-  .top-nav {
-    height: 52px;
-    padding: 0 12px;
+/* ==========================================================================
+   NATIVE FULL-SCREEN MOBILE MUSIC PLAYER (MATCHING USER'S SPOTIFY LAYOUT)
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  body {
+    background: radial-gradient(circle at top, #7c2d12 0%, #321307 45%, #0f0502 100%) !important;
+    overflow-x: hidden;
   }
 
-  .hindi-brand-title {
-    font-size: 22px;
-    letter-spacing: 4px;
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    justify-content: space-between;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  /* 1. Header Navigation Bar (Spotify Style Top Bar) */
+  .top-nav {
+    height: 54px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    z-index: 100;
   }
 
   .install-app-btn {
-    font-size: 11px;
-    padding: 5px 12px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .hindi-brand-title {
+    font-family: 'Bodoni Moda', serif;
+    font-style: italic;
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: #ffffff;
+    background: none;
+    -webkit-text-fill-color: #ffffff;
   }
 
   .playlist-toggle-btn {
-    font-size: 11px;
-    padding: 5px 12px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
   }
 
-  .mood-pills-bar {
-    padding: 0 10px 6px;
-    gap: 6px;
+  /* Hide Desktop Category Bar on Mobile for Clean Focus */
+  .mood-filters-container {
+    display: flex;
+    overflow-x: auto;
+    padding: 4px 16px;
+    gap: 8px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   .mood-pill {
-    padding: 5px 12px;
-    font-size: 11.5px;
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.10);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .mood-pill.active {
+    background: #ea580c;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  /* 2. Hero Center Artwork (Full Spotify Cover Art) */
+  .coverflow-stage {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    height: 280px;
+    margin: 10px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cover-card {
+    width: 250px;
+    height: 250px;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.70), 0 0 30px rgba(234, 88, 12, 0.25);
+  }
+
+  .cover-card[data-offset="0"] {
+    transform: scale(1) rotateY(0deg) translateZ(0);
+  }
+
+  .cover-card[data-offset="-1"],
+  .cover-card[data-offset="1"],
+  .cover-card[data-offset="-2"],
+  .cover-card[data-offset="2"] {
+    display: none; /* Mobile focuses purely on Hero Artwork */
+  }
+
+  /* 3. Full-Screen Player Bar (Card turns into full layout) */
+  .player-bar-container {
+    position: relative;
+    bottom: auto !important;
+    left: auto;
+    right: auto;
+    width: 100%;
+    padding: 0 20px;
+    z-index: 100;
+  }
+
+  .sp-card {
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .sp-inner-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .sp-art-float {
+    display: none; /* Artwork is already shown in main stage */
+  }
+
+  .sp-content {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .sp-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .sp-info {
+    text-align: left;
+  }
+
+  .sp-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+    max-width: 260px;
+  }
+
+  .sp-artist {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.65);
+    margin-top: 4px;
+  }
+
+  /* Seekbar Full Width */
+  .sp-seek-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .sp-seekbar-wrap {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.20);
+    border-radius: 3px;
+  }
+
+  .sp-range::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+  }
+
+  .sp-progress-fill {
+    background: #ffffff;
+  }
+
+  .sp-time {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.70);
+    font-weight: 500;
+  }
+
+  /* Main Controls (Spotify Large Circular White Play Button) */
+  .sp-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 6px;
+    padding: 0 10px;
+  }
+
+  .sp-ctrl-btn {
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .sp-play-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.35);
+  }
+
+  .sp-play-btn svg {
+    width: 28px;
+    height: 28px;
+    fill: #000000 !important;
+  }
+
+  /* Ambient Mixer Bar on Mobile */
+  .sp-ambient-mixer {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    border-left: none;
+    padding: 0;
+    margin-top: 4px;
+  }
+
+  .sp-ambient-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+
+  .ambient-icon {
+    font-size: 16px;
+  }
+
+  /* 4. Spotify Bottom Lyrics / Shayari Capsule Button */
+  .app-bottom-nav {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    height: 52px;
+    margin-top: 10px;
+    padding: 0 16px;
+    background: transparent;
+    border-top: none;
+    box-shadow: none;
+  }
+
+  .app-tab-btn {
+    display: none; /* Hide bottom tab buttons in full-screen player mode */
+  }
+
+  .app-tab-btn[id="tab-shayari"] {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 48px;
+    background: #ea580c !important;
+    color: #ffffff !important;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    gap: 8px;
+    box-shadow: 0 6px 20px rgba(234, 88, 12, 0.40);
+  }
+
+  .app-tab-btn[id="tab-shayari"] svg {
+    display: none;
+  }
+
+  .app-tab-btn[id="tab-shayari"]::after {
+    content: "Lyrics / महफ़िल-ए-दर्द";
   }
 
   /* Full Screen Mobile Playlist Sheet */
@@ -1515,123 +1794,24 @@ button:active {
     top: 0; right: 0; bottom: 0; left: 0;
     border-left: none;
     z-index: 3000;
+    background: #1e0b04;
   }
 
-  /* Floating Shayari Bottom Sheet */
+  /* Shayari Bottom Sheet */
   .shayari-box {
     position: fixed;
-    bottom: 76px;
-    left: 12px; right: 12px;
+    bottom: 20px;
+    left: 16px; right: 16px;
     width: auto;
-    max-width: 480px;
-    margin: 0 auto;
-    z-index: 1400;
-    border-radius: 20px;
-    background: rgba(16, 12, 10, 0.95);
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
-    border: 1px solid rgba(245, 158, 11, 0.30);
-    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.90);
-  }
-
-  /* Floating Mobile Music Player Card */
-  .player-bar-container {
-    bottom: 72px !important;
-    left: 10px;
-    right: 10px;
-    width: auto;
-    padding: 0;
-    z-index: 1200;
-  }
-
-  .sp-card {
-    border-radius: 22px;
-    padding: 8px 12px;
-    background: rgba(16, 12, 10, 0.92);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85);
-  }
-
-  .sp-inner-row {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    width: 100%;
-  }
-
-  .sp-art-img {
-    width: 44px;
-    height: 44px;
-    min-height: 44px;
-    border-radius: 12px;
-  }
-
-  .sp-content {
-    min-width: 0;
-    flex: 1;
-    gap: 2px;
-  }
-
-  .sp-title {
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .sp-artist {
-    font-size: 11px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .sp-controls {
-    gap: 6px;
-    flex-shrink: 0;
-  }
-
-  .sp-play-btn {
-    width: 42px;
-    height: 42px;
-    background: linear-gradient(135deg, #fcd34d, #f59e0b);
-    color: #000;
-  }
-
-  .sp-ctrl-btn {
-    width: 32px;
-    height: 32px;
-  }
-
-  .sp-vol-control {
-    display: none !important;
-  }
-
-  .sp-ambient-mixer {
-    display: flex;
-    padding-left: 0;
-    border-left: none;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  .sp-ambient-slider-wrap {
-    display: none;
-  }
-
-  .sp-ambient-btn {
-    padding: 3px 6px;
-    border-radius: 16px;
-  }
-
-  .ambient-icon {
-    font-size: 14px;
+    z-index: 2400;
+    border-radius: 24px;
+    background: rgba(30, 12, 6, 0.96);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(234, 88, 12, 0.40);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
   }
 }
+
 
 
 /* ==========================================================================
