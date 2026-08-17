@@ -350,13 +350,21 @@ if (document.readyState === 'loading') {
 }
 
 // Preloader Removal
-window.addEventListener('load', () => {
+let preloaderRemoved = false;
+function removePreloader() {
+  if (preloaderRemoved) return;
+  preloaderRemoved = true;
   const preloader = document.getElementById('preloader');
   if(preloader) {
-    // Artificial slight delay so user can see the nice animation
-    setTimeout(() => {
-       preloader.classList.add('fade-out');
-       setTimeout(() => preloader.remove(), 500);
-    }, 800); 
+    preloader.classList.add('fade-out');
+    setTimeout(() => preloader.remove(), 500);
   }
+}
+
+// Fallback: Force removal after max 2.5s (so total time with fadeout is max 3s)
+setTimeout(removePreloader, 2500);
+
+window.addEventListener('load', () => {
+  // If loaded fast, remove it but leave it for at least 800ms for a nice effect
+  setTimeout(removePreloader, 800);
 });
