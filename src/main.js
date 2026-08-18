@@ -338,7 +338,68 @@ function enableBackgroundAudio() {
   } catch(e) {}
 }
 
+// ─── Top Hero Swiper Carousel Logic ───────────────────────────────────────────
+let swiperCurrentIndex = 0;
+let swiperInterval = null;
+
+function initHeroSwiper() {
+  const wrapper = document.getElementById('swiper-wrapper');
+  const slides  = document.querySelectorAll('.swiper-slide');
+  const dots    = document.querySelectorAll('.swiper-dot');
+  if (!wrapper || !slides.length) return;
+
+  function goToSlide(idx) {
+    swiperCurrentIndex = (idx + slides.length) % slides.length;
+    wrapper.style.transform = `translateX(-${swiperCurrentIndex * 100}%)`;
+    slides.forEach((s, i) => s.classList.toggle('active', i === swiperCurrentIndex));
+    dots.forEach((d, i) => d.classList.toggle('active', i === swiperCurrentIndex));
+  }
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const idx = parseInt(dot.dataset.index);
+      goToSlide(idx);
+      restartSwiperTimer();
+    });
+  });
+
+  document.querySelectorAll('.slide-play-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const songId = btn.dataset.songId;
+      const realIdx = playlist.findIndex(s => s.id === songId);
+      if (realIdx !== -1) {
+        playTrack(realIdx);
+        openPlayer();
+      }
+    });
+  });
+
+  // Touch Swipe Support
+  let startX = 0;
+  wrapper.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  wrapper.addEventListener('touchend', (e) => {
+    const endX = e.changedTouches[0].clientX;
+    if (startX - endX > 40) { goToSlide(swiperCurrentIndex + 1); restartSwiperTimer(); }
+    else if (endX - startX > 40) { goToSlide(swiperCurrentIndex - 1); restartSwiperTimer(); }
+  }, { passive: true });
+
+  function startSwiperTimer() {
+    if (swiperInterval) clearInterval(swiperInterval);
+    swiperInterval = setInterval(() => {
+      goToSlide(swiperCurrentIndex + 1);
+    }, 3500);
+  }
+
+  function restartSwiperTimer() {
+    startSwiperTimer();
+  }
+
+  startSwiperTimer();
+}
+
 // ─── Boomerang Canvas Video Background Loop (Zero Memory Leak) ───────────────
+
 function initBoomerangBg() {
   const video = document.getElementById('bm-video');
   if (video) {
@@ -1203,8 +1264,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initDownloadModal();
   initBoomerangBg();
+  initHeroSwiper();
   restoreSavedState();
   updateTrackUI(playlist[currentIdx]);
+
   setPlayUI(false);
 
   if (initialSeek > 0) {
