@@ -1,305 +1,309 @@
 import './style.css';
 import { AVARA_SONGS } from './songs.js';
 
-// ─── State ───
+// ─── State ───────────────────────────────────────────────────────────────────
 let ytPlayer    = null;
 let currentIdx  = 0;
 let isPlaying   = false;
 let playlist    = [...AVARA_SONGS];
+let displayList = [...AVARA_SONGS];
 let likedSet    = new Set();
 let shuffleOn   = false;
 let repeatOn    = false;
 let progressInt = null;
 let inPlayer    = false;
 
-// ─── DOM refs (populated in init) ───
+// ─── DOM (populated in init after DOMContentLoaded) ──────────────────────────
 let D = {};
 
-function init() {
-  D.homeView       = document.getElementById('home-view');
-  D.playerView     = document.getElementById('player-view');
-  D.songList       = document.getElementById('song-list');
-  D.compCard       = document.getElementById('compilation-card');
-  D.miniPlayer     = document.getElementById('mini-player');
-  D.miniArt        = document.getElementById('mini-art');
-  D.miniTitle      = document.getElementById('mini-title');
-  D.miniArtist     = document.getElementById('mini-artist');
-  D.miniPlayBtn    = document.getElementById('mini-play');
-  D.miniPlayIcon   = document.getElementById('mini-play-icon');
-  D.miniPauseIcon  = document.getElementById('mini-pause-icon');
-  D.miniPrev       = document.getElementById('mini-prev');
-  D.miniNext       = document.getElementById('mini-next');
-  D.miniProgressFill = document.getElementById('mini-progress-fill');
-  D.backBtn        = document.getElementById('back-btn');
-  D.playerTitle    = document.getElementById('player-song-title');
-  D.playerArtist   = document.getElementById('player-artist');
-  D.playerArt      = document.getElementById('player-art');
-  D.progressTrack  = document.getElementById('progress-track');
-  D.progressFill   = document.getElementById('progress-fill');
-  D.timeCurrent    = document.getElementById('time-current');
-  D.timeTotal      = document.getElementById('time-total');
-  D.playPauseBtn   = document.getElementById('play-pause-btn');
-  D.playIcon       = document.getElementById('play-icon');
-  D.pauseIcon      = document.getElementById('pause-icon');
-  D.prevBtn        = document.getElementById('prev-btn');
-  D.nextBtn        = document.getElementById('next-btn');
-  D.shuffleBtn     = document.getElementById('shuffle-btn');
-  D.repeatBtn      = document.getElementById('repeat-btn');
-  D.likeBtn        = document.getElementById('like-btn');
-  D.likeSvg        = document.getElementById('like-svg');
-  D.navHome        = document.getElementById('nav-home');
-  D.navSearch      = document.getElementById('nav-search');
-  D.navHeart       = document.getElementById('nav-heart');
-  D.navHeartSvg    = document.getElementById('nav-heart-svg');
-
-  renderSongList(playlist);
-  renderCompilation();
-  setupYT();
-  bindAll();
+function grabDOM() {
+  D = {
+    homeView:         document.getElementById('home-view'),
+    playerView:       document.getElementById('player-view'),
+    songList:         document.getElementById('song-list'),
+    miniPlayer:       document.getElementById('mini-player'),
+    miniExpand:       document.getElementById('mini-expand'),
+    miniCenter:       document.querySelector('.mini-center'),
+    miniLabel:        document.getElementById('mini-label'),
+    miniSublabel:     document.getElementById('mini-sublabel'),
+    miniPlayPause:    document.getElementById('mini-play-pause'),
+    miniPlayIcon:     document.getElementById('mini-play-icon'),
+    miniPauseIcon:    document.getElementById('mini-pause-icon'),
+    playerDownBtn:    document.getElementById('player-down-btn'),
+    playerFromLine2:  document.getElementById('player-from-line2'),
+    playerArt:        document.getElementById('player-art'),
+    playerTitle:      document.getElementById('player-title'),
+    playerArtist:     document.getElementById('player-artist'),
+    progressTrack:    document.getElementById('progress-track'),
+    progressFill:     document.getElementById('progress-fill'),
+    timeCurrent:      document.getElementById('time-current'),
+    timeRemaining:    document.getElementById('time-remaining'),
+    playPauseBtn:     document.getElementById('play-pause-btn'),
+    playIcon:         document.getElementById('play-icon'),
+    pauseIcon:        document.getElementById('pause-icon'),
+    prevBtn:          document.getElementById('prev-btn'),
+    nextBtn:          document.getElementById('next-btn'),
+    shuffleBtn:       document.getElementById('shuffle-btn'),
+    repeatBtn:        document.getElementById('repeat-btn'),
+    likeBtn:          document.getElementById('like-btn'),
+    likeSvg:          document.getElementById('like-svg'),
+    volumeSlider:     document.getElementById('volume-slider'),
+    navDiscover:      document.getElementById('nav-discover'),
+    navSearchBtn:     document.getElementById('nav-search-btn'),
+    navLibrary:       document.getElementById('nav-library'),
+    navHistory:       document.getElementById('nav-history'),
+    searchBar:        document.getElementById('search-bar'),
+    searchInput:      document.getElementById('search-input'),
+    searchClose:      document.getElementById('search-close'),
+  };
 }
 
-// ─── YouTube Setup ───────────────────────────────────────────
-// The global onYouTubeIframeAPIReady + the <script> tags are in index.html
-// We just register our callback here
-function setupYT() {
-  function createPlayer() {
+// ─── YouTube Initialization ──────────────────────────────────────────────────
+// window.onYouTubeIframeAPIReady is set in index.html inline script BEFORE
+// the YouTube API <script> tag, so this callback system is safe.
+function initYT() {
+  function create() {
     ytPlayer = new window.YT.Player('yt-player', {
       height: '1', width: '1',
       videoId: playlist[currentIdx].id,
-      playerVars: { autoplay: 0, controls: 0, playsinline: 1, rel: 0, modestbranding: 1 },
+      playerVars: {
+        autoplay:       0,
+        controls:       0,
+        playsinline:    1,
+        rel:            0,
+        modestbranding: 1,
+        iv_load_policy: 3,
+      },
       events: {
-        onReady: function() {},
-        onStateChange: onYTState,
-      }
+        onReady:       function() { /* ready */ },
+        onStateChange: onYTStateChange,
+        onError:       function(e) { console.warn('YT error', e.data); nextTrack(); },
+      },
     });
   }
 
   if (window._ytReady) {
-    createPlayer();
+    create();
   } else {
-    window._ytReadyCallbacks.push(createPlayer);
+    window._ytCbs.push(create);
   }
 }
 
-function onYTState(e) {
+function onYTStateChange(e) {
   const S = window.YT.PlayerState;
-  if (e.data === S.PLAYING) {
-    isPlaying = true;
-    setPlayUI(true);
-    startTick();
-  } else if (e.data === S.PAUSED) {
-    isPlaying = false;
-    setPlayUI(false);
-  } else if (e.data === S.ENDED) {
-    handleEnd();
+  switch (e.data) {
+    case S.PLAYING:
+      isPlaying = true;
+      updatePlayUI(true);
+      startProgressTick();
+      break;
+    case S.PAUSED:
+      isPlaying = false;
+      updatePlayUI(false);
+      break;
+    case S.ENDED:
+      handleSongEnd();
+      break;
   }
 }
 
-function handleEnd() {
+function handleSongEnd() {
   if (repeatOn) {
     ytPlayer.seekTo(0, true);
     ytPlayer.playVideo();
-    return;
-  }
-  if (shuffleOn) {
+  } else if (shuffleOn) {
     playTrack(Math.floor(Math.random() * playlist.length));
   } else {
-    playTrack((currentIdx + 1) % playlist.length);
+    nextTrack();
   }
 }
 
-// ─── Playback ─────────────────────────────────────────────────
+// ─── Playback ────────────────────────────────────────────────────────────────
 function playTrack(idx) {
   if (idx < 0) idx = playlist.length - 1;
   if (idx >= playlist.length) idx = 0;
   currentIdx = idx;
   const song = playlist[currentIdx];
-
-  // Update UI first (instant feedback)
   updateTrackUI(song);
-
-  // Load & play
   if (ytPlayer && ytPlayer.loadVideoById) {
     ytPlayer.loadVideoById(song.id);
   }
-
-  // Show mini player when playing
-  if (D.miniPlayer) D.miniPlayer.classList.remove('hidden');
-
-  // Highlight row
-  document.querySelectorAll('.song-row').forEach((r, i) => {
-    r.classList.toggle('playing', i === currentIdx);
-  });
+  showMiniPlayer();
+  highlightPlayingRow();
 }
 
-function togglePlay() {
+function togglePlayPause() {
   if (!ytPlayer) return;
-  if (isPlaying) {
-    ytPlayer.pauseVideo();
-  } else {
-    ytPlayer.playVideo();
-  }
+  if (isPlaying) ytPlayer.pauseVideo();
+  else ytPlayer.playVideo();
 }
 
-function prev() {
+function prevTrack() {
   if (shuffleOn) playTrack(Math.floor(Math.random() * playlist.length));
   else playTrack(currentIdx - 1);
 }
-function next() {
+
+function nextTrack() {
   if (shuffleOn) playTrack(Math.floor(Math.random() * playlist.length));
   else playTrack(currentIdx + 1);
 }
 
-// ─── UI Updates ───────────────────────────────────────────────
+// ─── UI Updates ──────────────────────────────────────────────────────────────
 function updateTrackUI(song) {
+  if (!song) return;
   const thumb = `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`;
-  if (D.playerTitle)  D.playerTitle.textContent  = song.title;
-  if (D.playerArtist) D.playerArtist.textContent = song.artist;
-  if (D.playerArt)    D.playerArt.src = thumb;
-  if (D.miniArt)      D.miniArt.src   = thumb;
-  if (D.miniTitle)    D.miniTitle.textContent  = song.title;
-  if (D.miniArtist)   D.miniArtist.textContent = song.artist;
+
+  if (D.playerArt)      D.playerArt.src = thumb;
+  if (D.playerTitle)    D.playerTitle.textContent = song.title;
+  if (D.playerArtist)   D.playerArtist.textContent = song.artist;
+  if (D.playerFromLine2) D.playerFromLine2.textContent = song.category || 'Avara Ashiq';
+  if (D.miniLabel)      D.miniLabel.textContent = song.title;
+  if (D.miniSublabel)   D.miniSublabel.textContent = song.artist;
 
   // Like state
   const liked = likedSet.has(currentIdx);
-  if (D.likeBtn) D.likeBtn.classList.toggle('liked', liked);
-  if (D.likeSvg) {
-    D.likeSvg.setAttribute('fill', liked ? '#e8455e' : 'none');
-    D.likeSvg.setAttribute('stroke', liked ? '#e8455e' : 'currentColor');
-  }
+  setLikeUI(liked);
 }
 
-function setPlayUI(playing) {
+function updatePlayUI(playing) {
   if (D.playIcon)      D.playIcon.style.display  = playing ? 'none' : '';
   if (D.pauseIcon)     D.pauseIcon.style.display = playing ? '' : 'none';
   if (D.miniPlayIcon)  D.miniPlayIcon.style.display  = playing ? 'none' : '';
   if (D.miniPauseIcon) D.miniPauseIcon.style.display = playing ? '' : 'none';
 }
 
-// ─── Progress Ticker ──────────────────────────────────────────
-function startTick() {
-  if (progressInt) clearInterval(progressInt);
-  progressInt = setInterval(tick, 300);
+function setLikeUI(liked) {
+  if (D.likeBtn) D.likeBtn.classList.toggle('liked', liked);
+  if (D.likeSvg) {
+    D.likeSvg.setAttribute('fill', liked ? '#c0392b' : 'none');
+    D.likeSvg.setAttribute('stroke', liked ? '#c0392b' : 'currentColor');
+  }
 }
 
-function tick() {
+function highlightPlayingRow() {
+  document.querySelectorAll('.song-row').forEach((r, i) => {
+    r.classList.toggle('playing', i === currentIdx);
+  });
+}
+
+// ─── Progress ────────────────────────────────────────────────────────────────
+function startProgressTick() {
+  if (progressInt) clearInterval(progressInt);
+  progressInt = setInterval(tickProgress, 300);
+}
+
+function tickProgress() {
   if (!ytPlayer || !isPlaying) return;
   try {
-    const cur = ytPlayer.getCurrentTime() || 0;
-    const dur = ytPlayer.getDuration() || 1;
-    const pct = (cur / dur) * 100;
-    if (D.progressFill)     D.progressFill.style.width     = pct + '%';
-    if (D.miniProgressFill) D.miniProgressFill.style.width = pct + '%';
-    if (D.timeCurrent)      D.timeCurrent.textContent = fmt(cur);
-    if (D.timeTotal)        D.timeTotal.textContent   = fmt(dur);
-  } catch (_) {}
+    const cur  = ytPlayer.getCurrentTime() || 0;
+    const dur  = ytPlayer.getDuration() || 1;
+    const pct  = (cur / dur) * 100;
+    const rem  = dur - cur;
+    if (D.progressFill)  D.progressFill.style.width = pct + '%';
+    if (D.timeCurrent)   D.timeCurrent.textContent  = fmt(cur);
+    if (D.timeRemaining) D.timeRemaining.textContent = '-' + fmt(rem);
+  } catch(_) {}
 }
 
 function fmt(s) {
   if (!s || isNaN(s)) return '0:00';
-  const m = Math.floor(s / 60);
-  const sc = Math.floor(s % 60);
+  const m = Math.floor(s / 60), sc = Math.floor(s % 60);
   return `${m}:${sc < 10 ? '0' : ''}${sc}`;
 }
 
-// ─── View Switching ───────────────────────────────────────────
-function goToPlayer() {
+// ─── View Transitions ────────────────────────────────────────────────────────
+function openPlayer() {
   inPlayer = true;
   D.homeView.classList.replace('active-view', 'hidden-view');
   D.playerView.classList.replace('hidden-view', 'active-view');
-  D.navHome.classList.remove('active');
+  setActiveNav(null);
   if (D.miniPlayer) D.miniPlayer.classList.add('hidden');
 }
 
-function goToHome() {
+function closePlayer() {
   inPlayer = false;
   D.playerView.classList.replace('active-view', 'hidden-view');
   D.homeView.classList.replace('hidden-view', 'active-view');
-  D.navHome.classList.add('active');
-  if (isPlaying || ytPlayer) {
-    if (D.miniPlayer) D.miniPlayer.classList.remove('hidden');
-  }
+  setActiveNav(D.navDiscover);
+  if (ytPlayer) showMiniPlayer();
 }
 
-// ─── Render ───────────────────────────────────────────────────
+function showMiniPlayer() {
+  if (!inPlayer && D.miniPlayer) D.miniPlayer.classList.remove('hidden');
+}
+
+// ─── Render Song List ─────────────────────────────────────────────────────────
 function renderSongList(songs) {
   if (!D.songList) return;
   D.songList.innerHTML = '';
   songs.forEach((song, i) => {
+    const realIdx = playlist.indexOf(song);
     const row = document.createElement('div');
-    row.className = 'song-row' + (i === currentIdx && isPlaying ? ' playing' : '');
+    row.className = 'song-row' + (realIdx === currentIdx && isPlaying ? ' playing' : '');
+    // Duration placeholder (we don't have real durations, use index-based fake or blank)
     row.innerHTML = `
-      <div class="song-thumb">
-        <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
-      </div>
       <div class="song-row-info">
         <div class="song-row-title">${song.title}</div>
         <div class="song-row-artist">${song.artist}</div>
       </div>
-      <button class="song-row-dots" aria-label="More">
-        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-      </button>
+      <div class="song-row-right">
+        <button class="song-row-dots" aria-label="More options">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+      </div>
     `;
     row.addEventListener('click', (e) => {
       if (e.target.closest('.song-row-dots')) return;
-      playTrack(i);
-      goToPlayer();
+      playTrack(realIdx);
+      openPlayer();
+    });
+    row.querySelector('.song-row-dots').addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Toggle like
+      if (likedSet.has(realIdx)) likedSet.delete(realIdx);
+      else likedSet.add(realIdx);
+      // Visual feedback
+      const btn = e.currentTarget;
+      btn.style.color = likedSet.has(realIdx) ? '#c0392b' : '';
     });
     D.songList.appendChild(row);
   });
 }
 
-function renderCompilation() {
-  if (!D.compCard) return;
-  const song = playlist[Math.floor(playlist.length / 2)];
-  D.compCard.innerHTML = `
-    <img src="https://img.youtube.com/vi/${song.id}/maxresdefault.jpg" onerror="this.src='https://img.youtube.com/vi/${song.id}/hqdefault.jpg'" alt="Compilation">
-    <div class="comp-label">The Best Sad Songs</div>
-  `;
-  D.compCard.addEventListener('click', () => {
-    playTrack(Math.floor(playlist.length / 2));
-    goToPlayer();
+// ─── Nav helper ──────────────────────────────────────────────────────────────
+function setActiveNav(btn) {
+  [D.navDiscover, D.navSearchBtn, D.navLibrary, D.navHistory].forEach(b => {
+    if (b) b.classList.remove('active');
   });
+  if (btn) btn.classList.add('active');
 }
 
-// ─── Bind Events ──────────────────────────────────────────────
+// ─── Event Bindings ──────────────────────────────────────────────────────────
 function bindAll() {
-  // Back
-  D.backBtn.addEventListener('click', goToHome);
 
-  // Play/Pause
-  D.playPauseBtn.addEventListener('click', togglePlay);
-  D.miniPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+  // Player down (minimize)
+  D.playerDownBtn.addEventListener('click', closePlayer);
 
-  // Prev / Next
-  D.prevBtn.addEventListener('click', prev);
-  D.nextBtn.addEventListener('click', next);
-  D.miniPrev.addEventListener('click', (e) => { e.stopPropagation(); prev(); });
-  D.miniNext.addEventListener('click', (e) => { e.stopPropagation(); next(); });
+  // Mini player expand
+  if (D.miniExpand) D.miniExpand.addEventListener('click', openPlayer);
+  if (D.miniCenter) D.miniCenter.addEventListener('click', openPlayer);
 
-  // Mini player click → open full player
-  document.getElementById('mini-player').addEventListener('click', goToPlayer);
-  // Prevent buttons inside from bubbling to mini-player
-  document.querySelectorAll('.mini-controls button').forEach(btn => {
-    btn.addEventListener('click', e => e.stopPropagation());
+  // Mini play/pause
+  D.miniPlayPause.addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePlayPause();
   });
 
-  // Seek on progress track
-  D.progressTrack.addEventListener('click', (e) => {
-    if (!ytPlayer) return;
-    const rect = D.progressTrack.getBoundingClientRect();
-    const pct  = (e.clientX - rect.left) / rect.width;
-    const dur  = ytPlayer.getDuration() || 0;
-    ytPlayer.seekTo(pct * dur, true);
-  });
+  // Full player controls
+  D.playPauseBtn.addEventListener('click', togglePlayPause);
+  D.prevBtn.addEventListener('click', prevTrack);
+  D.nextBtn.addEventListener('click', nextTrack);
 
-  // Shuffle
+  // Shuffle & Repeat toggles
   D.shuffleBtn.addEventListener('click', () => {
     shuffleOn = !shuffleOn;
     D.shuffleBtn.classList.toggle('active', shuffleOn);
   });
-
-  // Repeat
   D.repeatBtn.addEventListener('click', () => {
     repeatOn = !repeatOn;
     D.repeatBtn.classList.toggle('active', repeatOn);
@@ -307,52 +311,87 @@ function bindAll() {
 
   // Like
   D.likeBtn.addEventListener('click', () => {
-    if (likedSet.has(currentIdx)) {
-      likedSet.delete(currentIdx);
-    } else {
-      likedSet.add(currentIdx);
-    }
-    const liked = likedSet.has(currentIdx);
-    D.likeBtn.classList.toggle('liked', liked);
-    D.likeSvg.setAttribute('fill', liked ? '#e8455e' : 'none');
-    D.likeSvg.setAttribute('stroke', liked ? '#e8455e' : 'currentColor');
+    if (likedSet.has(currentIdx)) likedSet.delete(currentIdx);
+    else likedSet.add(currentIdx);
+    setLikeUI(likedSet.has(currentIdx));
   });
+
+  // Progress seek
+  D.progressTrack.addEventListener('click', (e) => {
+    if (!ytPlayer) return;
+    const rect = D.progressTrack.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    ytPlayer.seekTo((ytPlayer.getDuration() || 0) * pct, true);
+  });
+
+  // Volume slider
+  if (D.volumeSlider) {
+    D.volumeSlider.addEventListener('input', () => {
+      if (ytPlayer && ytPlayer.setVolume) ytPlayer.setVolume(+D.volumeSlider.value);
+    });
+  }
 
   // Bottom Nav
-  D.navHome.addEventListener('click', () => {
-    D.navHome.classList.add('active');
-    D.navHeart.classList.remove('active', 'liked');
-    D.navSearch.classList.remove('active');
-    goToHome();
+  D.navDiscover.addEventListener('click', () => {
+    setActiveNav(D.navDiscover);
+    displayList = [...playlist];
+    renderSongList(displayList);
+    closePlayer();
   });
 
-  D.navHeart.addEventListener('click', () => {
-    D.navHeart.classList.toggle('liked');
-    D.navHeart.classList.toggle('active');
-    D.navHome.classList.remove('active');
-    // Show liked songs
-    const liked = playlist.filter((_, i) => likedSet.has(i));
-    renderSongList(liked.length > 0 ? liked : playlist);
-    goToHome();
-  });
-
-  D.navSearch.addEventListener('click', () => {
-    D.navSearch.classList.toggle('active');
-    D.navHome.classList.remove('active');
-    goToHome();
-    // Simple prompt-based search for now (could be replaced with inline UI)
-    const q = prompt('Search songs or artists:');
-    if (q) {
-      const r = playlist.filter(s =>
-        s.title.toLowerCase().includes(q.toLowerCase()) ||
-        s.artist.toLowerCase().includes(q.toLowerCase())
-      );
-      renderSongList(r.length ? r : playlist);
-    } else {
-      renderSongList(playlist);
+  D.navSearchBtn.addEventListener('click', () => {
+    setActiveNav(D.navSearchBtn);
+    closePlayer();
+    if (D.searchBar) {
+      D.searchBar.classList.toggle('hidden');
+      if (!D.searchBar.classList.contains('hidden')) D.searchInput.focus();
     }
   });
+
+  D.navLibrary.addEventListener('click', () => {
+    setActiveNav(D.navLibrary);
+    closePlayer();
+    renderSongList(playlist);
+  });
+
+  D.navHistory.addEventListener('click', () => {
+    setActiveNav(D.navHistory);
+    closePlayer();
+    const liked = playlist.filter((_, i) => likedSet.has(i));
+    renderSongList(liked.length ? liked : playlist);
+  });
+
+  // Search events
+  if (D.searchInput) {
+    D.searchInput.addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      renderSongList(q
+        ? playlist.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
+        : playlist
+      );
+    });
+  }
+  if (D.searchClose) {
+    D.searchClose.addEventListener('click', () => {
+      D.searchBar.classList.add('hidden');
+      D.searchInput.value = '';
+      renderSongList(playlist);
+      setActiveNav(D.navDiscover);
+    });
+  }
+
+  // Scroll arrows (scroll song list)
+  const scrollUp   = document.getElementById('scroll-up');
+  const scrollDown = document.getElementById('scroll-down');
+  const homeScroll = document.querySelector('.home-scroll');
+  if (scrollUp)   scrollUp.addEventListener('click',   () => homeScroll.scrollBy({ top: -200, behavior: 'smooth' }));
+  if (scrollDown) scrollDown.addEventListener('click', () => homeScroll.scrollBy({ top:  200, behavior: 'smooth' }));
 }
 
-// ─── Boot ─────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', init);
+// ─── Boot ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  grabDOM();
+  renderSongList(playlist);
+  initYT();
+  bindAll();
+});
