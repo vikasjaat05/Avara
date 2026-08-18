@@ -497,75 +497,15 @@ function toggleTheme() {
 }
 
 // ─── Boomerang Canvas Video Background Loop ──────────────────────────────────
+// ─── Lightweight Background Initialization (Zero Memory Leak) ────────────────
 function initBoomerangBg() {
-  const video  = document.getElementById('bm-video');
-  const canvas = document.getElementById('bm-canvas');
-  if (!video || !canvas) return;
-
-  const frames = [];
-  const maxW = 960;
-  let isCapturing = true;
-
-  function captureFrame() {
-    if (!isCapturing || !video.videoWidth) return;
-    try {
-      const offCanvas = document.createElement('canvas');
-      const scale = Math.min(1, maxW / video.videoWidth);
-      offCanvas.width  = video.videoWidth * scale;
-      offCanvas.height = video.videoHeight * scale;
-      const ctx = offCanvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, offCanvas.width, offCanvas.height);
-      frames.push(offCanvas);
-    } catch(e) {}
+  const video = document.getElementById('bm-video');
+  if (video) {
+    video.loop = true;
+    video.play().catch(() => {});
   }
-
-  function frameLoop() {
-    if (isCapturing && !video.paused && !video.ended) {
-      captureFrame();
-      if ('requestVideoFrameCallback' in video) {
-        video.requestVideoFrameCallback(frameLoop);
-      } else {
-        requestAnimationFrame(frameLoop);
-      }
-    }
-  }
-
-  video.addEventListener('play', () => {
-    frameLoop();
-  });
-
-  video.addEventListener('ended', () => {
-    isCapturing = false;
-    if (frames.length > 5) {
-      video.classList.add('hidden');
-      canvas.classList.remove('hidden');
-
-      let frameIdx = 0;
-      let forward = true;
-      const ctx = canvas.getContext('2d');
-
-      setInterval(() => {
-        const frame = frames[frameIdx];
-        if (frame) {
-          canvas.width  = frame.width;
-          canvas.height = frame.height;
-          ctx.drawImage(frame, 0, 0);
-        }
-
-        if (forward) {
-          frameIdx++;
-          if (frameIdx >= frames.length - 1) forward = false;
-        } else {
-          frameIdx--;
-          if (frameIdx <= 0) forward = true;
-        }
-      }, 1000 / 30);
-    } else {
-      video.currentTime = 0;
-      video.play();
-    }
-  });
 }
+
 
 // ─── Persistence & Listening History ─────────────────────────────────────────
 function restoreSavedState() {
