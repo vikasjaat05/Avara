@@ -10,24 +10,20 @@ import androidx.core.app.NotificationCompat
 
 class MusicService : Service() {
 
+    private var wakeLock: PowerManager.WakeLock? = null
     private val CHANNEL_ID = "AvaraMusicChannel"
-    private val NOTIFICATION_ID = 1001
-    private var serviceWakeLock: PowerManager.WakeLock? = null
+    private val NOTIFICATION_ID = 101
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        acquireServiceWakeLock()
-    }
-
-    private fun acquireServiceWakeLock() {
-        try {
-            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-            serviceWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AvaraMusicService::WakeLock")
-            serviceWakeLock?.acquire(24 * 60 * 60 * 1000L /* 24 hours */)
-        } catch (e: Exception) {}
+        
+        // Acquire WakeLock to keep CPU running when screen is off
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Avara::MusicWakeLock")
+        wakeLock?.acquire(24 * 60 * 60 * 1000L /* 24 hours */)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -40,16 +36,18 @@ class MusicService : Service() {
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) 
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT 
+            else PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("AVARA Music")
-            .setContentText("🎧 Background playback active")
+            .setContentText("Playing music in background")
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setContentIntent(pendingIntent)
             .build()
     }
 
@@ -57,10 +55,12 @@ class MusicService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
-                "AVARA Music Background Playback",
+                "Avara Music Service Channel",
                 NotificationManager.IMPORTANCE_LOW
-            )
-            serviceChannel.description = "Keeps AVARA Music playing in background and when phone screen is locked"
+            ).apply {
+                description = "Keeps music playing in background"
+                setShowBadge(false)
+            }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
         }
@@ -68,8 +68,8 @@ class MusicService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            if (serviceWakeLock?.isHeld == true) serviceWakeLock?.release()
-        } catch (e: Exception) {}
+        wakeLock?.let {
+            if (it.isHeld) it.release()
+        }
     }
 }
