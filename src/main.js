@@ -100,9 +100,11 @@ function grabDOM() {
   D.eqPresetBtn     = document.getElementById('eq-preset-btn');
   D.eqModeLabel     = document.getElementById('eq-mode-label');
   D.shareSongBtn    = document.getElementById('share-song-btn');
-  D.videoModeBtn    = document.getElementById('video-mode-btn');
-  D.videoModeLabel  = document.getElementById('video-mode-label');
-  D.videoPlayerBox  = document.getElementById('video-player-box');
+  D.videoModeBtn        = document.getElementById('video-mode-btn');
+  D.videoModeLabel      = document.getElementById('video-mode-label');
+  D.videoPlayerBox      = document.getElementById('video-player-box');
+  D.fullscreenVideoBtn  = document.getElementById('fullscreen-video-btn');
+
 
 
   // Full Player Overlay DOM
@@ -264,7 +266,27 @@ function toggleVideoMode() {
   }
 }
 
+function toggleFullscreenVideo() {
+  const box = D.videoPlayerBox || document.getElementById('yt-player');
+  if (!box) return;
+
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (box.requestFullscreen) {
+      box.requestFullscreen();
+    } else if (box.webkitRequestFullscreen) {
+      box.webkitRequestFullscreen();
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  }
+}
+
 // ─── PWA Prompt & Download Modal ──────────────────────────────────────────────
+
 
 function initDownloadModal() {
   const checkStandalone = () => {
@@ -1204,10 +1226,12 @@ function bindAll() {
   D.nextBtn.addEventListener('click', nextTrack);
 
   // Pro Toolbar Controls
-  if (D.videoModeBtn)  D.videoModeBtn.addEventListener('click', toggleVideoMode);
-  if (D.sleepTimerBtn) D.sleepTimerBtn.addEventListener('click', toggleSleepTimer);
-  if (D.eqPresetBtn)   D.eqPresetBtn.addEventListener('click', toggleEqualizer);
-  if (D.shareSongBtn)  D.shareSongBtn.addEventListener('click', shareCurrentSong);
+  if (D.videoModeBtn)       D.videoModeBtn.addEventListener('click', toggleVideoMode);
+  if (D.fullscreenVideoBtn) D.fullscreenVideoBtn.addEventListener('click', toggleFullscreenVideo);
+  if (D.sleepTimerBtn)      D.sleepTimerBtn.addEventListener('click', toggleSleepTimer);
+  if (D.eqPresetBtn)        D.eqPresetBtn.addEventListener('click', toggleEqualizer);
+  if (D.shareSongBtn)       D.shareSongBtn.addEventListener('click', shareCurrentSong);
+
 
 
   D.shuffleBtn.addEventListener('click', () => {
