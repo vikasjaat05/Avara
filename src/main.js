@@ -472,8 +472,63 @@ function onYTState(e) {
   }
 }
 
+// ─── Dual Hybrid Audio Engine (HTML5 Native Audio for 100% Mobile Background Playback) ──
+let nativeAudio = new Audio();
+nativeAudio.crossOrigin = 'anonymous';
+let isNativeAudioPlaying = false;
+
+nativeAudio.addEventListener('play', () => {
+  isNativeAudioPlaying = true;
+  isPlaying = true;
+  setPlayUI(true);
+  startTick();
+});
+
+nativeAudio.addEventListener('pause', () => {
+  isNativeAudioPlaying = false;
+  if (!ytPlayer || ytPlayer.getPlayerState() !== 1) {
+    isPlaying = false;
+    setPlayUI(false);
+  }
+});
+
+nativeAudio.addEventListener('ended', () => {
+  isNativeAudioPlaying = false;
+  if (repeatOn) {
+    nativeAudio.currentTime = 0;
+    nativeAudio.play();
+  } else {
+    nextTrack();
+  }
+});
+
+async function fetchAudioStreamUrl(songId) {
+  const endpoints = [
+    `https://pipedapi.kavin.rocks/streams/${songId}`,
+    `https://api.piped.yt/streams/${songId}`,
+    `https://pipedapi.mha.fi/streams/${songId}`
+  ];
+
+  for (const url of endpoints) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        const streams = data.audioStreams || [];
+        if (streams.length > 0) {
+          return streams[streams.length - 1].url;
+        }
+      }
+    } catch(e) {}
+  }
+  return null;
+}
+
 // ─── Playback ────────────────────────────────────────────────────────────────
-function _doPlay(idx) {
+async function _doPlay(idx) {
   const song = playlist[idx];
   if (!song) return;
   enableBackgroundAudio();
@@ -481,15 +536,37 @@ function _doPlay(idx) {
   recordSongPlay(song);
   setupMediaSession(song);
 
+  // Play YouTube iframe for video/desktop
+  try {
+    if (initialSeek > 0) {
+      ytPlayer.loadVideoById({ videoId: song.id, startSeconds: Math.floor(initialSeek) });
+    } else {
+      ytPlayer.loadVideoById({ videoId: song.id, startSeconds: 0 });
+    }
+    ytPlayer.playVideo();
+  } catch(e) {}
 
-  if (initialSeek > 0) {
-    const startSec = Math.floor(initialSeek);
-    initialSeek = 0;
-    ytPlayer.loadVideoById({ videoId: song.id, startSeconds: startSec });
+  // Fetch native audio stream for guaranteed mobile background playback
+  const streamUrl = await fetchAudioStreamUrl(song.id);
+  if (streamUrl) {
+    try {
+      if (ytPlayer && typeof ytPlayer.mute === 'function') {
+        ytPlayer.mute();
+      }
+    } catch(e) {}
+    nativeAudio.src = streamUrl;
+    if (initialSeek > 0) {
+      nativeAudio.currentTime = initialSeek;
+      initialSeek = 0;
+    }
+    nativeAudio.play().catch(() => {});
   } else {
-    ytPlayer.loadVideoById({ videoId: song.id, startSeconds: 0 });
+    try {
+      if (ytPlayer && typeof ytPlayer.unMute === 'function') {
+        ytPlayer.unMute();
+      }
+    } catch(e) {}
   }
-  ytPlayer.playVideo();
 }
 
 function playTrack(idx) {
@@ -502,20 +579,23 @@ function playTrack(idx) {
   showMini();
   highlightRow();
 
-  if (ytIsReady && ytPlayer) _doPlay(idx);
-  else pendingPlay = idx;
+  _doPlay(idx);
 }
 
 function togglePlay() {
-  if (!ytIsReady || !ytPlayer) {
-    playTrack(currentIdx);
-    return;
-  }
-  if (isPlaying) {
-    ytPlayer.pauseVideo();
+  if (isNativeAudioPlaying) {
+    nativeAudio.pause();
+    if (ytPlayer && ytIsReady) try { ytPlayer.pauseVideo(); } catch(e) {}
+  } else if (nativeAudio.src) {
+    nativeAudio.play().catch(() => {});
+    if (ytPlayer && ytIsReady) try { ytPlayer.playVideo(); } catch(e) {}
   } else {
-    if (initialSeek > 0) {
-      _doPlay(currentIdx);
+    if (!ytIsReady || !ytPlayer) {
+      playTrack(currentIdx);
+      return;
+    }
+    if (isPlaying) {
+      ytPlayer.pauseVideo();
     } else {
       ytPlayer.playVideo();
     }
@@ -525,6 +605,7 @@ function togglePlay() {
 function prevTrack() { playTrack(shuffleOn ? randIdx() : currentIdx - 1); }
 function nextTrack() { playTrack(shuffleOn ? randIdx() : currentIdx + 1); }
 function randIdx()   { return Math.floor(Math.random() * playlist.length); }
+
 
 // ─── UI Updates ──────────────────────────────────────────────────────────────
 function updateTrackUI(song) {
@@ -587,10 +668,19 @@ function highlightRow() {
 function startTick() {
   if (progressInt) clearInterval(progressInt);
   progressInt = setInterval(() => {
-    if (!ytIsReady || !ytPlayer || !isPlaying) return;
+    if (!isPlaying) return;
     try {
-      const cur = ytPlayer.getCurrentTime() || 0;
-      const dur = ytPlayer.getDuration() || 1;
+      let cur = 0;
+      let dur = 1;
+      if (isNativeAudioPlaying && nativeAudio.duration) {
+        cur = nativeAudio.currentTime || 0;
+        dur = nativeAudio.duration || 1;
+      } else if (ytIsReady && ytPlayer) {
+        cur = ytPlayer.getCurrentTime() || 0;
+        dur = ytPlayer.getDuration() || 1;
+      } else {
+        return;
+      }
       const pct = (cur / dur) * 100;
 
       savePlaybackTime(cur);
@@ -608,6 +698,7 @@ function startTick() {
     } catch(_) {}
   }, 400);
 }
+
 
 function fmt(s) {
   if (!s || isNaN(s)) return '0:00';
