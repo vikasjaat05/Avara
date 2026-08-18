@@ -182,20 +182,68 @@ html, body {
   flex: 1; position: relative; overflow: hidden; background: var(--bg);
 }
 .view {
-  position: absolute; inset: 0; bottom: 64px;
+  position: absolute; inset: 0;
+  bottom: calc(60px + env(safe-area-inset-bottom, 0px));
   display: flex; flex-direction: column;
-  transition: transform .35s cubic-bezier(.32,.72,0,1), opacity .3s ease;
+  transition: transform .3s ease, opacity .25s ease;
   background: var(--bg);
 }
-.active-view { transform: translateY(0); opacity: 1; }
-.hidden-view  { transform: translateY(100%); opacity: 0; pointer-events: none; }
+.active-view { transform: translateY(0); opacity: 1; pointer-events: auto; }
+.hidden-view  { transform: translateY(20px); opacity: 0; pointer-events: none; }
 .hidden       { display: none !important; }
 
-.home-scroll {
+.home-scroll, .view-scroll {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   padding-bottom: 120px;
 }
-.home-scroll::-webkit-scrollbar { display: none; }
+.home-scroll::-webkit-scrollbar, .view-scroll::-webkit-scrollbar { display: none; }
+
+/* View Headers */
+.view-scroll { padding: 20px; }
+.view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.view-title { font-family: var(--font-heading); font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+.view-subtitle { font-size: 13px; color: var(--text-sub); margin-top: 2px; }
+
+/* ─────────────────────────────────────────────────
+   SEARCH VIEW STYLES
+───────────────────────────────────────────────── */
+.search-input-box {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 12px 16px; margin-bottom: 16px;
+  box-shadow: var(--shadow); transition: border-color .2s;
+}
+.search-input-box:focus-within { border-color: var(--accent); }
+.search-box-icon { color: var(--text-muted); flex-shrink: 0; }
+.search-input-box input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font-family: var(--font-body); font-size: 15px; font-weight: 500;
+}
+.search-input-box input::placeholder { color: var(--text-muted); }
+.search-clear-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px; }
+
+.search-tags-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.search-tag-label { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-right: 4px; }
+.search-tag-chip {
+  background: var(--bg-card); border: 1px solid var(--border); color: var(--text-sub);
+  padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.search-tag-chip:hover { background: var(--bg-card-hover); color: var(--text); }
+
+/* ─────────────────────────────────────────────────
+   LIKED SONGS VIEW STYLES
+───────────────────────────────────────────────── */
+.liked-hero-header {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+}
+.liked-badge-icon {
+  width: 60px; height: 60px; border-radius: 16px;
+  background: var(--accent-gradient); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 24px var(--accent-glow); flex-shrink: 0;
+}
+.liked-actions-row { margin-bottom: 24px; }
 
 /* ─────────────────────────────────────────────────
    AVARA HEADER
@@ -220,22 +268,6 @@ html, body {
   transition: all .2s; box-shadow: var(--shadow);
 }
 .icon-circle-btn:hover { background: var(--bg-card-hover); }
-
-/* Search Bar Collapsible */
-.search-bar {
-  display: flex; align-items: center; gap: 10px;
-  margin: 0 20px 12px; padding: 10px 14px;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-  animation: slideDown .25s ease; box-shadow: var(--shadow);
-}
-@keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-.search-icon-sm { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
-.search-bar input {
-  flex: 1; background: none; border: none; outline: none;
-  color: var(--text); font-family: var(--font-body); font-size: 13px;
-}
-.search-bar input::placeholder { color: var(--text-muted); }
-.search-bar button { background: none; border: none; color: var(--text-muted); cursor: pointer; }
 
 /* ─────────────────────────────────────────────────
    HERO SPOTLIGHT BANNER
@@ -283,17 +315,17 @@ html, body {
    CATEGORY CHIPS BAR
 ───────────────────────────────────────────────── */
 .category-chips-bar {
-  display: flex; gap: 8px; padding: 0 20px 16px;
+  display: flex; gap: 8px; padding: 0 0 16px;
   overflow-x: auto; scrollbar-width: none;
 }
 .category-chips-bar::-webkit-scrollbar { display: none; }
-.cat-chip {
+.cat-chip, .cat-chip-lib {
   flex-shrink: 0; padding: 8px 16px; border-radius: 100px;
   background: var(--bg-card); border: 1px solid var(--border);
   color: var(--text-sub); font-size: 12px; font-weight: 600;
   font-family: var(--font-body); cursor: pointer; transition: all .2s;
 }
-.cat-chip.active {
+.cat-chip.active, .cat-chip-lib.active {
   background: var(--accent-gradient); color: #fff; border-color: transparent;
   box-shadow: 0 4px 14px var(--accent-glow); font-weight: 700;
 }
@@ -382,7 +414,7 @@ html, body {
 .song-row {
   display: flex; align-items: center; gap: 12px;
   padding: 10px 16px; cursor: pointer; transition: background .15s;
-  border-radius: 10px; margin: 0 10px 4px;
+  border-radius: 10px; margin: 0 0 6px;
 }
 .song-row:hover  { background: var(--bg-card); }
 .song-row:active { background: var(--bg-card-hover); }
@@ -551,4 +583,3 @@ html, body {
 .mob-nav-btn.active { color: var(--accent); font-weight: 700; }
 .mob-nav-btn.active svg { transform: translateY(-1px) scale(1.08); filter: drop-shadow(0 2px 8px var(--accent-glow)); }
 .mob-nav-btn:active { transform: scale(.92); }
-

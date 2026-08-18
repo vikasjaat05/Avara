@@ -21,28 +21,53 @@ let progressInt  = null;
 let inPlayer     = false;
 let initialSeek  = 0;
 let currentTheme = 'dark';
+let currentTab   = 'home';
 
 // ─── DOM References ──────────────────────────────────────────────────────────
 let D = {};
 
 function grabDOM() {
+  // Views
   D.homeView        = document.getElementById('home-view');
+  D.searchView      = document.getElementById('search-view');
+  D.libraryView     = document.getElementById('library-view');
+  D.likedView       = document.getElementById('liked-view');
   D.playerView      = document.getElementById('player-view');
-  D.songList        = document.getElementById('song-list');
+
+  // Lists & Containers
   D.quickGrid       = document.getElementById('quick-grid');
   D.shelfBewafai    = document.getElementById('shelf-bewafai');
   D.shelfDard       = document.getElementById('shelf-dard');
   D.shelfMemories   = document.getElementById('shelf-memories');
+
+  D.mainSearchInput     = document.getElementById('main-search-input');
+  D.mainSearchClear     = document.getElementById('main-search-clear');
+  D.searchResultsHeading= document.getElementById('search-results-heading');
+  D.searchResultsList   = document.getElementById('search-results-list');
+  D.searchTagChips      = document.querySelectorAll('.search-tag-chip');
+
+  D.librarySongsList    = document.getElementById('library-songs-list');
+  D.libraryCatChips     = document.querySelectorAll('.cat-chip-lib');
+
+  D.likedSongsList      = document.getElementById('liked-songs-list');
+  D.likedCountSub       = document.getElementById('liked-count-sub');
+  D.playAllLikedBtn     = document.getElementById('play-all-liked-btn');
+
+  // Hero Spotlight
   D.heroBanner      = document.getElementById('hero-banner');
   D.heroBg          = document.getElementById('hero-bg');
   D.heroTitle       = document.getElementById('hero-title');
   D.heroArtist      = document.getElementById('hero-artist');
   D.heroPlayBtn     = document.getElementById('hero-play-btn');
+
+  // Header Actions & Theme
   D.themeToggleBtn  = document.getElementById('theme-toggle-btn');
   D.sunIcon         = document.getElementById('theme-sun-icon');
   D.moonIcon        = document.getElementById('theme-moon-icon');
+  D.searchToggle    = document.getElementById('search-toggle-btn');
+  D.catChips        = document.querySelectorAll('.cat-chip');
 
-  // Player DOM
+  // Full Player Overlay DOM
   D.playerBg        = document.getElementById('player-bg');
   D.playerArt       = document.getElementById('player-art');
   D.playerTitle     = document.getElementById('player-title');
@@ -95,18 +120,11 @@ function grabDOM() {
   D.sdLibrary       = document.getElementById('sd-library');
   D.sdLiked         = document.getElementById('sd-liked');
 
-  // Nav (mobile)
+  // Mobile Bottom Navigation
   D.navHome         = document.getElementById('nav-home');
   D.navSearch       = document.getElementById('nav-search-mob');
   D.navMusic        = document.getElementById('nav-music-mob');
   D.navLiked        = document.getElementById('nav-liked-mob');
-
-  // Search & Chips
-  D.searchToggle    = document.getElementById('search-toggle-btn');
-  D.searchBar       = document.getElementById('search-bar');
-  D.searchInput     = document.getElementById('search-input');
-  D.searchClose     = document.getElementById('search-close');
-  D.catChips        = document.querySelectorAll('.cat-chip');
 }
 
 // ─── Theme Toggle Logic ───────────────────────────────────────────────────────
@@ -367,21 +385,63 @@ function fmt(s) {
   return `${m}:${sc<10?'0':''}${sc}`;
 }
 
-// ─── View Switching ──────────────────────────────────────────────────────────
+// ─── View Switching (Multi-Tab Architecture) ──────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  inPlayer   = false;
+
+  const views = [D.homeView, D.searchView, D.libraryView, D.likedView, D.playerView];
+  views.forEach(v => {
+    if (v) {
+      v.classList.remove('active-view');
+      v.classList.add('hidden-view');
+    }
+  });
+
+  [D.navHome, D.navSearch, D.navMusic, D.navLiked].forEach(b => b && b.classList.remove('active'));
+  [D.sdDiscover, D.sdSearch, D.sdLibrary, D.sdLiked].forEach(b => b && b.classList.remove('active'));
+
+  if (tab === 'home') {
+    D.homeView.classList.remove('hidden-view');
+    D.homeView.classList.add('active-view');
+    if (D.navHome) D.navHome.classList.add('active');
+    if (D.sdDiscover) D.sdDiscover.classList.add('active');
+  } else if (tab === 'search') {
+    D.searchView.classList.remove('hidden-view');
+    D.searchView.classList.add('active-view');
+    if (D.navSearch) D.navSearch.classList.add('active');
+    if (D.sdSearch) D.sdSearch.classList.add('active');
+    renderSearchResults('');
+    if (D.mainSearchInput) setTimeout(() => D.mainSearchInput.focus(), 80);
+  } else if (tab === 'library') {
+    D.libraryView.classList.remove('hidden-view');
+    D.libraryView.classList.add('active-view');
+    if (D.navMusic) D.navMusic.classList.add('active');
+    if (D.sdLibrary) D.sdLibrary.classList.add('active');
+    renderLibrarySongs(playlist, 'all');
+  } else if (tab === 'liked') {
+    D.likedView.classList.remove('hidden-view');
+    D.likedView.classList.add('active-view');
+    if (D.navLiked) D.navLiked.classList.add('active');
+    if (D.sdLiked) D.sdLiked.classList.add('active');
+    renderLikedSongs();
+  }
+
+  showMini();
+}
+
 function openPlayer() {
   inPlayer = true;
-  D.homeView.classList.replace('active-view','hidden-view');
+  const views = [D.homeView, D.searchView, D.libraryView, D.likedView];
+  views.forEach(v => v && v.classList.replace('active-view','hidden-view'));
   D.playerView.classList.replace('hidden-view','active-view');
   if (D.miniPlayer) D.miniPlayer.classList.add('hidden');
-  setMobNav(null);
 }
 
 function closePlayer() {
   inPlayer = false;
   D.playerView.classList.replace('active-view','hidden-view');
-  D.homeView.classList.replace('hidden-view','active-view');
-  setMobNav(D.navHome);
-  showMini();
+  switchTab(currentTab || 'home');
 }
 
 function showMini() {
@@ -390,9 +450,8 @@ function showMini() {
   }
 }
 
-// ─── Render Dynamic Home Sections from DISTINCT Songs (No Repeated Thumbnails!) ───
+// ─── Render Dynamic Home Sections ─────────────────────────────────────────────
 function renderHomeSections() {
-  // 1. Quick Picks Grid (Songs 1 to 8)
   if (D.quickGrid) {
     D.quickGrid.innerHTML = '';
     const quickSongs = playlist.slice(1, 9);
@@ -419,7 +478,6 @@ function renderHomeSections() {
     });
   }
 
-  // 2. Shelf 1: Heartbreak Hits (Unique Songs starting from index 9)
   if (D.shelfBewafai) {
     D.shelfBewafai.innerHTML = '';
     const bewafaiSongs = playlist.slice(9).filter(s => s.category && s.category.includes('बेवफाई')).slice(0, 8);
@@ -443,7 +501,6 @@ function renderHomeSections() {
     });
   }
 
-  // 3. Shelf 2: Deep Emotion (Unique Songs starting from index 15)
   if (D.shelfDard) {
     D.shelfDard.innerHTML = '';
     const dardSongs = playlist.slice(15).filter(s => s.category && s.category.includes('दर्द')).slice(0, 8);
@@ -467,7 +524,6 @@ function renderHomeSections() {
     });
   }
 
-  // 4. Shelf 3: Timeless Memories (Unique Songs starting from index 20)
   if (D.shelfMemories) {
     D.shelfMemories.innerHTML = '';
     const memorySongs = playlist.slice(20).filter(s => s.category && s.category.includes('यादें')).slice(0, 8);
@@ -492,27 +548,72 @@ function renderHomeSections() {
   }
 }
 
-// ─── Song List Render ────────────────────────────────────────────────────────
-let _currentFilter = 'all';
+// ─── Render Search Results ───────────────────────────────────────────────────
+function renderSearchResults(query) {
+  if (!D.searchResultsList) return;
+  const q = (query || '').trim().toLowerCase();
+  D.searchResultsList.innerHTML = '';
 
-function renderSongList(songs, filter) {
-  if (!D.songList) return;
-  if (filter !== undefined) _currentFilter = filter;
-  D.songList.innerHTML = '';
-  const safe = (songs || playlist).filter(Boolean);
+  if (D.searchResultsHeading) {
+    D.searchResultsHeading.textContent = q ? `Search Results for "${query}"` : 'Top Trending Tracks';
+  }
+  if (D.mainSearchClear) {
+    D.mainSearchClear.classList.toggle('hidden', !q);
+  }
 
-  if (safe.length === 0 && _currentFilter === 'liked') {
-    D.songList.innerHTML = `
-      <div style="text-align:center;padding:50px 24px;color:var(--text-sub)">
-        <div style="font-size:42px;margin-bottom:8px">❤️</div>
-        <div style="font-size:16px;font-weight:700">No Liked Songs Yet</div>
-        <div style="font-size:13px;margin-top:4px">Tap ♡ on any song to save it to your Library</div>
+  const matches = q
+    ? playlist.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q) || (s.category && s.category.toLowerCase().includes(q)))
+    : playlist.slice(0, 15);
+
+  if (matches.length === 0) {
+    D.searchResultsList.innerHTML = `
+      <div style="text-align:center;padding:40px 20px;color:var(--text-sub)">
+        <div style="font-size:36px;margin-bottom:8px">🔍</div>
+        <div style="font-size:15px;font-weight:700">No matching songs found</div>
+        <div style="font-size:12px;margin-top:4px">Try searching for Sonu Nigam, Heartbreak, or song titles</div>
       </div>
     `;
     return;
   }
 
-  safe.forEach((song) => {
+  renderSongRowList(D.searchResultsList, matches);
+}
+
+// ─── Render Library View Songs ────────────────────────────────────────────────
+function renderLibrarySongs(songs, filter) {
+  if (!D.librarySongsList) return;
+  D.librarySongsList.innerHTML = '';
+  const safe = (songs || playlist).filter(Boolean);
+  renderSongRowList(D.librarySongsList, safe);
+}
+
+// ─── Render Liked Songs View ──────────────────────────────────────────────────
+function renderLikedSongs() {
+  if (!D.likedSongsList) return;
+  D.likedSongsList.innerHTML = '';
+  const likedArr = playlist.filter((_, i) => likedSet.has(i));
+
+  if (D.likedCountSub) {
+    D.likedCountSub.textContent = `${likedArr.length} ${likedArr.length === 1 ? 'Song' : 'Songs'} Saved`;
+  }
+
+  if (likedArr.length === 0) {
+    D.likedSongsList.innerHTML = `
+      <div style="text-align:center;padding:60px 24px;color:var(--text-sub)">
+        <div style="font-size:48px;margin-bottom:12px">❤️</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text)">No Liked Songs Yet</div>
+        <div style="font-size:13px;margin-top:6px">Tap ♡ on any song to save it to your Liked Songs</div>
+      </div>
+    `;
+    return;
+  }
+
+  renderSongRowList(D.likedSongsList, likedArr);
+}
+
+// ─── Helper: Render Standard Song Rows ────────────────────────────────────────
+function renderSongRowList(container, songs) {
+  songs.forEach((song) => {
     const realIdx = playlist.indexOf(song);
     const liked   = likedSet.has(realIdx);
     const el = document.createElement('div');
@@ -557,20 +658,11 @@ function renderSongList(songs, filter) {
       }
       saveState();
       if (idx === currentIdx) setLikeUI(likedSet.has(idx));
+      if (currentTab === 'liked') renderLikedSongs();
     });
 
-    D.songList.appendChild(el);
+    container.appendChild(el);
   });
-}
-
-// ─── Nav Helpers ─────────────────────────────────────────────────────────────
-function setMobNav(btn) {
-  [D.navHome, D.navSearch, D.navMusic, D.navLiked].forEach(b => b && b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-}
-function setSdNav(btn) {
-  [D.sdDiscover, D.sdSearch, D.sdLibrary, D.sdLiked].forEach(b => b && b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
 }
 
 // ─── Event Bindings ──────────────────────────────────────────────────────────
@@ -586,6 +678,7 @@ function bindAll() {
   D.playPauseBtn.addEventListener('click', togglePlay);
   D.prevBtn.addEventListener('click', prevTrack);
   D.nextBtn.addEventListener('click', nextTrack);
+
   D.shuffleBtn.addEventListener('click', () => {
     shuffleOn = !shuffleOn;
     D.shuffleBtn.classList.toggle('active', shuffleOn);
@@ -594,12 +687,14 @@ function bindAll() {
     repeatOn = !repeatOn;
     D.repeatBtn.classList.toggle('active', repeatOn);
   });
+
   D.playerLikeBtn.addEventListener('click', () => {
     if (likedSet.has(currentIdx)) likedSet.delete(currentIdx);
     else likedSet.add(currentIdx);
     setLikeUI(likedSet.has(currentIdx));
     saveState();
     highlightRow();
+    if (currentTab === 'liked') renderLikedSongs();
   });
 
   D.progressTrack.addEventListener('click', (e) => {
@@ -628,62 +723,75 @@ function bindAll() {
     savePlaybackTime(targetSec);
   });
 
-  if (D.sdDiscover) D.sdDiscover.addEventListener('click', () => { setSdNav(D.sdDiscover); renderSongList(playlist, 'all'); });
-  if (D.sdSearch)   D.sdSearch.addEventListener('click',   () => { setSdNav(D.sdSearch); toggleSearch(); });
-  if (D.sdLibrary)  D.sdLibrary.addEventListener('click',  () => { setSdNav(D.sdLibrary); renderSongList(playlist, 'all'); });
-  if (D.sdLiked)    D.sdLiked.addEventListener('click',    () => {
-    setSdNav(D.sdLiked);
-    const liked = playlist.filter((_,i) => likedSet.has(i));
-    renderSongList(liked, 'liked');
-  });
+  // Desktop Sidebar Tab Switching
+  if (D.sdDiscover) D.sdDiscover.addEventListener('click', () => switchTab('home'));
+  if (D.sdSearch)   D.sdSearch.addEventListener('click',   () => switchTab('search'));
+  if (D.sdLibrary)  D.sdLibrary.addEventListener('click',  () => switchTab('library'));
+  if (D.sdLiked)    D.sdLiked.addEventListener('click',    () => switchTab('liked'));
 
-  D.navHome.addEventListener('click',   () => { setMobNav(D.navHome); renderSongList(playlist, 'all'); closePlayer(); });
-  D.navSearch.addEventListener('click', () => { setMobNav(D.navSearch); closePlayer(); toggleSearch(); });
-  D.navMusic.addEventListener('click',  () => { setMobNav(D.navMusic); renderSongList(playlist, 'all'); closePlayer(); });
-  D.navLiked.addEventListener('click',  () => {
-    setMobNav(D.navLiked);
-    closePlayer();
-    const liked = playlist.filter((_,i) => likedSet.has(i));
-    renderSongList(liked, 'liked');
-  });
+  // Mobile Bottom Navigation Tab Switching
+  if (D.navHome)   D.navHome.addEventListener('click',   () => switchTab('home'));
+  if (D.navSearch) D.navSearch.addEventListener('click', () => switchTab('search'));
+  if (D.navMusic)  D.navMusic.addEventListener('click',  () => switchTab('library'));
+  if (D.navLiked)  D.navLiked.addEventListener('click',  () => switchTab('liked'));
 
-  if (D.searchToggle) D.searchToggle.addEventListener('click', toggleSearch);
-  if (D.searchInput) D.searchInput.addEventListener('input', (e) => {
-    const q = e.target.value.trim().toLowerCase();
-    renderSongList(q ? playlist.filter(s =>
-      s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
-    ) : playlist);
-  });
-  if (D.searchClose) D.searchClose.addEventListener('click', () => {
-    D.searchBar.classList.add('hidden');
-    D.searchInput.value = '';
-    renderSongList(playlist, 'all');
-  });
+  // Header Search Icon Button
+  if (D.searchToggle) D.searchToggle.addEventListener('click', () => switchTab('search'));
 
-  D.catChips.forEach(chip => chip.addEventListener('click', () => {
-    D.catChips.forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    const f = chip.dataset.filter;
-    if (f === 'all') {
-      renderSongList(playlist, 'all');
-    } else if (f === 'heartbreak') {
-      const filtered = playlist.filter(s => s.category && s.category.includes('बेवफाई'));
-      renderSongList(filtered.length ? filtered : playlist.slice(0, 10), 'heartbreak');
-    } else if (f === 'deep') {
-      const filtered = playlist.filter(s => s.category && s.category.includes('दर्द'));
-      renderSongList(filtered.length ? filtered : playlist.slice(5, 15), 'deep');
-    } else if (f === 'memories') {
-      const filtered = playlist.filter(s => s.category && s.category.includes('यादें'));
-      renderSongList(filtered.length ? filtered : playlist.slice(10, 20), 'memories');
-    }
-  }));
-}
+  // Dedicated Search View Input Listener
+  if (D.mainSearchInput) {
+    D.mainSearchInput.addEventListener('input', (e) => {
+      renderSearchResults(e.target.value);
+    });
+  }
+  if (D.mainSearchClear) {
+    D.mainSearchClear.addEventListener('click', () => {
+      if (D.mainSearchInput) D.mainSearchInput.value = '';
+      renderSearchResults('');
+    });
+  }
 
-function toggleSearch() {
-  if (!D.searchBar) return;
-  D.searchBar.classList.toggle('hidden');
-  if (!D.searchBar.classList.contains('hidden') && D.searchInput) {
-    setTimeout(() => D.searchInput.focus(), 50);
+  // Quick Search Tag Chips
+  if (D.searchTagChips) {
+    D.searchTagChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const q = chip.dataset.query;
+        if (D.mainSearchInput) D.mainSearchInput.value = q;
+        renderSearchResults(q);
+      });
+    });
+  }
+
+  // Library View Category Filter Chips
+  if (D.libraryCatChips) {
+    D.libraryCatChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        D.libraryCatChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const f = chip.dataset.filter;
+        if (f === 'all') {
+          renderLibrarySongs(playlist, 'all');
+        } else if (f === 'heartbreak') {
+          renderLibrarySongs(playlist.filter(s => s.category && s.category.includes('बेवफाई')), 'heartbreak');
+        } else if (f === 'deep') {
+          renderLibrarySongs(playlist.filter(s => s.category && s.category.includes('दर्द')), 'deep');
+        } else if (f === 'memories') {
+          renderLibrarySongs(playlist.filter(s => s.category && s.category.includes('यादें')), 'memories');
+        }
+      });
+    });
+  }
+
+  // Liked View "Play All Liked" Button
+  if (D.playAllLikedBtn) {
+    D.playAllLikedBtn.addEventListener('click', () => {
+      const likedArr = playlist.filter((_, i) => likedSet.has(i));
+      if (likedArr.length) {
+        const realIdx = playlist.indexOf(likedArr[0]);
+        playTrack(realIdx);
+        openPlayer();
+      }
+    });
   }
 }
 
@@ -699,9 +807,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (D.timeCur) D.timeCur.textContent = fmt(initialSeek);
   }
 
-  showMini();
   renderHomeSections();
-  renderSongList(playlist, 'all');
   initYT();
   bindAll();
+  switchTab('home');
 });
