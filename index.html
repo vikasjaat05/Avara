@@ -560,6 +560,62 @@
     </div>
   </div>
 
+  <!-- Silent HTML5 Audio Element for Mobile Background Playback Keep-Alive -->
+  <audio id="bg-keepalive" loop src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"></audio>
+
+  <!-- Real Native App Permissions Modal -->
+  <div id="permissions-modal" class="modal-overlay hidden">
+    <div class="modal-card liquid-glass animate-pop">
+      <button id="close-permissions-modal" class="modal-close-btn">✕</button>
+      <div class="modal-header">
+        <img src="/logo.svg" alt="Avara Logo" width="56" height="56" class="modal-logo-img" />
+        <h2 class="modal-title">App Permissions & Background Music</h2>
+        <p class="modal-sub">Enable background playback when phone is locked, notifications for trending releases & regional song recommendations.</p>
+      </div>
+
+      <div class="modal-permissions-list">
+        <div class="perm-item">
+          <div class="perm-info">
+            <span class="perm-icon">🎵</span>
+            <div>
+              <div class="perm-title">Background Playback & Lock Screen</div>
+              <div class="perm-sub">Keep music playing when screen is locked or switching apps</div>
+            </div>
+          </div>
+          <button id="grant-bg-perm-btn" class="perm-grant-btn active">Enabled</button>
+        </div>
+
+        <div class="perm-item">
+          <div class="perm-info">
+            <span class="perm-icon">🔔</span>
+            <div>
+              <div class="perm-title">Push Notifications</div>
+              <div class="perm-sub">Alerts for new trending releases & playback controls</div>
+            </div>
+          </div>
+          <button id="grant-notif-perm-btn" class="perm-grant-btn">Allow</button>
+        </div>
+
+        <div class="perm-item">
+          <div class="perm-info">
+            <span class="perm-icon">📍</span>
+            <div>
+              <div class="perm-title">Location & Regional Hits</div>
+              <div class="perm-sub">Personalize Haryanvi, Punjabi & Bollywood charts for your city</div>
+            </div>
+          </div>
+          <button id="grant-loc-perm-btn" class="perm-grant-btn">Allow</button>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 16px;">
+        <button id="done-permissions-btn" class="modal-primary-btn">
+          <span>Done & Start Listening 🎧</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Preloader script -->
   <script>
     !function(){

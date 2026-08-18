@@ -8,6 +8,7 @@ const KEY_LIKED_IDS    = 'avara_liked_song_ids';
 const KEY_THEME_MODE   = 'avara_theme_mode';
 const KEY_MOOD_COUNTS  = 'avara_mood_counts';
 const KEY_PLAY_HISTORY = 'avara_play_history';
+const KEY_PERMS_DONE   = 'avara_perms_done';
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let ytPlayer          = null;
@@ -34,10 +35,35 @@ let sleepTimerMinutes = 0;
 let eqPresets         = ['Normal', 'Bass Boost 🔊', 'Vocal 🎤', 'Acoustic 🎸', 'Treble ✨'];
 let eqCurrentIdx      = 0;
 
+// O(1) Fast Map Lookup (Fixes 100% Lag!)
+let songIdIndexMap    = new Map();
+
+function rebuildSongIndexMap() {
+  songIdIndexMap.clear();
+  playlist.forEach((song, idx) => {
+    if (song && song.id) songIdIndexMap.set(song.id, idx);
+  });
+}
+
+function getSongIndex(song) {
+  if (!song || !song.id) return -1;
+  return songIdIndexMap.has(song.id) ? songIdIndexMap.get(song.id) : -1;
+}
+
 // ─── DOM References ──────────────────────────────────────────────────────────
 let D = {};
 
 function grabDOM() {
+  // Silent Keep-Alive Audio for Background Playback
+  D.bgAudio         = document.getElementById('bg-keepalive');
+
+  // Permissions Modal DOM
+  D.permsModal          = document.getElementById('permissions-modal');
+  D.closePermsModal     = document.getElementById('close-permissions-modal');
+  D.grantNotifBtn       = document.getElementById('grant-notif-perm-btn');
+  D.grantLocBtn         = document.getElementById('grant-loc-perm-btn');
+  D.donePermsBtn        = document.getElementById('done-permissions-btn');
+
   // Views
   D.homeView        = document.getElementById('home-view');
   D.searchView      = document.getElementById('search-view');
@@ -73,26 +99,12 @@ function grabDOM() {
   D.likedCountSub       = document.getElementById('liked-count-sub');
   D.playAllLikedBtn     = document.getElementById('play-all-liked-btn');
 
-  // Hero Spotlight
-  D.heroBanner      = document.getElementById('hero-banner');
-  D.heroBg          = document.getElementById('hero-bg');
-  D.heroTitle       = document.getElementById('hero-title');
-  D.heroArtist      = document.getElementById('hero-artist');
-  D.heroPlayBtn     = document.getElementById('hero-play-btn');
-
   // Header Actions & Theme
   D.themeToggleBtn  = document.getElementById('theme-toggle-btn');
   D.sunIcon         = document.getElementById('theme-sun-icon');
   D.moonIcon        = document.getElementById('theme-moon-icon');
   D.searchToggle    = document.getElementById('search-toggle-btn');
   D.catChips        = document.querySelectorAll('.cat-chip');
-
-  // Download App DOM
-  D.headerDownloadBtn = document.getElementById('header-download-btn');
-  D.sdDownloadBtn     = document.getElementById('sd-download-app');
-  D.downloadModal     = document.getElementById('download-modal');
-  D.closeDownloadModal= document.getElementById('close-download-modal');
-  D.triggerPwaBtn     = document.getElementById('trigger-pwa-install-btn');
 
   // Pro Toolbar Elements
   D.sleepTimerBtn   = document.getElementById('sleep-timer-btn');
@@ -161,6 +173,132 @@ function grabDOM() {
   D.navLiked        = document.getElementById('nav-liked-mob');
 }
 
+// ─── Background Audio Keep-Alive for Phone Lock & Switching Apps ─────────────
+function startBackgroundKeepAlive() {
+  if (D.bgAudio) {
+    D.bgAudio.play().catch(() => {});
+  }
+}
+
+function stopBackgroundKeepAlive() {
+  if (D.bgAudio) {
+    D.bgAudio.pause();
+  }
+}
+
+// Override visibilitychange so mobile browsers do NOT freeze playback!
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && isPlaying) {
+    startBackgroundKeepAlive();
+    if (ytPlayer && ytIsReady) {
+      try { ytPlayer.playVideo(); } catch(e) {}
+    }
+  }
+});
+
+// ─── Real Native App Permissions Modal ───────────────────────────────────────
+function initPermissionsModal() {
+  const isDone = localStorage.getItem(KEY_PERMS_DONE);
+  if (!isDone && D.permsModal) {
+    setTimeout(() => D.permsModal.classList.remove('hidden'), 1200);
+  }
+
+  const closeModal = () => {
+    if (D.permsModal) D.permsModal.classList.add('hidden');
+    localStorage.setItem(KEY_PERMS_DONE, 'true');
+  };
+
+  if (D.closePermsModal) D.closePermsModal.addEventListener('click', closeModal);
+  if (D.donePermsBtn)    D.donePermsBtn.addEventListener('click', closeModal);
+
+  if (D.grantNotifBtn) {
+    D.grantNotifBtn.addEventListener('click', () => {
+      if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            D.grantNotifBtn.textContent = 'Allowed ✓';
+            D.grantNotifBtn.classList.add('active');
+          }
+        });
+      }
+    });
+  }
+
+  if (D.grantLocBtn) {
+    D.grantLocBtn.addEventListener('click', () => {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          () => {
+            D.grantLocBtn.textContent = 'Allowed ✓';
+            D.grantLocBtn.classList.add('active');
+          },
+          () => {
+            D.grantLocBtn.textContent = 'Denied';
+          }
+        );
+      }
+    });
+  }
+}
+
+// ─── Top Hero Swiper Carousel (Continuous Smooth Auto-Loop) ───────────────────
+let swiperCurrentIndex = 0;
+let swiperInterval = null;
+
+function initHeroSwiper() {
+  const wrapper = document.getElementById('swiper-wrapper');
+  const slides  = document.querySelectorAll('.swiper-slide');
+  const dots    = document.querySelectorAll('.swiper-dot');
+  if (!wrapper || !slides.length) return;
+
+  function goToSlide(idx) {
+    swiperCurrentIndex = (idx + slides.length) % slides.length;
+    wrapper.style.transform = `translateX(-${swiperCurrentIndex * 100}%)`;
+    slides.forEach((s, i) => s.classList.toggle('active', i === swiperCurrentIndex));
+    dots.forEach((d, i) => d.classList.toggle('active', i === swiperCurrentIndex));
+  }
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const idx = parseInt(dot.dataset.index);
+      goToSlide(idx);
+      restartSwiperTimer();
+    });
+  });
+
+  document.querySelectorAll('.slide-play-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const songId = btn.dataset.songId;
+      const realIdx = songIdIndexMap.has(songId) ? songIdIndexMap.get(songId) : 0;
+      playTrack(realIdx);
+      openPlayer();
+    });
+  });
+
+  // Touch Swipe Support
+  let startX = 0;
+  wrapper.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  wrapper.addEventListener('touchend', (e) => {
+    const endX = e.changedTouches[0].clientX;
+    if (startX - endX > 40) { goToSlide(swiperCurrentIndex + 1); restartSwiperTimer(); }
+    else if (endX - startX > 40) { goToSlide(swiperCurrentIndex - 1); restartSwiperTimer(); }
+  }, { passive: true });
+
+  function startSwiperTimer() {
+    if (swiperInterval) clearInterval(swiperInterval);
+    swiperInterval = setInterval(() => {
+      goToSlide(swiperCurrentIndex + 1);
+    }, 3500);
+  }
+
+  function restartSwiperTimer() {
+    startSwiperTimer();
+  }
+
+  startSwiperTimer();
+}
+
 // ─── Media Session API (Lock Screen & Bluetooth Sync) ─────────────────────────
 function setupMediaSession(song) {
   if ('mediaSession' in navigator && song) {
@@ -214,68 +352,7 @@ function toggleEqualizer() {
   else D.eqPresetBtn.classList.remove('active');
 }
 
-// ─── Top Hero Swiper Carousel Logic ───────────────────────────────────────────
-let swiperCurrentIndex = 0;
-let swiperInterval = null;
-
-function initHeroSwiper() {
-  const wrapper = document.getElementById('swiper-wrapper');
-  const slides  = document.querySelectorAll('.swiper-slide');
-  const dots    = document.querySelectorAll('.swiper-dot');
-  if (!wrapper || !slides.length) return;
-
-  function goToSlide(idx) {
-    swiperCurrentIndex = (idx + slides.length) % slides.length;
-    wrapper.style.transform = `translateX(-${swiperCurrentIndex * 100}%)`;
-    slides.forEach((s, i) => s.classList.toggle('active', i === swiperCurrentIndex));
-    dots.forEach((d, i) => d.classList.toggle('active', i === swiperCurrentIndex));
-  }
-
-  dots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      const idx = parseInt(dot.dataset.index);
-      goToSlide(idx);
-      restartSwiperTimer();
-    });
-  });
-
-  document.querySelectorAll('.slide-play-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const songId = btn.dataset.songId;
-      const realIdx = playlist.findIndex(s => s.id === songId);
-      if (realIdx !== -1) {
-        playTrack(realIdx);
-        openPlayer();
-      }
-    });
-  });
-
-  // Touch Swipe Support
-  let startX = 0;
-  wrapper.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
-  wrapper.addEventListener('touchend', (e) => {
-    const endX = e.changedTouches[0].clientX;
-    if (startX - endX > 40) { goToSlide(swiperCurrentIndex + 1); restartSwiperTimer(); }
-    else if (endX - startX > 40) { goToSlide(swiperCurrentIndex - 1); restartSwiperTimer(); }
-  }, { passive: true });
-
-  function startSwiperTimer() {
-    if (swiperInterval) clearInterval(swiperInterval);
-    swiperInterval = setInterval(() => {
-      goToSlide(swiperCurrentIndex + 1);
-    }, 4000);
-  }
-
-  function restartSwiperTimer() {
-    startSwiperTimer();
-  }
-
-  startSwiperTimer();
-}
-
 // ─── Pro Feature: Share Song via WhatsApp & Native Share ──────────────────────
-
 function shareCurrentSong() {
   const song = playlist[currentIdx];
   if (!song) return;
@@ -285,39 +362,6 @@ function shareCurrentSong() {
   } else {
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(waUrl, '_blank');
-  }
-}
-
-// ─── PWA Prompt & Download Modal ──────────────────────────────────────────────
-function initDownloadModal() {
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPwaPrompt = e;
-  });
-
-  const openModal = () => {
-    if (D.downloadModal) D.downloadModal.classList.remove('hidden');
-  };
-  const closeModal = () => {
-    if (D.downloadModal) D.downloadModal.classList.add('hidden');
-  };
-
-  if (D.headerDownloadBtn) D.headerDownloadBtn.addEventListener('click', openModal);
-  if (D.sdDownloadBtn) D.sdDownloadBtn.addEventListener('click', openModal);
-  if (D.closeDownloadModal) D.closeDownloadModal.addEventListener('click', closeModal);
-
-  if (D.triggerPwaBtn) {
-    D.triggerPwaBtn.addEventListener('click', () => {
-      if (deferredPwaPrompt) {
-        deferredPwaPrompt.prompt();
-        deferredPwaPrompt.userChoice.then(() => {
-          deferredPwaPrompt = null;
-          closeModal();
-        });
-      } else {
-        alert('Avara App added to Home Screen! You can also click Download Android APK.');
-      }
-    });
   }
 }
 
@@ -434,7 +478,7 @@ function restoreSavedState() {
     if (rawLiked) {
       const arr = JSON.parse(rawLiked);
       arr.forEach(id => {
-        const idx = playlist.findIndex(s => s.id === id);
+        const idx = getSongIndex({ id });
         if (idx !== -1) likedSet.add(idx);
       });
     }
@@ -453,7 +497,7 @@ function restoreSavedState() {
     const savedTime   = parseFloat(localStorage.getItem(KEY_LAST_TIME) || '0');
 
     if (savedSongId) {
-      const idx = playlist.findIndex(s => s.id === savedSongId);
+      const idx = getSongIndex({ id: savedSongId });
       if (idx !== -1) {
         currentIdx = idx;
         initialSeek = savedTime > 0 ? savedTime : 0;
@@ -536,6 +580,7 @@ function onYTState(e) {
   const S = window.YT.PlayerState;
   if (e.data === S.PLAYING) {
     isPlaying = true;
+    startBackgroundKeepAlive();
     setPlayUI(true);
     startTick();
   } else if (e.data === S.PAUSED || e.data === S.CUED) {
@@ -558,6 +603,7 @@ function _doPlay(idx) {
   saveState();
   recordSongPlay(song);
   setupMediaSession(song);
+  startBackgroundKeepAlive();
 
   if (initialSeek > 0) {
     const startSec = Math.floor(initialSeek);
@@ -590,7 +636,9 @@ function togglePlay() {
   }
   if (isPlaying) {
     ytPlayer.pauseVideo();
+    stopBackgroundKeepAlive();
   } else {
+    startBackgroundKeepAlive();
     if (initialSeek > 0) {
       _doPlay(currentIdx);
     } else {
@@ -607,11 +655,6 @@ function randIdx()   { return Math.floor(Math.random() * playlist.length); }
 function updateTrackUI(song) {
   if (!song) return;
   const thumb = `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`;
-
-  // Hero update
-  if (D.heroBg)     D.heroBg.style.backgroundImage = `url(${thumb})`;
-  if (D.heroTitle)  D.heroTitle.textContent = song.title;
-  if (D.heroArtist) D.heroArtist.textContent = song.artist;
 
   // Player view
   if (D.playerArt)    D.playerArt.src = thumb;
@@ -804,7 +847,7 @@ function renderRecommendedSection() {
   if (D.recMoodBadge) D.recMoodBadge.textContent = badgeText;
 
   recommendedSongs.forEach((song) => {
-    const realIdx = playlist.indexOf(song);
+    const realIdx = getSongIndex(song);
     const card = document.createElement('div');
     card.className = 'shelf-card';
     card.innerHTML = `
@@ -829,7 +872,7 @@ function renderHomeSections() {
     D.quickGrid.innerHTML = '';
     const quickSongs = playlist.slice(0, 8);
     quickSongs.forEach((song) => {
-      const realIdx = playlist.indexOf(song);
+      const realIdx = getSongIndex(song);
       const card = document.createElement('div');
       card.className = 'quick-card' + (realIdx === currentIdx ? ' playing-card' : '');
       card.dataset.idx = realIdx;
@@ -870,11 +913,11 @@ function renderHomeSections() {
 function renderCategoryShelf(container, categoryFullName, badgeTag) {
   if (!container) return;
   container.innerHTML = '';
-  // Cap home shelf to 40 items for 60 FPS smooth horizontal scrolling
-  const songs = playlist.filter(s => s.category === categoryFullName || (s.category && s.category.includes(badgeTag))).slice(0, 40);
+  // Cap home shelf to 30 items for 60 FPS smooth horizontal scrolling
+  const songs = playlist.filter(s => s.category === categoryFullName || (s.category && s.category.includes(badgeTag))).slice(0, 30);
 
   songs.forEach((song) => {
-    const realIdx = playlist.indexOf(song);
+    const realIdx = getSongIndex(song);
     const card = document.createElement('div');
     card.className = 'shelf-card';
     card.innerHTML = `
@@ -894,8 +937,6 @@ function renderCategoryShelf(container, categoryFullName, badgeTag) {
 }
 
 // ─── Render Search Results ───────────────────────────────────────────────────
-let searchDebounceTimeout = null;
-
 function renderSearchResults(query) {
   if (!D.searchResultsList) return;
   const q = (query || '').trim().toLowerCase();
@@ -961,13 +1002,13 @@ function renderLikedSongs() {
 // ─── Helper: Render Standard Song Rows with Virtual Infinite Batching ────────
 function renderSongRowList(container, songs) {
   container.innerHTML = '';
-  const batchSize = 50;
+  const batchSize = 40;
   let currentRenderedIndex = 0;
 
   function renderBatch() {
     const nextBatch = songs.slice(currentRenderedIndex, currentRenderedIndex + batchSize);
     nextBatch.forEach((song) => {
-      const realIdx = playlist.indexOf(song);
+      const realIdx = getSongIndex(song);
       const liked   = likedSet.has(realIdx);
       const el = document.createElement('div');
       el.className = 'song-row' + (realIdx === currentIdx && isPlaying ? ' playing' : '');
@@ -1041,15 +1082,9 @@ function renderSongRowList(container, songs) {
   renderBatch();
 }
 
-
 // ─── Event Bindings ──────────────────────────────────────────────────────────
 function bindAll() {
   if (D.themeToggleBtn) D.themeToggleBtn.addEventListener('click', toggleTheme);
-
-  if (D.heroPlayBtn) D.heroPlayBtn.addEventListener('click', () => {
-    playTrack(currentIdx);
-    openPlayer();
-  });
 
   D.backBtn.addEventListener('click', closePlayer);
   D.playPauseBtn.addEventListener('click', togglePlay);
@@ -1136,10 +1171,14 @@ function bindAll() {
     });
   }
 
-  // Dedicated Search View Input Listener
+  // Dedicated Search View Input Listener (Debounced 150ms)
   if (D.mainSearchInput) {
+    let searchDebounce = null;
     D.mainSearchInput.addEventListener('input', (e) => {
-      renderSearchResults(e.target.value);
+      if (searchDebounce) clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => {
+        renderSearchResults(e.target.value);
+      }, 150);
     });
   }
   if (D.mainSearchClear) {
@@ -1181,7 +1220,7 @@ function bindAll() {
     D.playAllLikedBtn.addEventListener('click', () => {
       const likedArr = playlist.filter((_, i) => likedSet.has(i));
       if (likedArr.length) {
-        const realIdx = playlist.indexOf(likedArr[0]);
+        const realIdx = getSongIndex(likedArr[0]);
         playTrack(realIdx);
         openPlayer();
       }
@@ -1195,7 +1234,7 @@ function renderFilteredHome(catFilter) {
   if (D.quickGrid) {
     D.quickGrid.innerHTML = '';
     filtered.slice(0, 8).forEach((song) => {
-      const realIdx = playlist.indexOf(song);
+      const realIdx = getSongIndex(song);
       const card = document.createElement('div');
       card.className = 'quick-card' + (realIdx === currentIdx ? ' playing-card' : '');
       card.dataset.idx = realIdx;
@@ -1218,10 +1257,12 @@ function renderFilteredHome(catFilter) {
 
 // ─── Boot & Initialization ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  rebuildSongIndexMap();
   grabDOM();
   initTheme();
-  initDownloadModal();
+  initPermissionsModal();
   initBoomerangBg();
+  initHeroSwiper();
   restoreSavedState();
   updateTrackUI(playlist[currentIdx]);
   setPlayUI(false);
