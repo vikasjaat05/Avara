@@ -123,16 +123,20 @@
             </div>
           </div>
 
-          <!-- Hero Spotlight Banner -->
+          <!-- Hero Spotlight Banner with Boomerang Video Loop & Liquid Glass -->
           <section class="hero-banner-section">
             <div id="hero-banner" class="hero-banner">
+              <div class="bm-wrapper">
+                <video id="bm-video" class="bm-media" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260611_183632_c311af08-e4b7-458f-81e7-79847a49b3d3.mp4" muted playsinline crossorigin="anonymous" autoplay loop></video>
+                <canvas id="bm-canvas" class="bm-media hidden"></canvas>
+              </div>
               <div id="hero-bg" class="hero-bg"></div>
               <div class="hero-overlay"></div>
               <div class="hero-content">
-                <span class="hero-tag">FEATURED SOUNDTRACK</span>
-                <h1 id="hero-title" class="hero-title">Tujhe Bhoolna To Chaha</h1>
-                <p id="hero-artist" class="hero-artist">Sonu Nigam / Nikhil-Vinay</p>
-                <div class="hero-btn-row">
+                <span class="hero-tag liquid-glass animate-fade-up delay-1">FEATURED SOUNDTRACK</span>
+                <h1 id="hero-title" class="hero-title animate-fade-up delay-2">Tujhe Bhoolna To Chaha</h1>
+                <p id="hero-artist" class="hero-artist animate-fade-up delay-3">Sonu Nigam / Nikhil-Vinay</p>
+                <div class="hero-btn-row animate-fade-up delay-4">
                   <button id="hero-play-btn" class="hero-play-btn">
                     <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7z"/></svg>
                     <span>Play Song</span>
@@ -143,7 +147,7 @@
           </section>
 
           <!-- Category Chips Bar -->
-          <div class="category-chips-bar">
+          <div class="category-chips-bar animate-fade-up delay-2">
             <button class="cat-chip active" data-filter="all">All Tracks</button>
             <button class="cat-chip" data-filter="heartbreak">Heartbreak</button>
             <button class="cat-chip" data-filter="deep">Deep Emotion</button>
@@ -151,7 +155,7 @@
           </div>
 
           <!-- Quick Songs Grid (8 UNIQUE Songs) -->
-          <section class="quick-grid-section">
+          <section class="quick-grid-section animate-fade-up delay-3">
             <h2 class="section-title">Quick Picks</h2>
             <div id="quick-grid" class="quick-grid"></div>
           </section>
@@ -180,6 +184,47 @@
             <div id="shelf-memories" class="shelf-scroll"></div>
           </section>
 
+          <!-- ══════════ HOME FOOTER NOW PLAYING MUSIC WIDGET ══════════ -->
+          <section class="home-music-widget-section animate-fade-up delay-5">
+            <div class="widget-card liquid-glass">
+              <div class="widget-top-row">
+                <div class="widget-icon-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+                </div>
+                <div class="widget-info">
+                  <div id="widget-title" class="widget-title">Tujhe Bhoolna To Chaha</div>
+                  <div id="widget-artist" class="widget-artist">Sonu Nigam / Nikhil-Vinay</div>
+                </div>
+              </div>
+
+              <div class="widget-progress-row">
+                <div id="widget-prog-track" class="widget-prog-track">
+                  <div id="widget-prog-fill" class="widget-prog-fill"></div>
+                </div>
+                <div class="widget-times">
+                  <span id="widget-cur">0:00</span>
+                  <span id="widget-rem">-0:00</span>
+                </div>
+              </div>
+
+              <div class="widget-controls-row">
+                <button id="widget-prev-btn" class="widget-ctrl-btn" aria-label="Previous">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M19 20L9 12l10-8v16z"/><rect x="5" y="5" width="2" height="14" rx="1"/></svg>
+                </button>
+                <button id="widget-play-btn" class="widget-play-btn" aria-label="Play/Pause">
+                  <svg id="widget-play-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M8 5v14l11-7z"/></svg>
+                  <svg id="widget-pause-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button id="widget-next-btn" class="widget-ctrl-btn" aria-label="Next">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M5 4l10 8-10 8V4z"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>
+                </button>
+                <button id="widget-heart-btn" class="widget-heart-btn" aria-label="Like">
+                  <svg id="widget-heart-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </button>
+              </div>
+            </div>
+          </section>
+
         </div>
       </div>
 
@@ -189,7 +234,7 @@
           <div class="view-header">
             <h1 class="view-title">Search</h1>
           </div>
-          <div class="search-input-box">
+          <div class="search-input-box liquid-glass">
             <svg class="search-box-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input id="main-search-input" type="text" placeholder="Search songs, artists, or lyrics…" autocomplete="off" />
             <button id="main-search-clear" class="search-clear-btn hidden">✕</button>
@@ -260,7 +305,7 @@
       </div>
 
       <!-- Floating Mobile Mini Player (Shared across views) -->
-      <div id="mini-player" class="mini-player hidden">
+      <div id="mini-player" class="mini-player hidden liquid-glass">
         <div class="mini-left" id="mini-open">
           <img id="mini-art" class="mini-art" src="" alt="art">
           <div class="mini-info">

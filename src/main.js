@@ -53,6 +53,20 @@ function grabDOM() {
   D.likedCountSub       = document.getElementById('liked-count-sub');
   D.playAllLikedBtn     = document.getElementById('play-all-liked-btn');
 
+  // Home Music Widget DOM
+  D.widgetTitle     = document.getElementById('widget-title');
+  D.widgetArtist    = document.getElementById('widget-artist');
+  D.widgetProgTrack = document.getElementById('widget-prog-track');
+  D.widgetProgFill  = document.getElementById('widget-prog-fill');
+  D.widgetCur       = document.getElementById('widget-cur');
+  D.widgetRem       = document.getElementById('widget-rem');
+  D.widgetPlayBtn   = document.getElementById('widget-play-btn');
+  D.widgetPlayIcon  = document.getElementById('widget-play-icon');
+  D.widgetPauseIcon = document.getElementById('widget-pause-icon');
+  D.widgetPrevBtn   = document.getElementById('widget-prev-btn');
+  D.widgetNextBtn   = document.getElementById('widget-next-btn');
+  D.widgetHeartBtn  = document.getElementById('widget-heart-btn');
+
   // Hero Spotlight
   D.heroBanner      = document.getElementById('hero-banner');
   D.heroBg          = document.getElementById('hero-bg');
@@ -153,6 +167,77 @@ function applyTheme(theme) {
 
 function toggleTheme() {
   applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+}
+
+// ─── Boomerang Canvas Video Background Loop ──────────────────────────────────
+function initBoomerangBg() {
+  const video  = document.getElementById('bm-video');
+  const canvas = document.getElementById('bm-canvas');
+  if (!video || !canvas) return;
+
+  const frames = [];
+  const maxW = 960;
+  let isCapturing = true;
+
+  function captureFrame() {
+    if (!isCapturing || !video.videoWidth) return;
+    try {
+      const offCanvas = document.createElement('canvas');
+      const scale = Math.min(1, maxW / video.videoWidth);
+      offCanvas.width  = video.videoWidth * scale;
+      offCanvas.height = video.videoHeight * scale;
+      const ctx = offCanvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, offCanvas.width, offCanvas.height);
+      frames.push(offCanvas);
+    } catch(e) {}
+  }
+
+  function frameLoop() {
+    if (isCapturing && !video.paused && !video.ended) {
+      captureFrame();
+      if ('requestVideoFrameCallback' in video) {
+        video.requestVideoFrameCallback(frameLoop);
+      } else {
+        requestAnimationFrame(frameLoop);
+      }
+    }
+  }
+
+  video.addEventListener('play', () => {
+    frameLoop();
+  });
+
+  video.addEventListener('ended', () => {
+    isCapturing = false;
+    if (frames.length > 5) {
+      video.classList.add('hidden');
+      canvas.classList.remove('hidden');
+
+      let frameIdx = 0;
+      let forward = true;
+      const ctx = canvas.getContext('2d');
+
+      setInterval(() => {
+        const frame = frames[frameIdx];
+        if (frame) {
+          canvas.width  = frame.width;
+          canvas.height = frame.height;
+          ctx.drawImage(frame, 0, 0);
+        }
+
+        if (forward) {
+          frameIdx++;
+          if (frameIdx >= frames.length - 1) forward = false;
+        } else {
+          frameIdx--;
+          if (frameIdx <= 0) forward = true;
+        }
+      }, 1000 / 30);
+    } else {
+      video.currentTime = 0;
+      video.play();
+    }
+  });
 }
 
 // ─── Persistence ─────────────────────────────────────────────────────────────
@@ -307,6 +392,10 @@ function updateTrackUI(song) {
   if (D.heroTitle)  D.heroTitle.textContent = song.title;
   if (D.heroArtist) D.heroArtist.textContent = song.artist;
 
+  // Home Footer Music Widget update
+  if (D.widgetTitle)  D.widgetTitle.textContent  = song.title;
+  if (D.widgetArtist) D.widgetArtist.textContent = song.artist;
+
   // Player view
   if (D.playerArt)    D.playerArt.src = thumb;
   if (D.playerTitle)  D.playerTitle.textContent = song.title;
@@ -330,16 +419,19 @@ function updateTrackUI(song) {
 }
 
 function setPlayUI(playing) {
-  if (D.playIcon)     D.playIcon.style.display     = playing ? 'none' : '';
-  if (D.pauseIcon)    D.pauseIcon.style.display    = playing ? '' : 'none';
-  if (D.miniPlayIcon) D.miniPlayIcon.style.display  = playing ? 'none' : '';
-  if (D.miniPauseIcon)D.miniPauseIcon.style.display = playing ? '' : 'none';
-  if (D.sdPlayIcon)   D.sdPlayIcon.style.display    = playing ? 'none' : '';
-  if (D.sdPauseIcon)  D.sdPauseIcon.style.display   = playing ? '' : 'none';
+  if (D.playIcon)       D.playIcon.style.display       = playing ? 'none' : '';
+  if (D.pauseIcon)      D.pauseIcon.style.display      = playing ? '' : 'none';
+  if (D.miniPlayIcon)   D.miniPlayIcon.style.display    = playing ? 'none' : '';
+  if (D.miniPauseIcon)  D.miniPauseIcon.style.display   = playing ? '' : 'none';
+  if (D.sdPlayIcon)     D.sdPlayIcon.style.display      = playing ? 'none' : '';
+  if (D.sdPauseIcon)    D.sdPauseIcon.style.display     = playing ? '' : 'none';
+  if (D.widgetPlayIcon) D.widgetPlayIcon.style.display  = playing ? 'none' : '';
+  if (D.widgetPauseIcon)D.widgetPauseIcon.style.display = playing ? '' : 'none';
 }
 
 function setLikeUI(liked) {
   if (D.playerLikeBtn) D.playerLikeBtn.classList.toggle('liked', liked);
+  if (D.widgetHeartBtn) D.widgetHeartBtn.classList.toggle('liked', liked);
 }
 
 function highlightRow() {
@@ -375,6 +467,10 @@ function startTick() {
       if (D.sdProgressFill) D.sdProgressFill.style.width = pct + '%';
       if (D.sdCur) D.sdCur.textContent = fmt(cur);
       if (D.sdRem) D.sdRem.textContent = '-' + fmt(dur - cur);
+
+      if (D.widgetProgFill) D.widgetProgFill.style.width = pct + '%';
+      if (D.widgetCur) D.widgetCur.textContent = fmt(cur);
+      if (D.widgetRem) D.widgetRem.textContent = '-' + fmt(dur - cur);
     } catch(_) {}
   }, 400);
 }
@@ -712,6 +808,26 @@ function bindAll() {
   D.miniOpen.addEventListener('click', openPlayer);
   D.miniPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
 
+  // Home Footer Music Widget Events
+  if (D.widgetPlayBtn) D.widgetPlayBtn.addEventListener('click', togglePlay);
+  if (D.widgetPrevBtn) D.widgetPrevBtn.addEventListener('click', prevTrack);
+  if (D.widgetNextBtn) D.widgetNextBtn.addEventListener('click', nextTrack);
+  if (D.widgetHeartBtn) D.widgetHeartBtn.addEventListener('click', () => {
+    if (likedSet.has(currentIdx)) likedSet.delete(currentIdx);
+    else likedSet.add(currentIdx);
+    setLikeUI(likedSet.has(currentIdx));
+    saveState();
+    highlightRow();
+    if (currentTab === 'liked') renderLikedSongs();
+  });
+  if (D.widgetProgTrack) D.widgetProgTrack.addEventListener('click', (e) => {
+    if (!ytIsReady || !ytPlayer) return;
+    const r = D.widgetProgTrack.getBoundingClientRect();
+    const targetSec = (ytPlayer.getDuration() || 0) * Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    ytPlayer.seekTo(targetSec, true);
+    savePlaybackTime(targetSec);
+  });
+
   if (D.sdPlayBtn) D.sdPlayBtn.addEventListener('click', togglePlay);
   if (D.sdPrevBtn) D.sdPrevBtn.addEventListener('click', prevTrack);
   if (D.sdNextBtn) D.sdNextBtn.addEventListener('click', nextTrack);
@@ -799,6 +915,7 @@ function bindAll() {
 document.addEventListener('DOMContentLoaded', () => {
   grabDOM();
   initTheme();
+  initBoomerangBg();
   restoreSavedState();
   updateTrackUI(playlist[currentIdx]);
   setPlayUI(false);

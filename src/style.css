@@ -59,6 +59,54 @@ html, body {
 }
 
 /* ─────────────────────────────────────────────────
+   LIQUID GLASS CSS EFFECT
+───────────────────────────────────────────────── */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.04);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 8px 32px rgba(0,0,0,0.25);
+  position: relative;
+  overflow: hidden;
+}
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%,
+    rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%,
+    rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────
+   FADE-UP ENTRANCE ANIMATION
+───────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+.animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.25s; }
+.delay-3 { animation-delay: 0.4s; }
+.delay-4 { animation-delay: 0.55s; }
+.delay-5 { animation-delay: 0.75s; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up { animation: none; }
+}
+
+/* ─────────────────────────────────────────────────
    PRELOADER
 ───────────────────────────────────────────────── */
 #preloader {
@@ -270,29 +318,35 @@ html, body {
 .icon-circle-btn:hover { background: var(--bg-card-hover); }
 
 /* ─────────────────────────────────────────────────
-   HERO SPOTLIGHT BANNER
+   HERO SPOTLIGHT BANNER WITH BOOMERANG VIDEO
 ───────────────────────────────────────────────── */
 .hero-banner-section { padding: 4px 20px 16px; }
 .hero-banner {
-  position: relative; width: 100%; height: 210px; border-radius: 18px;
+  position: relative; width: 100%; height: 220px; border-radius: 20px;
   overflow: hidden; display: flex; align-items: flex-end;
   box-shadow: var(--shadow); border: 1px solid var(--border);
 }
+.bm-wrapper {
+  position: absolute; inset: 0; z-index: 0;
+  transform: scale(1.08); transform-origin: center; overflow: hidden;
+}
+.bm-media { width: 100%; height: 100%; object-fit: cover; }
+
 .hero-bg {
   position: absolute; inset: 0; background-size: cover; background-position: center;
-  transition: background-image .5s ease; transform: scale(1.05);
+  transition: background-image .5s ease; opacity: 0.35; z-index: 1;
 }
 .hero-overlay {
-  position: absolute; inset: 0;
+  position: absolute; inset: 0; z-index: 2;
   background: linear-gradient(to top, var(--bg) 15%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.1) 100%);
 }
 .hero-content {
-  position: relative; z-index: 2; padding: 18px; width: 100%;
+  position: relative; z-index: 3; padding: 18px; width: 100%;
 }
 .hero-tag {
   font-size: 10px; font-weight: 800; letter-spacing: 1px;
   color: #fff; background: var(--accent-gradient);
-  padding: 4px 10px; border-radius: 100px; display: inline-block; margin-bottom: 8px;
+  padding: 5px 12px; border-radius: 100px; display: inline-block; margin-bottom: 8px;
   box-shadow: 0 4px 12px var(--accent-glow);
 }
 .hero-title {
@@ -405,6 +459,53 @@ html, body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .card-sub { font-size: 11px; color: var(--text-sub); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ─────────────────────────────────────────────────
+   HOME FOOTER MUSIC WIDGET CARD
+───────────────────────────────────────────────── */
+.home-music-widget-section {
+  padding: 10px 20px 30px;
+}
+.widget-card {
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: var(--shadow);
+}
+.widget-top-row { display: flex; align-items: center; gap: 14px; }
+.widget-icon-box {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--accent-gradient); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px var(--accent-glow); flex-shrink: 0;
+}
+.widget-info { flex: 1; overflow: hidden; }
+.widget-title { font-family: var(--font-heading); font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.widget-artist { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+.widget-progress-row { display: flex; flex-direction: column; gap: 6px; }
+.widget-prog-track {
+  height: 4px; background: var(--border); border-radius: 2px; position: relative; cursor: pointer;
+}
+.widget-prog-fill { height: 100%; background: var(--accent-gradient); border-radius: 2px; width: 0%; }
+.widget-times { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
+
+.widget-controls-row { display: flex; align-items: center; justify-content: space-around; padding-top: 4px; }
+.widget-ctrl-btn, .widget-heart-btn {
+  background: var(--bg-card-hover); border: 1px solid var(--border); color: var(--text);
+  width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .2s;
+}
+.widget-heart-btn.liked { color: var(--accent); }
+.widget-heart-btn.liked svg { fill: var(--accent); stroke: var(--accent); }
+
+.widget-play-btn {
+  width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+  background: var(--accent-gradient); color: #fff; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 18px var(--accent-glow);
+}
 
 /* ─────────────────────────────────────────────────
    TRACKS LIST SECTION
