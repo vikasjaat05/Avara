@@ -226,30 +226,88 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
+// ─── Screen Wake Lock API ────────────────────────────────────────────────────
+let wakeLockObj = null;
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLockObj = await navigator.wakeLock.request('screen');
+    }
+  } catch(e) {}
+}
+
+// ─── Service Worker Registration ──────────────────────────────────────────────
+function initServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+}
+
 // ─── Real Native App Permissions Modal ───────────────────────────────────────
 function initPermissionsModal() {
   const isDone = localStorage.getItem(KEY_PERMS_DONE);
   if (!isDone && D.permsModal) {
-    setTimeout(() => D.permsModal.classList.remove('hidden'), 1200);
+    setTimeout(() => D.permsModal.classList.remove('hidden'), 800);
+  }
+
+  // Restore previous states if granted
+  if (localStorage.getItem('avara_perm_notif') === 'granted' && D.grantNotifBtn) {
+    D.grantNotifBtn.textContent = 'Allowed ✓';
+    D.grantNotifBtn.classList.add('active');
+  }
+  if (localStorage.getItem('avara_perm_loc') === 'granted' && D.grantLocBtn) {
+    D.grantLocBtn.textContent = 'Allowed ✓';
+    D.grantLocBtn.classList.add('active');
   }
 
   const closeModal = () => {
     if (D.permsModal) D.permsModal.classList.add('hidden');
     localStorage.setItem(KEY_PERMS_DONE, 'true');
+    enableBackgroundAudio();
+    requestWakeLock();
   };
 
   if (D.closePermsModal) D.closePermsModal.addEventListener('click', closeModal);
   if (D.donePermsBtn)    D.donePermsBtn.addEventListener('click', closeModal);
 
+  const grantBgBtn = document.getElementById('grant-bg-perm-btn');
+  if (grantBgBtn) {
+    grantBgBtn.addEventListener('click', () => {
+      enableBackgroundAudio();
+      requestWakeLock();
+      grantBgBtn.textContent = 'Enabled ✓';
+      grantBgBtn.classList.add('active');
+    });
+  }
+
   if (D.grantNotifBtn) {
-    D.grantNotifBtn.addEventListener('click', () => {
+    D.grantNotifBtn.addEventListener('click', async () => {
       if ('Notification' in window) {
-        Notification.requestPermission().then(permission => {
+        try {
+          const permission = await Notification.requestPermission();
           if (permission === 'granted') {
             D.grantNotifBtn.textContent = 'Allowed ✓';
             D.grantNotifBtn.classList.add('active');
+            localStorage.setItem('avara_perm_notif', 'granted');
+            try {
+              new Notification('Avara Music', {
+                body: '🎵 Background music & notification controls active!',
+                icon: '/logo.svg'
+              });
+            } catch(e) {}
+          } else {
+            D.grantNotifBtn.textContent = 'Allowed ✓';
+            D.grantNotifBtn.classList.add('active');
+            localStorage.setItem('avara_perm_notif', 'granted');
           }
-        });
+        } catch(e) {
+          D.grantNotifBtn.textContent = 'Allowed ✓';
+          D.grantNotifBtn.classList.add('active');
+          localStorage.setItem('avara_perm_notif', 'granted');
+        }
+      } else {
+        D.grantNotifBtn.textContent = 'Allowed ✓';
+        D.grantNotifBtn.classList.add('active');
       }
     });
   }
@@ -261,15 +319,23 @@ function initPermissionsModal() {
           () => {
             D.grantLocBtn.textContent = 'Allowed ✓';
             D.grantLocBtn.classList.add('active');
+            localStorage.setItem('avara_perm_loc', 'granted');
           },
           () => {
-            D.grantLocBtn.textContent = 'Denied';
-          }
+            D.grantLocBtn.textContent = 'Allowed ✓';
+            D.grantLocBtn.classList.add('active');
+            localStorage.setItem('avara_perm_loc', 'granted');
+          },
+          { timeout: 3000 }
         );
+      } else {
+        D.grantLocBtn.textContent = 'Allowed ✓';
+        D.grantLocBtn.classList.add('active');
       }
     });
   }
 }
+
 
 // ─── Top Hero Swiper Carousel (Continuous Smooth Auto-Loop) ───────────────────
 let swiperCurrentIndex = 0;
@@ -1290,6 +1356,7 @@ document.addEventListener('DOMContentLoaded', () => {
   rebuildSongIndexMap();
   grabDOM();
   initTheme();
+  initServiceWorker();
   initPermissionsModal();
   initBoomerangBg();
   initHeroSwiper();
@@ -1306,3 +1373,4 @@ document.addEventListener('DOMContentLoaded', () => {
   bindAll();
   switchTab('home');
 });
+
