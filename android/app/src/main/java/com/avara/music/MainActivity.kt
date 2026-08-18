@@ -52,18 +52,41 @@ class MainActivity : AppCompatActivity() {
     private fun setupWebView() {
         webView = findViewById(R.id.webView)
         webView.apply {
-            settings.javaScriptEnabled = true
-            settings.domStorageEnabled = true
-            settings.databaseEnabled = true
-            settings.mediaPlaybackRequiresUserGesture = false
-            settings.cacheMode = WebSettings.LOAD_DEFAULT
-            settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            
+            // Speed up rendering
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            
+            settings.apply {
+                javaScriptEnabled = true
+                domStorageEnabled = true
+                databaseEnabled = true
+                
+                // PERFORMANCE BOOST: Cache settings
+                cacheMode = WebSettings.LOAD_DEFAULT
+                setRenderPriority(WebSettings.RenderPriority.HIGH)
+                
+                // Disable unnecessary features to save CPU
+                setSupportZoom(false)
+                builtInZoomControls = false
+                displayZoomControls = false
+                
+                allowFileAccess = true
+                allowContentAccess = true
+                mediaPlaybackRequiresUserGesture = false
+                mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                
+                // MAGIC FIX: Spoof Desktop User Agent
+                userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            }
             
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                     return false
+                }
+                
+                // Memory management: Clear cache if needed
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    view?.clearCache(false)
                 }
             }
             webChromeClient = WebChromeClient()
