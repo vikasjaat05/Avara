@@ -168,8 +168,8 @@ html, body {
   #mini-player { display: none !important; }
   .view { position: absolute; inset: 0; bottom: 0 !important; }
 
-  /* Desktop Full Player — cover entire screen including sidebar */
-  #player-view {
+  /* Desktop Full Player — cover entire screen ONLY when active */
+  #player-view.active-view {
     position: fixed !important;
     inset: 0 !important;
     width: 100vw !important;
