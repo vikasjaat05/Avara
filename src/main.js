@@ -18,7 +18,7 @@ let shuffleOn    = false;
 let repeatOn     = false;
 let progressInt  = null;
 let inPlayer     = false;
-let initialSeek  = 0; // Seek time from saved session state
+let initialSeek  = 0;
 
 // ─── DOM References ──────────────────────────────────────────────────────────
 let D = {};
@@ -27,6 +27,16 @@ function grabDOM() {
   D.homeView        = document.getElementById('home-view');
   D.playerView      = document.getElementById('player-view');
   D.songList        = document.getElementById('song-list');
+  D.quickGrid       = document.getElementById('quick-grid');
+  D.shelfBewafai    = document.getElementById('shelf-bewafai');
+  D.shelfDard       = document.getElementById('shelf-dard');
+  D.heroBanner      = document.getElementById('hero-banner');
+  D.heroBg          = document.getElementById('hero-bg');
+  D.heroTitle       = document.getElementById('hero-title');
+  D.heroArtist      = document.getElementById('hero-artist');
+  D.heroPlayBtn     = document.getElementById('hero-play-btn');
+
+  // Player DOM
   D.playerBg        = document.getElementById('player-bg');
   D.playerArt       = document.getElementById('player-art');
   D.playerTitle     = document.getElementById('player-title');
@@ -90,14 +100,11 @@ function grabDOM() {
   D.searchBar       = document.getElementById('search-bar');
   D.searchInput     = document.getElementById('search-input');
   D.searchClose     = document.getElementById('search-close');
-  D.topChips        = document.querySelectorAll('.top-chip');
-  D.quickCards      = document.querySelectorAll('.quick-card');
-  D.shelfCards      = document.querySelectorAll('.shelf-card');
+  D.catChips        = document.querySelectorAll('.cat-chip');
 }
 
-// ─── Restore Persistence ─────────────────────────────────────────────────────
+// ─── Persistence ─────────────────────────────────────────────────────────────
 function restoreSavedState() {
-  // Restore Liked Songs
   try {
     const rawLiked = localStorage.getItem(KEY_LIKED_IDS);
     if (rawLiked) {
@@ -107,9 +114,8 @@ function restoreSavedState() {
         if (idx !== -1) likedSet.add(idx);
       });
     }
-  } catch(e) { console.warn('Failed restoring liked songs', e); }
+  } catch(e) {}
 
-  // Restore Last Song & Seek Position
   try {
     const savedSongId = localStorage.getItem(KEY_LAST_SONG_ID);
     const savedTime   = parseFloat(localStorage.getItem(KEY_LAST_TIME) || '0');
@@ -121,7 +127,7 @@ function restoreSavedState() {
         initialSeek = savedTime > 0 ? savedTime : 0;
       }
     }
-  } catch(e) { console.warn('Failed restoring last song', e); }
+  } catch(e) {}
 }
 
 function saveState() {
@@ -130,7 +136,6 @@ function saveState() {
     if (currentSong) {
       localStorage.setItem(KEY_LAST_SONG_ID, currentSong.id);
     }
-    // Save liked ids
     const likedIds = Array.from(likedSet).map(idx => playlist[idx] && playlist[idx].id).filter(Boolean);
     localStorage.setItem(KEY_LIKED_IDS, JSON.stringify(likedIds));
   } catch(e) {}
@@ -188,7 +193,7 @@ function onYTState(e) {
   }
 }
 
-// ─── Playback Controls ───────────────────────────────────────────────────────
+// ─── Playback ────────────────────────────────────────────────────────────────
 function _doPlay(idx) {
   const song = playlist[idx];
   if (!song) return;
@@ -196,7 +201,7 @@ function _doPlay(idx) {
 
   if (initialSeek > 0) {
     const startSec = Math.floor(initialSeek);
-    initialSeek = 0; // reset for future plays
+    initialSeek = 0;
     ytPlayer.loadVideoById({ videoId: song.id, startSeconds: startSec });
   } else {
     ytPlayer.loadVideoById({ videoId: song.id, startSeconds: 0 });
@@ -208,7 +213,7 @@ function playTrack(idx) {
   if (idx < 0) idx = playlist.length - 1;
   if (idx >= playlist.length) idx = 0;
   currentIdx = idx;
-  initialSeek = 0; // New track starts from beginning
+  initialSeek = 0;
 
   updateTrackUI(playlist[currentIdx]);
   showMini();
@@ -242,6 +247,11 @@ function randIdx()   { return Math.floor(Math.random() * playlist.length); }
 function updateTrackUI(song) {
   if (!song) return;
   const thumb = `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`;
+
+  // Hero update
+  if (D.heroBg)     D.heroBg.style.backgroundImage = `url(${thumb})`;
+  if (D.heroTitle)  D.heroTitle.textContent = song.title;
+  if (D.heroArtist) D.heroArtist.textContent = song.artist;
 
   // Player view
   if (D.playerArt)    D.playerArt.src = thumb;
@@ -283,6 +293,10 @@ function highlightRow() {
     const idx = parseInt(r.dataset.idx);
     r.classList.toggle('playing', idx === currentIdx);
   });
+  document.querySelectorAll('.quick-card').forEach((c) => {
+    const idx = parseInt(c.dataset.idx);
+    c.classList.toggle('playing-card', idx === currentIdx);
+  });
 }
 
 // ─── Progress Tick & Persistence ─────────────────────────────────────────────
@@ -297,16 +311,13 @@ function startTick() {
 
       savePlaybackTime(cur);
 
-      // Main player
       if (D.progressFill)  D.progressFill.style.width = pct + '%';
       if (D.progressThumb) D.progressThumb.style.left = pct + '%';
       if (D.timeCur) D.timeCur.textContent = fmt(cur);
       if (D.timeRem) D.timeRem.textContent = '-' + fmt(dur - cur);
 
-      // Mini player
       if (D.miniProgFill) D.miniProgFill.style.width = pct + '%';
 
-      // Desktop sidebar
       if (D.sdProgressFill) D.sdProgressFill.style.width = pct + '%';
       if (D.sdCur) D.sdCur.textContent = fmt(cur);
       if (D.sdRem) D.sdRem.textContent = '-' + fmt(dur - cur);
@@ -343,6 +354,84 @@ function showMini() {
   }
 }
 
+// ─── Render Dynamic Home Sections from REAL Songs ─────────────────────────────
+function renderHomeSections() {
+  // 1. Quick Picks Grid (6-8 real songs with actual YouTube thumbnails)
+  if (D.quickGrid) {
+    D.quickGrid.innerHTML = '';
+    const quickSongs = playlist.slice(0, 8);
+    quickSongs.forEach((song) => {
+      const realIdx = playlist.indexOf(song);
+      const card = document.createElement('div');
+      card.className = 'quick-card' + (realIdx === currentIdx ? ' playing-card' : '');
+      card.dataset.idx = realIdx;
+      card.innerHTML = `
+        <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
+        <div class="quick-card-info">
+          <div class="quick-title">${song.title}</div>
+          <div class="quick-artist">${song.artist}</div>
+        </div>
+        <div class="eq-icon">
+          <span></span><span></span><span></span>
+        </div>
+      `;
+      card.addEventListener('click', () => {
+        playTrack(realIdx);
+        openPlayer();
+      });
+      D.quickGrid.appendChild(card);
+    });
+  }
+
+  // 2. Shelf 1: 💔 बेवफाई
+  if (D.shelfBewafai) {
+    D.shelfBewafai.innerHTML = '';
+    const bewafaiSongs = playlist.filter(s => s.category && s.category.includes('बेवफाई'));
+    (bewafaiSongs.length ? bewafaiSongs : playlist.slice(0, 6)).forEach((song) => {
+      const realIdx = playlist.indexOf(song);
+      const card = document.createElement('div');
+      card.className = 'shelf-card';
+      card.innerHTML = `
+        <div class="card-cover">
+          <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
+          <span class="card-cat-badge">💔 बेवफाई</span>
+        </div>
+        <div class="card-title">${song.title}</div>
+        <div class="card-sub">${song.artist}</div>
+      `;
+      card.addEventListener('click', () => {
+        playTrack(realIdx);
+        openPlayer();
+      });
+      D.shelfBewafai.appendChild(card);
+    });
+  }
+
+  // 3. Shelf 2: 🔥 अत्यधिक दर्द
+  if (D.shelfDard) {
+    D.shelfDard.innerHTML = '';
+    const dardSongs = playlist.filter(s => s.category && s.category.includes('दर्द'));
+    (dardSongs.length ? dardSongs : playlist.slice(3, 9)).forEach((song) => {
+      const realIdx = playlist.indexOf(song);
+      const card = document.createElement('div');
+      card.className = 'shelf-card';
+      card.innerHTML = `
+        <div class="card-cover">
+          <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
+          <span class="card-cat-badge">🔥 दर्द</span>
+        </div>
+        <div class="card-title">${song.title}</div>
+        <div class="card-sub">${song.artist}</div>
+      `;
+      card.addEventListener('click', () => {
+        playTrack(realIdx);
+        openPlayer();
+      });
+      D.shelfDard.appendChild(card);
+    });
+  }
+}
+
 // ─── Song List Render ────────────────────────────────────────────────────────
 let _currentFilter = 'all';
 
@@ -355,7 +444,7 @@ function renderSongList(songs, filter) {
   if (safe.length === 0 && _currentFilter === 'liked') {
     D.songList.innerHTML = `
       <div style="text-align:center;padding:50px 24px;color:var(--text-sub)">
-        <div style="font-size:42px;margin-bottom:8px">💚</div>
+        <div style="font-size:42px;margin-bottom:8px">❤️</div>
         <div style="font-size:16px;font-weight:700">No Liked Songs Yet</div>
         <div style="font-size:13px;margin-top:4px">Tap ♡ on any song to save it to your Library</div>
       </div>
@@ -363,7 +452,7 @@ function renderSongList(songs, filter) {
     return;
   }
 
-  safe.forEach((song, i) => {
+  safe.forEach((song) => {
     const realIdx = playlist.indexOf(song);
     const liked   = likedSet.has(realIdx);
     const el = document.createElement('div');
@@ -378,7 +467,7 @@ function renderSongList(songs, filter) {
         <div class="song-row-artist">${song.artist}</div>
       </div>
       <button class="song-row-like-btn ${liked ? 'liked' : ''}" data-idx="${realIdx}" aria-label="Like">
-        <svg viewBox="0 0 24 24" fill="${liked ? 'var(--spotify-green)' : 'none'}" stroke="${liked ? 'var(--spotify-green)' : 'currentColor'}" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="${liked ? 'var(--avara-crimson)' : 'none'}" stroke="${liked ? 'var(--avara-crimson)' : 'currentColor'}" stroke-width="2">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
       </button>
@@ -403,8 +492,8 @@ function renderSongList(songs, filter) {
       } else {
         likedSet.add(idx);
         btn.classList.add('liked');
-        svg.setAttribute('fill', 'var(--spotify-green)');
-        svg.setAttribute('stroke', 'var(--spotify-green)');
+        svg.setAttribute('fill', 'var(--avara-crimson)');
+        svg.setAttribute('stroke', 'var(--avara-crimson)');
       }
       saveState();
       if (idx === currentIdx) setLikeUI(likedSet.has(idx));
@@ -426,6 +515,12 @@ function setSdNav(btn) {
 
 // ─── Event Bindings ──────────────────────────────────────────────────────────
 function bindAll() {
+  // Hero play button
+  if (D.heroPlayBtn) D.heroPlayBtn.addEventListener('click', () => {
+    playTrack(currentIdx);
+    openPlayer();
+  });
+
   // Player controls
   D.backBtn.addEventListener('click', closePlayer);
   D.playPauseBtn.addEventListener('click', togglePlay);
@@ -512,36 +607,17 @@ function bindAll() {
     renderSongList(playlist, 'all');
   });
 
-  // Top Category Chips
-  D.topChips.forEach(chip => chip.addEventListener('click', () => {
-    D.topChips.forEach(c => c.classList.remove('active'));
+  // Category Chips
+  D.catChips.forEach(chip => chip.addEventListener('click', () => {
+    D.catChips.forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     const f = chip.dataset.filter;
     if (f === 'all') {
       renderSongList(playlist, 'all');
-    } else if (f === 'trending') {
-      renderSongList(playlist.slice(0, 12), 'trending');
-    } else if (f === 'romantic') {
-      const romantic = playlist.filter(s => s.artist && (s.artist.includes('Sonu') || s.title.includes('Love') || s.title.includes('Dil') || s.category?.includes('यादें')));
-      renderSongList(romantic.length ? romantic : playlist.slice(0, 10), 'romantic');
-    } else if (f === 'sad') {
-      const sad = playlist.filter(s => s.category && (s.category.includes('दर्द') || s.category.includes('बेवफाई')));
-      renderSongList(sad.length ? sad : playlist.slice(5, 15), 'sad');
-    } else if (f === 'lofi') {
-      renderSongList(playlist.slice(10, 20), 'lofi');
+    } else {
+      const filtered = playlist.filter(s => s.category && s.category.includes(f));
+      renderSongList(filtered.length ? filtered : playlist, f);
     }
-  }));
-
-  // Quick Cards Interaction
-  D.quickCards.forEach((card, idx) => card.addEventListener('click', () => {
-    const targetIdx = idx % playlist.length;
-    playTrack(targetIdx);
-  }));
-
-  // Shelf Cards Interaction
-  D.shelfCards.forEach((card, idx) => card.addEventListener('click', () => {
-    const targetIdx = (idx * 2) % playlist.length;
-    playTrack(targetIdx);
   }));
 }
 
@@ -565,6 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   showMini();
+  renderHomeSections();
   renderSongList(playlist, 'all');
   initYT();
   bindAll();

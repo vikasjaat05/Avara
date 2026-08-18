@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#121212" />
+  <meta name="theme-color" content="#0B0E14" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Avara Music — Ultimate Soundscape</title>
+  <title>Avara — Sound of Emotion</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script type="module" src="/src/main.js"></script>
 </head>
 <body>
@@ -35,28 +35,28 @@
       <div class="pre-bar"></div>
       <div class="pre-bar"></div>
     </div>
-    <p class="pre-title">Avara Music</p>
-    <p class="pre-sub">Loading your personalized soundscape…</p>
+    <p class="pre-title">AVARA</p>
+    <p class="pre-sub">Crafting your musical experience…</p>
   </div>
 
   <!-- ═══════════ APP SHELL ═══════════ -->
   <div id="app">
 
-    <!-- YouTube player: rendered off-screen -->
+    <!-- YouTube player: off-screen -->
     <div id="yt-player" style="position:fixed;left:-600px;top:-600px;width:320px;height:180px;z-index:-999;"></div>
 
     <!-- ══════════ DESKTOP SIDEBAR ══════════ -->
     <aside class="desktop-sidebar">
       <div class="sidebar-logo">
         <div class="logo-mark">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.435-5.308-1.76-8.786-.963-.335.077-.67-.133-.746-.47-.077-.334.132-.67.47-.745 3.808-.87 7.076-.496 9.712 1.115.293.18.386.563.207.856zm1.233-2.745c-.226.367-.706.482-1.073.257-2.688-1.652-6.785-2.131-9.965-1.166-.413.125-.848-.106-.973-.519-.125-.413.106-.848.519-.973 3.632-1.102 8.147-.568 11.235 1.328.367.226.482.706.257 1.073zm.134-2.863C14.73 9.027 8.49 8.82 4.937 9.9c-.5.152-1.027-.132-1.179-.633-.152-.5.132-1.027.633-1.179 4.088-1.24 10.98-1.004 15.116 1.45.45.267.598.849.33 1.298-.267.45-.849.598-1.298.33z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
         </div>
-        <span class="logo-text">Avara Music</span>
+        <span class="logo-text">AVARA</span>
       </div>
 
       <nav class="sidebar-nav">
         <button id="sd-discover" class="sd-nav-btn active">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L4 9v12h16V9l-8-6zm0 14.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
           <span>Home</span>
         </button>
         <button id="sd-search" class="sd-nav-btn">
@@ -64,8 +64,8 @@
           <span>Search</span>
         </button>
         <button id="sd-library" class="sd-nav-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          <span>Your Library</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          <span>Library</span>
         </button>
         <button id="sd-liked" class="sd-nav-btn">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -73,7 +73,7 @@
         </button>
       </nav>
 
-      <!-- Desktop Now Playing Panel -->
+      <!-- Desktop Sidebar Player Panel -->
       <div id="sd-player-panel" class="sd-player-panel hidden">
         <div class="sd-art-wrap">
           <img id="sd-art" class="sd-art" src="" alt="art">
@@ -112,111 +112,84 @@
       <div id="home-view" class="view active-view">
         <div class="home-scroll">
 
-          <!-- Top Bar (Avatar + Category Chips) -->
-          <div class="top-spotify-bar">
-            <div class="user-avatar-wrap">
-              <img class="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="profile" />
+          <!-- Avara Header -->
+          <div class="avara-header">
+            <div class="brand-badge">
+              <div class="brand-dot"></div>
+              <span class="brand-title">AVARA MUSIC</span>
             </div>
-            <div class="header-chips-scroll">
-              <button class="top-chip active" data-filter="all">All</button>
-              <button class="top-chip" data-filter="trending">Trending</button>
-              <button class="top-chip" data-filter="romantic">Romantic</button>
-              <button class="top-chip" data-filter="sad">Heartbreak</button>
-              <button class="top-chip" data-filter="lofi">Lo-Fi Beats</button>
+            <div class="header-actions">
+              <button id="search-toggle-btn" class="icon-circle-btn" aria-label="Search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </button>
             </div>
-            <button id="search-toggle-btn" class="header-icon-btn" aria-label="Search">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </button>
           </div>
 
           <!-- Search bar (Collapsible) -->
           <div id="search-bar" class="search-bar hidden">
             <svg class="search-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input id="search-input" type="text" placeholder="Search songs, artists, or mixes…" autocomplete="off">
+            <input id="search-input" type="text" placeholder="Search songs, artists, or lyrics…" autocomplete="off">
             <button id="search-close">✕</button>
           </div>
 
-          <!-- 2-Column Quick Mixes Grid -->
+          <!-- Hero Spotlight Banner (Dynamic Real Song Feature) -->
+          <section class="hero-banner-section">
+            <div id="hero-banner" class="hero-banner">
+              <div id="hero-bg" class="hero-bg"></div>
+              <div class="hero-overlay"></div>
+              <div class="hero-content">
+                <span class="hero-tag">🔥 FEATURED SOUNDTRACK</span>
+                <h1 id="hero-title" class="hero-title">Tujhe Bhoolna To Chaha</h1>
+                <p id="hero-artist" class="hero-artist">Sonu Nigam / Nikhil-Vinay</p>
+                <div class="hero-btn-row">
+                  <button id="hero-play-btn" class="hero-play-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M8 5v14l11-7z"/></svg>
+                    <span>Play Soundtrack</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Category Chips Bar -->
+          <div class="category-chips-bar">
+            <button class="cat-chip active" data-filter="all">All Tracks</button>
+            <button class="cat-chip" data-filter="💔 बेवफाई">💔 बेवफाई</button>
+            <button class="cat-chip" data-filter="🔥 अत्यधिक दर्द">🔥 अत्यधिक दर्द</button>
+            <button class="cat-chip" data-filter="🌌 यादें">🌌 यादें</button>
+          </div>
+
+          <!-- Quick Songs Grid (Real Songs from AVARA_SONGS) -->
           <section class="quick-grid-section">
-            <div class="quick-grid">
-              <div class="quick-card playing-card" data-playlist="top50">
-                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Avara Top 50 Hits</span>
-                <div class="eq-icon">
-                  <span></span><span></span><span></span>
-                </div>
-              </div>
-              <div class="quick-card" data-playlist="darde">
-                <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Dard-e-Dil Special</span>
-              </div>
-              <div class="quick-card" data-playlist="sonu">
-                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Sonu Nigam Melodies</span>
-              </div>
-              <div class="quick-card" data-playlist="arijit">
-                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Arijit Singh Essentials</span>
-              </div>
-              <div class="quick-card" data-playlist="romantic">
-                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Romantic Duets Mix</span>
-              </div>
-              <div class="quick-card" data-playlist="punjabi">
-                <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Punjabi Pop Hits</span>
-              </div>
-              <div class="quick-card" data-playlist="lofi">
-                <img src="https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Midnight Lo-Fi Beats</span>
-              </div>
-              <div class="quick-card" data-playlist="retro">
-                <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Bollywood Retro Gold</span>
-              </div>
-            </div>
+            <h2 class="section-title">Quick Picks</h2>
+            <div id="quick-grid" class="quick-grid"></div>
           </section>
 
-          <!-- Section: Curated Daily Mixes -->
+          <!-- Shelf 1: 💔 बेवफाई -->
           <section class="shelf-section">
-            <h2 class="shelf-heading">Made For You</h2>
-            <div class="shelf-scroll">
-              <div class="shelf-card mix-teal" data-mix="1">
-                <div class="card-cover">
-                  <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=300&auto=format&fit=crop&q=80" alt="mix1" />
-                  <span class="mix-tag">Daily Mix 1</span>
-                </div>
-                <div class="card-title">Romantic Hits</div>
-                <div class="card-sub">Sonu Nigam, Arijit Singh, Shreya Ghoshal</div>
-              </div>
-              <div class="shelf-card mix-pink" data-mix="2">
-                <div class="card-cover">
-                  <img src="https://images.unsplash.com/photo-1469488865564-c2de10f69f96?w=300&auto=format&fit=crop&q=80" alt="mix2" />
-                  <span class="mix-tag">Daily Mix 2</span>
-                </div>
-                <div class="card-title">Soulful Heartbreak</div>
-                <div class="card-sub">Attaullah Khan, Nikhil-Vinay, Udit Narayan</div>
-              </div>
-              <div class="shelf-card mix-purple" data-mix="3">
-                <div class="card-cover">
-                  <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80" alt="mix3" />
-                  <span class="mix-tag">Daily Mix 3</span>
-                </div>
-                <div class="card-title">Retro Classics</div>
-                <div class="card-sub">Kishore Kumar, Lata Mangeshkar, R.D. Burman</div>
-              </div>
+            <div class="shelf-header">
+              <h2 class="shelf-title">💔 दर्द-ए-दिल Collection</h2>
             </div>
+            <div id="shelf-bewafai" class="shelf-scroll"></div>
           </section>
 
-          <!-- Section: All Songs & Recommendations -->
+          <!-- Shelf 2: 🔥 अत्यधिक दर्द -->
+          <section class="shelf-section">
+            <div class="shelf-header">
+              <h2 class="shelf-title">🔥 Deep Emotion Hits</h2>
+            </div>
+            <div id="shelf-dard" class="shelf-scroll"></div>
+          </section>
+
+          <!-- Shelf 3: All Songs List -->
           <section class="tracks-section">
-            <h2 class="shelf-heading">Recommended For You</h2>
+            <h2 class="section-title">All Songs</h2>
             <div id="song-list"></div>
           </section>
 
         </div>
 
-        <!-- Floating Mobile Mini Player -->
+        <!-- Floating Mobile Mini Player (Avara Velvet Crimson Glass) -->
         <div id="mini-player" class="mini-player hidden">
           <div class="mini-left" id="mini-open">
             <img id="mini-art" class="mini-art" src="" alt="art">
@@ -226,9 +199,6 @@
             </div>
           </div>
           <div class="mini-right">
-            <button id="mini-device-btn" class="mini-device-btn" aria-label="Device">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16.1A5 5 0 0 1 5.9 20M2 12a9 9 0 0 1 9 9M2 7.5A13.5 13.5 0 0 1 15.5 21M16 2v10h4V2h-4z"/></svg>
-            </button>
             <button id="mini-play-btn" class="mini-play-btn">
               <svg id="mini-play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
               <svg id="mini-pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
@@ -240,7 +210,7 @@
         </div>
       </div>
 
-      <!-- ─── PLAYER VIEW (Full Overlay) ─── -->
+      <!-- ─── PLAYER VIEW (Full Glass Overlay) ─── -->
       <div id="player-view" class="view hidden-view">
         <div id="player-bg" class="player-bg"></div>
 
@@ -249,9 +219,9 @@
             <button id="back-btn" class="player-back-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
-            <span class="player-topbar-label">NOW PLAYING FROM PLAYLIST</span>
+            <span class="player-topbar-label">NOW PLAYING</span>
             <button id="player-like-btn" class="player-like-btn">
-              <svg id="player-like-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <svg id="player-like-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
             </button>
           </div>
 
@@ -267,7 +237,7 @@
           </div>
 
           <div class="lyrics-strip">
-            <div id="lyrics-line" class="lyrics-line">♪ &nbsp; Avara Music Soundscape &nbsp; ♪</div>
+            <div id="lyrics-line" class="lyrics-line">♪ &nbsp; Avara Soundscape &nbsp; ♪</div>
           </div>
 
           <div class="progress-area">
@@ -313,7 +283,7 @@
     <!-- Mobile Bottom Navigation -->
     <nav class="mobile-nav">
       <button id="nav-home" class="mob-nav-btn active">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L4 9v12h16V9l-8-6zm0 14.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
         <span>Home</span>
       </button>
       <button id="nav-search-mob" class="mob-nav-btn">
@@ -321,8 +291,8 @@
         <span>Search</span>
       </button>
       <button id="nav-music-mob" class="mob-nav-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-        <span>Your Library</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <span>Library</span>
       </button>
       <button id="nav-liked-mob" class="mob-nav-btn">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
