@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#111111" />
+  <meta name="theme-color" content="#121212" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  <title>Avara Ashiq — दर्द-ए-दिल</title>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Avara Music — Spotify Edition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -35,39 +35,41 @@
       <div class="pre-bar"></div>
       <div class="pre-bar"></div>
     </div>
-    <p class="pre-title">Avara Ashiq</p>
-    <p class="pre-sub">दर्द-ए-दिल Playlist</p>
+    <p class="pre-title">Avara Music</p>
+    <p class="pre-sub">Loading your soundscape…</p>
   </div>
 
   <!-- ═══════════ APP SHELL ═══════════ -->
   <div id="app">
 
-    <!-- YouTube player: off-screen but fully rendered so API works -->
-    <div id="yt-player" style="position:fixed;left:-500px;top:-500px;width:320px;height:180px;z-index:-999;"></div>
+    <!-- YouTube player: rendered off-screen -->
+    <div id="yt-player" style="position:fixed;left:-600px;top:-600px;width:320px;height:180px;z-index:-999;"></div>
 
     <!-- ══════════ DESKTOP SIDEBAR ══════════ -->
     <aside class="desktop-sidebar">
       <div class="sidebar-logo">
-        <div class="logo-mark">♪</div>
-        <span class="logo-text">Avara Ashiq</span>
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.435-5.308-1.76-8.786-.963-.335.077-.67-.133-.746-.47-.077-.334.132-.67.47-.745 3.808-.87 7.076-.496 9.712 1.115.293.18.386.563.207.856zm1.233-2.745c-.226.367-.706.482-1.073.257-2.688-1.652-6.785-2.131-9.965-1.166-.413.125-.848-.106-.973-.519-.125-.413.106-.848.519-.973 3.632-1.102 8.147-.568 11.235 1.328.367.226.482.706.257 1.073zm.134-2.863C14.73 9.027 8.49 8.82 4.937 9.9c-.5.152-1.027-.132-1.179-.633-.152-.5.132-1.027.633-1.179 4.088-1.24 10.98-1.004 15.116 1.45.45.267.598.849.33 1.298-.267.45-.849.598-1.298.33z"/></svg>
+        </div>
+        <span class="logo-text">Spotify Avara</span>
       </div>
 
       <nav class="sidebar-nav">
         <button id="sd-discover" class="sd-nav-btn active">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-          <span>Discover</span>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>Home</span>
         </button>
         <button id="sd-search" class="sd-nav-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <span>Search</span>
         </button>
         <button id="sd-library" class="sd-nav-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-          <span>Your Music</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>Your Library</span>
         </button>
         <button id="sd-liked" class="sd-nav-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          <span>Liked</span>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          <span>Liked Songs</span>
         </button>
       </nav>
 
@@ -110,54 +112,125 @@
       <div id="home-view" class="view active-view">
         <div class="home-scroll">
 
-          <!-- Header -->
-          <div class="home-header">
-            <div>
-              <h1 class="home-title">My Music</h1>
-              <p class="home-sub">दर्द-ए-दिल Playlist</p>
+          <!-- Top Spotify Bar (Avatar + Chips) -->
+          <div class="top-spotify-bar">
+            <div class="user-avatar-wrap">
+              <img class="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="profile" />
+            </div>
+            <div class="header-chips-scroll">
+              <button class="top-chip" data-filter="all">All</button>
+              <button class="top-chip active" data-filter="music">Music</button>
+              <button class="top-chip" data-filter="podcasts">Podcasts</button>
+              <button class="top-chip" data-filter="audiobooks">Audiobooks</button>
             </div>
             <button id="search-toggle-btn" class="header-icon-btn" aria-label="Search">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </button>
           </div>
 
-          <!-- Search bar -->
+          <!-- Search bar (Collapsible) -->
           <div id="search-bar" class="search-bar hidden">
             <svg class="search-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input id="search-input" type="text" placeholder="Songs, artists…" autocomplete="off">
+            <input id="search-input" type="text" placeholder="What do you want to listen to?" autocomplete="off">
             <button id="search-close">✕</button>
           </div>
 
-          <!-- Filter chips -->
-          <div class="filter-chips">
-            <button class="chip active" data-filter="all">All</button>
-            <button class="chip" data-filter="liked">Liked Songs</button>
-            <button class="chip" data-filter="sad">💔 बेवफाई</button>
-            <button class="chip" data-filter="pain">🔥 दर्द</button>
-          </div>
+          <!-- 2-Column Quick Picks Grid (Matches Screenshot) -->
+          <section class="quick-grid-section">
+            <div class="quick-grid">
+              <div class="quick-card" data-playlist="orion">
+                <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=150&auto=format&fit=crop&q=80" alt="" />
+                <span class="quick-title">Orion's Playlist Vol. 1</span>
+              </div>
+              <div class="quick-card" data-playlist="hydra">
+                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150&auto=format&fit=crop&q=80" alt="" />
+                <span class="quick-title">Hydra's Playlist Vol.1</span>
+              </div>
+              <div class="quick-card playing-card" data-playlist="chili">
+                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150&auto=format&fit=crop&q=80" alt="" />
+                <span class="quick-title">Red Hot Chili Peppers Mix</span>
+                <div class="eq-icon">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="quick-card" data-playlist="ophiuchus">
+                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150&auto=format&fit=crop&q=80" alt="" />
+                <span class="quick-title">Ophiuchus' Playlist Vol. 1</span>
+              </div>
+              <div class="quick-card" data-playlist="mix5">
+                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150&auto=format&fit=crop&q=80" alt="" />
+                <span class="quick-title">Daily Mix 5</span>
+              </div>
+              <div class="quick-card" data-playlist="gacha">
+                <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=150&auto=format&fit=crop&q=80" alt="" />
+                <span class="quick-title">Gacha Life Songs 2017-20…</span>
+              </div>
+              <div class="quick-card" data-playlist="pov">
+                <img src="https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=150&auto=format&fit=crop&q=80" alt="" />
+                <span class="quick-title">POV: Me Listening to Hi…</span>
+              </div>
+              <div class="quick-card" data-playlist="capsule">
+                <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=150&auto=format&fit=crop&q=80" alt="" />
+                <span class="quick-title">Your Time Capsule</span>
+              </div>
+            </div>
+          </section>
 
-          <!-- Song list -->
-          <div id="song-list"></div>
+          <!-- Section: Made For You -->
+          <section class="shelf-section">
+            <h2 class="shelf-heading">Made For •Celestial•</h2>
+            <div class="shelf-scroll">
+              <div class="shelf-card mix-teal" data-mix="1">
+                <div class="card-cover">
+                  <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=300&auto=format&fit=crop&q=80" alt="mix1" />
+                  <span class="mix-tag">Daily Mix 1</span>
+                </div>
+                <div class="card-title">Daily Mix 1</div>
+                <div class="card-sub">Bruno Mars, Lady Gaga, Pitbull and more</div>
+              </div>
+              <div class="shelf-card mix-pink" data-mix="2">
+                <div class="card-cover">
+                  <img src="https://images.unsplash.com/photo-1469488865564-c2de10f69f96?w=300&auto=format&fit=crop&q=80" alt="mix2" />
+                  <span class="mix-tag">Daily Mix 2</span>
+                </div>
+                <div class="card-title">Daily Mix 2</div>
+                <div class="card-sub">Eagles, Billie Eilish, Elton John and more</div>
+              </div>
+              <div class="shelf-card mix-purple" data-mix="3">
+                <div class="card-cover">
+                  <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80" alt="mix3" />
+                  <span class="mix-tag">Daily Mix 3</span>
+                </div>
+                <div class="card-title">Daily Mix 3</div>
+                <div class="card-sub">Eminem, Sonu Nigam, Arijit and more</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section: All Tracks & Mixes -->
+          <section class="tracks-section">
+            <h2 class="shelf-heading">Uniquely Yours</h2>
+            <div id="song-list"></div>
+          </section>
 
         </div>
 
-        <!-- Mobile mini player -->
+        <!-- Floating Mobile Mini Player (Matches Maroon Floating Pill in Screenshot) -->
         <div id="mini-player" class="mini-player hidden">
-          <img id="mini-art" class="mini-art" src="" alt="">
-          <div class="mini-info" id="mini-open">
-            <div id="mini-title" class="mini-title"></div>
-            <div id="mini-artist" class="mini-artist-txt"></div>
+          <div class="mini-left" id="mini-open">
+            <img id="mini-art" class="mini-art" src="" alt="art">
+            <div class="mini-info">
+              <div id="mini-title" class="mini-title">Select a Song</div>
+              <div id="mini-artist" class="mini-artist-txt">Avara Music</div>
+            </div>
           </div>
-          <div class="mini-btns">
-            <button id="mini-prev-btn" class="mini-ctrl-btn">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 20L9 12l10-8v16z"/><rect x="5" y="5" width="2" height="14" rx="1"/></svg>
+          <div class="mini-right">
+            <button id="mini-device-btn" class="mini-device-btn" aria-label="Device">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16.1A5 5 0 0 1 5.9 20M2 12a9 9 0 0 1 9 9M2 7.5A13.5 13.5 0 0 1 15.5 21M16 2v10h4V2h-4z"/></svg>
             </button>
             <button id="mini-play-btn" class="mini-play-btn">
               <svg id="mini-play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
               <svg id="mini-pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-            </button>
-            <button id="mini-next-btn" class="mini-ctrl-btn">
-              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l10 8-10 8V4z"/><rect x="17" y="5" width="2" height="14" rx="1"/></svg>
             </button>
           </div>
           <div class="mini-prog-bar">
@@ -166,30 +239,25 @@
         </div>
       </div>
 
-      <!-- ─── PLAYER VIEW (mobile overlay) ─── -->
+      <!-- ─── PLAYER VIEW (Full Overlay) ─── -->
       <div id="player-view" class="view hidden-view">
-
-        <!-- Player BG blur -->
         <div id="player-bg" class="player-bg"></div>
 
         <div class="player-scroll">
-          <!-- Top bar -->
           <div class="player-topbar">
             <button id="back-btn" class="player-back-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
-            <span class="player-topbar-label">Now Playing</span>
+            <span class="player-topbar-label">PLAYING FROM PLAYLIST</span>
             <button id="player-like-btn" class="player-like-btn">
               <svg id="player-like-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </button>
           </div>
 
-          <!-- Art -->
           <div class="player-art-wrap">
             <img id="player-art" class="player-art" src="" alt="art">
           </div>
 
-          <!-- Info -->
           <div class="player-info">
             <div>
               <div id="player-title" class="player-title">—</div>
@@ -197,12 +265,10 @@
             </div>
           </div>
 
-          <!-- Lyrics strip -->
           <div class="lyrics-strip">
-            <div id="lyrics-line" class="lyrics-line">♪ &nbsp; ♪ &nbsp; ♪</div>
+            <div id="lyrics-line" class="lyrics-line">♪ &nbsp; Spotify Soundscape &nbsp; ♪</div>
           </div>
 
-          <!-- Progress -->
           <div class="progress-area">
             <div id="progress-track" class="progress-track">
               <div id="progress-fill" class="progress-fill"></div>
@@ -214,7 +280,6 @@
             </div>
           </div>
 
-          <!-- Controls -->
           <div class="player-controls">
             <button id="shuffle-btn" class="ctrl-sm-btn" aria-label="Shuffle">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
@@ -234,7 +299,6 @@
             </button>
           </div>
 
-          <!-- Volume -->
           <div class="volume-row">
             <svg class="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
             <input id="vol-slider" class="vol-slider" type="range" min="0" max="100" value="80">
@@ -243,31 +307,31 @@
         </div>
       </div>
 
-    </main><!-- /main-content -->
+    </main>
 
-    <!-- Mobile Bottom Nav -->
+    <!-- Mobile Bottom Navigation (Exact Spotify App Tabs) -->
     <nav class="mobile-nav">
       <button id="nav-home" class="mob-nav-btn active">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
         <span>Home</span>
       </button>
       <button id="nav-search-mob" class="mob-nav-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span>Search</span>
       </button>
       <button id="nav-music-mob" class="mob-nav-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-        <span>Music</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Your Library</span>
       </button>
       <button id="nav-liked-mob" class="mob-nav-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
         <span>Liked</span>
       </button>
     </nav>
 
-  </div><!-- /#app -->
+  </div>
 
-  <!-- Preloader remover -->
+  <!-- Preloader script -->
   <script>
     !function(){
       var done=false;
@@ -275,16 +339,16 @@
         if(done)return;done=true;
         var el=document.getElementById('preloader');
         if(!el)return;
-        el.style.transition='opacity 0.6s ease';
+        el.style.transition='opacity 0.5s ease';
         el.style.opacity='0';
-        setTimeout(function(){el&&el.parentNode&&el.parentNode.removeChild(el);},650);
+        setTimeout(function(){el&&el.parentNode&&el.parentNode.removeChild(el);},550);
       }
-      setTimeout(hide,2800);
-      window.addEventListener('load',function(){setTimeout(hide,900);});
+      setTimeout(hide, 1800);
+      window.addEventListener('load',function(){setTimeout(hide, 600);});
     }();
   </script>
 
-  <!-- YouTube globals: MUST come before YouTube API script -->
+  <!-- YouTube API setup -->
   <script>
     window._ytReady = false;
     window._ytCbs   = [];
