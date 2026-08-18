@@ -676,3 +676,66 @@ html, body {
 .mob-nav-btn.active { color: var(--accent); font-weight: 700; }
 .mob-nav-btn.active svg { transform: translateY(-1px) scale(1.08); filter: drop-shadow(0 2px 8px var(--accent-glow)); }
 .mob-nav-btn:active { transform: scale(.92); }
+
+/* ─────────────────────────────────────────────────
+   DOWNLOAD APP BUTTON & MODAL
+───────────────────────────────────────────────── */
+.download-app-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 700;
+  color: #fff; background: var(--accent-gradient); border: none; cursor: pointer;
+  box-shadow: 0 4px 14px var(--accent-glow); transition: all 0.2s ease;
+  text-decoration: none;
+}
+.download-app-btn:hover {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+.download-app-btn:active { transform: scale(0.96); }
+
+.download-highlight {
+  background: var(--accent-gradient) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  margin-top: 12px;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.hidden { display: none; }
+
+.modal-card {
+  width: 100%; max-width: 400px; border-radius: 24px; padding: 28px 24px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  box-shadow: var(--shadow); position: relative; text-align: center;
+}
+.modal-close-btn {
+  position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.1);
+  border: none; color: var(--text); width: 32px; height: 32px; border-radius: 50%;
+  font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.modal-header { margin-bottom: 20px; }
+.modal-logo-img { width: 64px; height: 64px; margin-bottom: 12px; border-radius: 16px; }
+.modal-title { font-family: var(--font-heading); font-size: 20px; font-weight: 800; color: var(--text); }
+.modal-sub { font-size: 13px; color: var(--text-sub); margin-top: 6px; line-height: 1.5; }
+
+.modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+.modal-primary-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700;
+  color: #fff; background: var(--accent-gradient); border: none; cursor: pointer;
+  box-shadow: 0 6px 20px var(--accent-glow); text-decoration: none;
+}
+.modal-primary-btn:hover { opacity: 0.95; transform: translateY(-1px); }
+.modal-secondary-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700;
+  color: var(--text); background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+  cursor: pointer; text-decoration: none;
+}
+.modal-hint { font-size: 11px; color: var(--text-sub); margin-top: 6px; line-height: 1.4; }
+

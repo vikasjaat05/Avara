@@ -10,22 +10,23 @@ const KEY_MOOD_COUNTS  = 'avara_mood_counts';
 const KEY_PLAY_HISTORY = 'avara_play_history';
 
 // ─── State ───────────────────────────────────────────────────────────────────
-let ytPlayer     = null;
-let ytIsReady    = false;
-let pendingPlay  = null;
-let currentIdx   = 0;
-let isPlaying    = false;
-let playlist     = AVARA_SONGS.filter(Boolean);
-let likedSet     = new Set();
-let shuffleOn    = false;
-let repeatOn     = false;
-let progressInt  = null;
-let inPlayer     = false;
-let initialSeek  = 0;
-let currentTheme = 'dark';
-let currentTab   = 'home';
-let moodCounts   = { heartbreak: 0, deep: 0, memories: 0 };
-let playHistory  = [];
+let ytPlayer        = null;
+let ytIsReady       = false;
+let pendingPlay     = null;
+let currentIdx      = 0;
+let isPlaying       = false;
+let playlist        = AVARA_SONGS.filter(Boolean);
+let likedSet        = new Set();
+let shuffleOn       = false;
+let repeatOn        = false;
+let progressInt     = null;
+let inPlayer        = false;
+let initialSeek     = 0;
+let currentTheme    = 'dark';
+let currentTab      = 'home';
+let moodCounts      = { heartbreak: 0, deep: 0, memories: 0 };
+let playHistory     = [];
+let deferredPwaPrompt = null;
 
 // ─── DOM References ──────────────────────────────────────────────────────────
 let D = {};
@@ -44,9 +45,14 @@ function grabDOM() {
   D.recTitle        = document.getElementById('rec-shelf-title');
   D.recSubtitle     = document.getElementById('rec-shelf-subtitle');
   D.recMoodBadge    = document.getElementById('rec-mood-badge');
+  
+  // Category Shelves
+  D.shelfRomantic   = document.getElementById('shelf-romantic');
   D.shelfBewafai    = document.getElementById('shelf-bewafai');
-  D.shelfDard       = document.getElementById('shelf-dard');
-  D.shelfMemories   = document.getElementById('shelf-memories');
+  D.shelfGuru        = document.getElementById('shelf-guru');
+  D.shelfRap         = document.getElementById('shelf-rap');
+  D.shelfNew         = document.getElementById('shelf-new');
+  D.shelfHaryanvi    = document.getElementById('shelf-haryanvi');
 
   D.mainSearchInput     = document.getElementById('main-search-input');
   D.mainSearchClear     = document.getElementById('main-search-clear');
@@ -74,6 +80,13 @@ function grabDOM() {
   D.moonIcon        = document.getElementById('theme-moon-icon');
   D.searchToggle    = document.getElementById('search-toggle-btn');
   D.catChips        = document.querySelectorAll('.cat-chip');
+
+  // Download App DOM
+  D.headerDownloadBtn = document.getElementById('header-download-btn');
+  D.sdDownloadBtn     = document.getElementById('sd-download-app');
+  D.downloadModal     = document.getElementById('download-modal');
+  D.closeDownloadModal= document.getElementById('close-download-modal');
+  D.triggerPwaBtn     = document.getElementById('trigger-pwa-install-btn');
 
   // Full Player Overlay DOM
   D.playerBg        = document.getElementById('player-bg');
@@ -133,6 +146,39 @@ function grabDOM() {
   D.navSearch       = document.getElementById('nav-search-mob');
   D.navMusic        = document.getElementById('nav-music-mob');
   D.navLiked        = document.getElementById('nav-liked-mob');
+}
+
+// ─── PWA Prompt & Download Modal ──────────────────────────────────────────────
+function initDownloadModal() {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPwaPrompt = e;
+  });
+
+  const openModal = () => {
+    if (D.downloadModal) D.downloadModal.classList.remove('hidden');
+  };
+  const closeModal = () => {
+    if (D.downloadModal) D.downloadModal.classList.add('hidden');
+  };
+
+  if (D.headerDownloadBtn) D.headerDownloadBtn.addEventListener('click', openModal);
+  if (D.sdDownloadBtn) D.sdDownloadBtn.addEventListener('click', openModal);
+  if (D.closeDownloadModal) D.closeDownloadModal.addEventListener('click', closeModal);
+
+  if (D.triggerPwaBtn) {
+    D.triggerPwaBtn.addEventListener('click', () => {
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        deferredPwaPrompt.userChoice.then(() => {
+          deferredPwaPrompt = null;
+          closeModal();
+        });
+      } else {
+        alert('Avara App added to Home Screen! You can also click Download Android APK.');
+      }
+    });
+  }
 }
 
 // ─── Theme Toggle & Dynamic Meta Color Sync ─────────────────────────────────
@@ -292,11 +338,11 @@ function saveState() {
 function recordSongPlay(song) {
   if (!song) return;
   const cat = song.category || '';
-  if (cat.includes('बेवफाई') || cat.includes('💔')) {
+  if (cat.includes('Heartbreak') || cat.includes('💔')) {
     moodCounts.heartbreak = (moodCounts.heartbreak || 0) + 1;
-  } else if (cat.includes('दर्द') || cat.includes('🔥')) {
+  } else if (cat.includes('Rap') || cat.includes('🎤') || cat.includes('Haryanvi')) {
     moodCounts.deep = (moodCounts.deep || 0) + 1;
-  } else if (cat.includes('यादें') || cat.includes('🌌') || cat.includes('प्यार')) {
+  } else if (cat.includes('Romantic') || cat.includes('💖') || cat.includes('Guru')) {
     moodCounts.memories = (moodCounts.memories || 0) + 1;
   }
 
@@ -589,19 +635,18 @@ function renderRecommendedSection() {
     title = 'Recommended For You 💔';
     subtitle = 'Curated based on your Sad & Heartbreak listening vibe';
     badgeText = '💔 Sad Vibe';
-    recommendedSongs = playlist.filter(s => s.category && (s.category.includes('बेवफाई') || s.category.includes('💔'))).slice(0, 10);
+    recommendedSongs = playlist.filter(s => s.category && s.category.includes('Heartbreak')).slice(0, 10);
   } else if (topMood === 'deep') {
-    title = 'Recommended For You 🔥';
-    subtitle = 'Curated based on your Deep Emotion & Dard listening vibe';
-    badgeText = '🔥 Deep Vibe';
-    recommendedSongs = playlist.filter(s => s.category && (s.category.includes('दर्द') || s.category.includes('🔥'))).slice(0, 10);
+    title = 'Recommended For You 🎤';
+    subtitle = 'Curated based on your Hip-Hop & Rap listening vibe';
+    badgeText = '🎤 Rap Vibe';
+    recommendedSongs = playlist.filter(s => s.category && (s.category.includes('Rap') || s.category.includes('Haryanvi'))).slice(0, 10);
   } else if (topMood === 'memories') {
-    title = 'Recommended For You 🌌';
-    subtitle = 'Curated based on your Love & Nostalgic Memories vibe';
-    badgeText = '🌌 Love Vibe';
-    recommendedSongs = playlist.filter(s => s.category && (s.category.includes('यादें') || s.category.includes('🌌'))).slice(0, 10);
+    title = 'Recommended For You 💖';
+    subtitle = 'Curated based on your Romantic & Love vibe';
+    badgeText = '💖 Love Vibe';
+    recommendedSongs = playlist.filter(s => s.category && (s.category.includes('Romantic') || s.category.includes('Guru'))).slice(0, 10);
   } else {
-    // Default mixed recommendation
     title = 'Recommended For You ✨';
     subtitle = 'Play songs to unlock your custom AI mood mix';
     badgeText = '✨ Mix Vibe';
@@ -619,7 +664,7 @@ function renderRecommendedSection() {
     card.innerHTML = `
       <div class="card-cover">
         <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
-        <span class="card-cat-badge">${badgeText.split(' ')[0]} Recommended</span>
+        <span class="card-cat-badge">${badgeText.split(' ')[0]} Rec</span>
       </div>
       <div class="card-title">${song.title}</div>
       <div class="card-sub">${song.artist}</div>
@@ -632,11 +677,11 @@ function renderRecommendedSection() {
   });
 }
 
-// ─── Render Dynamic Home Sections ─────────────────────────────────────────────
+// ─── Render Dynamic Home Category Shelves ─────────────────────────────────────
 function renderHomeSections() {
   if (D.quickGrid) {
     D.quickGrid.innerHTML = '';
-    const quickSongs = playlist.slice(1, 9);
+    const quickSongs = playlist.slice(0, 8);
     quickSongs.forEach((song) => {
       const realIdx = playlist.indexOf(song);
       const card = document.createElement('div');
@@ -662,74 +707,43 @@ function renderHomeSections() {
 
   renderRecommendedSection();
 
-  if (D.shelfBewafai) {
-    D.shelfBewafai.innerHTML = '';
-    const bewafaiSongs = playlist.slice(9).filter(s => s.category && s.category.includes('बेवफाई')).slice(0, 8);
-    bewafaiSongs.forEach((song) => {
-      const realIdx = playlist.indexOf(song);
-      const card = document.createElement('div');
-      card.className = 'shelf-card';
-      card.innerHTML = `
-        <div class="card-cover">
-          <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
-          <span class="card-cat-badge">Heartbreak</span>
-        </div>
-        <div class="card-title">${song.title}</div>
-        <div class="card-sub">${song.artist}</div>
-      `;
-      card.addEventListener('click', () => {
-        playTrack(realIdx);
-        openPlayer();
-      });
-      D.shelfBewafai.appendChild(card);
-    });
-  }
+  // 1. 💖 Romantic Hits
+  renderCategoryShelf(D.shelfRomantic, '💖 Romantic Hits', 'Romantic');
+  // 2. 💔 Heartbreak Hits
+  renderCategoryShelf(D.shelfBewafai, '💔 Heartbreak Hits', 'Heartbreak');
+  // 3. 👑 Guru Randhawa Special
+  renderCategoryShelf(D.shelfGuru, '👑 Guru Randhawa Special', 'Guru');
+  // 4. 🎤 Hindi Rap & Hip-Hop
+  renderCategoryShelf(D.shelfRap, '🎤 Hindi Rap & Hip-Hop', 'Rap');
+  // 5. ✨ New Hits 2026
+  renderCategoryShelf(D.shelfNew, '✨ New Hits 2026', 'New');
+  // 6. 🔥 Haryanvi Bangers
+  renderCategoryShelf(D.shelfHaryanvi, '🔥 Haryanvi Bangers', 'Haryanvi');
+}
 
-  if (D.shelfDard) {
-    D.shelfDard.innerHTML = '';
-    const dardSongs = playlist.slice(15).filter(s => s.category && s.category.includes('दर्द')).slice(0, 8);
-    dardSongs.forEach((song) => {
-      const realIdx = playlist.indexOf(song);
-      const card = document.createElement('div');
-      card.className = 'shelf-card';
-      card.innerHTML = `
-        <div class="card-cover">
-          <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
-          <span class="card-cat-badge">Deep Emotion</span>
-        </div>
-        <div class="card-title">${song.title}</div>
-        <div class="card-sub">${song.artist}</div>
-      `;
-      card.addEventListener('click', () => {
-        playTrack(realIdx);
-        openPlayer();
-      });
-      D.shelfDard.appendChild(card);
-    });
-  }
+function renderCategoryShelf(container, categoryFullName, badgeTag) {
+  if (!container) return;
+  container.innerHTML = '';
+  const songs = playlist.filter(s => s.category === categoryFullName || (s.category && s.category.includes(badgeTag)));
 
-  if (D.shelfMemories) {
-    D.shelfMemories.innerHTML = '';
-    const memorySongs = playlist.slice(20).filter(s => s.category && s.category.includes('यादें')).slice(0, 8);
-    memorySongs.forEach((song) => {
-      const realIdx = playlist.indexOf(song);
-      const card = document.createElement('div');
-      card.className = 'shelf-card';
-      card.innerHTML = `
-        <div class="card-cover">
-          <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
-          <span class="card-cat-badge">Memories</span>
-        </div>
-        <div class="card-title">${song.title}</div>
-        <div class="card-sub">${song.artist}</div>
-      `;
-      card.addEventListener('click', () => {
-        playTrack(realIdx);
-        openPlayer();
-      });
-      D.shelfMemories.appendChild(card);
+  songs.forEach((song) => {
+    const realIdx = playlist.indexOf(song);
+    const card = document.createElement('div');
+    card.className = 'shelf-card';
+    card.innerHTML = `
+      <div class="card-cover">
+        <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
+        <span class="card-cat-badge">${badgeTag}</span>
+      </div>
+      <div class="card-title">${song.title}</div>
+      <div class="card-sub">${song.artist}</div>
+    `;
+    card.addEventListener('click', () => {
+      playTrack(realIdx);
+      openPlayer();
     });
-  }
+    container.appendChild(card);
+  });
 }
 
 // ─── Render Search Results ───────────────────────────────────────────────────
@@ -747,14 +761,14 @@ function renderSearchResults(query) {
 
   const matches = q
     ? playlist.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q) || (s.category && s.category.toLowerCase().includes(q)))
-    : playlist.slice(0, 15);
+    : playlist.slice(0, 20);
 
   if (matches.length === 0) {
     D.searchResultsList.innerHTML = `
       <div style="text-align:center;padding:40px 20px;color:var(--text-sub)">
         <div style="font-size:36px;margin-bottom:8px">🔍</div>
         <div style="font-size:15px;font-weight:700">No matching songs found</div>
-        <div style="font-size:12px;margin-top:4px">Try searching for Sonu Nigam, Heartbreak, or song titles</div>
+        <div style="font-size:12px;margin-top:4px">Try searching for Guru Randhawa, DIVINE, Sonu Nigam, or song titles</div>
       </div>
     `;
     return;
@@ -922,6 +936,22 @@ function bindAll() {
   // Header Search Icon Button
   if (D.searchToggle) D.searchToggle.addEventListener('click', () => switchTab('search'));
 
+  // Home View Category Chips Filtering
+  if (D.catChips) {
+    D.catChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        D.catChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const cat = chip.dataset.filter;
+        if (cat === 'all') {
+          renderHomeSections();
+        } else {
+          renderFilteredHome(cat);
+        }
+      });
+    });
+  }
+
   // Dedicated Search View Input Listener
   if (D.mainSearchInput) {
     D.mainSearchInput.addEventListener('input', (e) => {
@@ -955,12 +985,8 @@ function bindAll() {
         const f = chip.dataset.filter;
         if (f === 'all') {
           renderLibrarySongs(playlist, 'all');
-        } else if (f === 'heartbreak') {
-          renderLibrarySongs(playlist.filter(s => s.category && s.category.includes('बेवफाई')), 'heartbreak');
-        } else if (f === 'deep') {
-          renderLibrarySongs(playlist.filter(s => s.category && s.category.includes('दर्द')), 'deep');
-        } else if (f === 'memories') {
-          renderLibrarySongs(playlist.filter(s => s.category && s.category.includes('यादें')), 'memories');
+        } else {
+          renderLibrarySongs(playlist.filter(s => s.category === f || (s.category && s.category.includes(f))), f);
         }
       });
     });
@@ -979,10 +1005,38 @@ function bindAll() {
   }
 }
 
+function renderFilteredHome(catFilter) {
+  const filtered = playlist.filter(s => s.category === catFilter || (s.category && s.category.includes(catFilter)));
+
+  if (D.quickGrid) {
+    D.quickGrid.innerHTML = '';
+    filtered.slice(0, 8).forEach((song) => {
+      const realIdx = playlist.indexOf(song);
+      const card = document.createElement('div');
+      card.className = 'quick-card' + (realIdx === currentIdx ? ' playing-card' : '');
+      card.dataset.idx = realIdx;
+      card.innerHTML = `
+        <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
+        <div class="quick-card-info">
+          <div class="quick-title">${song.title}</div>
+          <div class="quick-artist">${song.artist}</div>
+        </div>
+        <div class="eq-icon"><span></span><span></span><span></span></div>
+      `;
+      card.addEventListener('click', () => {
+        playTrack(realIdx);
+        openPlayer();
+      });
+      D.quickGrid.appendChild(card);
+    });
+  }
+}
+
 // ─── Boot & Initialization ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   grabDOM();
   initTheme();
+  initDownloadModal();
   initBoomerangBg();
   restoreSavedState();
   updateTrackUI(playlist[currentIdx]);

@@ -71,6 +71,10 @@
           <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
           <span>Liked Songs</span>
         </button>
+        <button id="sd-download-app" class="sd-nav-btn download-highlight">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Install App 📱</span>
+        </button>
       </nav>
 
       <!-- Desktop Sidebar Player Panel -->
@@ -118,6 +122,15 @@
               <span class="brand-title">AVARA MUSIC</span>
             </div>
             <div class="header-actions">
+              <!-- Install App Header Button -->
+              <button id="header-download-btn" class="download-app-btn liquid-glass" aria-label="Download App">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Install App</span>
+              </button>
               <!-- Dark / Light Mode Toggle Button -->
               <button id="theme-toggle-btn" class="icon-circle-btn" aria-label="Toggle Theme">
                 <svg id="theme-moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -148,12 +161,15 @@
             </div>
           </section>
 
-          <!-- Category Chips Bar -->
+          <!-- Category Chips Bar (Playlist Categories) -->
           <div class="category-chips-bar animate-fade-up delay-2">
             <button class="cat-chip active" data-filter="all">All Tracks</button>
-            <button class="cat-chip" data-filter="heartbreak">Heartbreak</button>
-            <button class="cat-chip" data-filter="deep">Deep Emotion</button>
-            <button class="cat-chip" data-filter="memories">Memories</button>
+            <button class="cat-chip" data-filter="💖 Romantic Hits">💖 Romantic Hits</button>
+            <button class="cat-chip" data-filter="💔 Heartbreak Hits">💔 Heartbreak Hits</button>
+            <button class="cat-chip" data-filter="👑 Guru Randhawa Special">👑 Guru Randhawa</button>
+            <button class="cat-chip" data-filter="🎤 Hindi Rap & Hip-Hop">🎤 Hindi Rap</button>
+            <button class="cat-chip" data-filter="✨ New Hits 2026">✨ New Hits 2026</button>
+            <button class="cat-chip" data-filter="🔥 Haryanvi Bangers">🔥 Haryanvi Bangers</button>
           </div>
 
           <!-- Quick Songs Grid (8 UNIQUE Songs) -->
@@ -174,28 +190,52 @@
             <div id="shelf-recommended" class="shelf-scroll"></div>
           </section>
 
-          <!-- Shelf 1: Heartbreak Hits -->
+          <!-- Shelf 1: 💖 Romantic Hits -->
           <section class="shelf-section">
             <div class="shelf-header">
-              <h2 class="shelf-title">Heartbreak Hits</h2>
+              <h2 class="shelf-title">💖 Romantic Hits</h2>
+            </div>
+            <div id="shelf-romantic" class="shelf-scroll"></div>
+          </section>
+
+          <!-- Shelf 2: 💔 Heartbreak Hits -->
+          <section class="shelf-section">
+            <div class="shelf-header">
+              <h2 class="shelf-title">💔 Heartbreak Hits</h2>
             </div>
             <div id="shelf-bewafai" class="shelf-scroll"></div>
           </section>
 
-          <!-- Shelf 2: Deep Emotion -->
+          <!-- Shelf 3: 👑 Guru Randhawa Special -->
           <section class="shelf-section">
             <div class="shelf-header">
-              <h2 class="shelf-title">Deep Emotion</h2>
+              <h2 class="shelf-title">👑 Guru Randhawa Special</h2>
             </div>
-            <div id="shelf-dard" class="shelf-scroll"></div>
+            <div id="shelf-guru" class="shelf-scroll"></div>
           </section>
 
-          <!-- Shelf 3: Timeless Memories -->
+          <!-- Shelf 4: 🎤 Hindi Rap & Hip-Hop -->
           <section class="shelf-section">
             <div class="shelf-header">
-              <h2 class="shelf-title">Timeless Memories</h2>
+              <h2 class="shelf-title">🎤 Hindi Rap & Hip-Hop</h2>
             </div>
-            <div id="shelf-memories" class="shelf-scroll"></div>
+            <div id="shelf-rap" class="shelf-scroll"></div>
+          </section>
+
+          <!-- Shelf 5: ✨ New Hits 2026 -->
+          <section class="shelf-section">
+            <div class="shelf-header">
+              <h2 class="shelf-title">✨ New Hits 2026</h2>
+            </div>
+            <div id="shelf-new" class="shelf-scroll"></div>
+          </section>
+
+          <!-- Shelf 6: 🔥 Haryanvi Bangers -->
+          <section class="shelf-section">
+            <div class="shelf-header">
+              <h2 class="shelf-title">🔥 Haryanvi Bangers</h2>
+            </div>
+            <div id="shelf-haryanvi" class="shelf-scroll"></div>
           </section>
 
           <!-- ══════════ HOME BOTTOM FOOTER: PURE BOOMERANG ANIMATION BANNER (NICHE HI NICHE) ══════════ -->
@@ -231,9 +271,10 @@
           <div class="search-tags-bar">
             <span class="search-tag-label">Popular Searches:</span>
             <button class="search-tag-chip" data-query="Sonu Nigam">Sonu Nigam</button>
+            <button class="search-tag-chip" data-query="Guru Randhawa">Guru Randhawa</button>
+            <button class="search-tag-chip" data-query="DIVINE">DIVINE</button>
+            <button class="search-tag-chip" data-query="Haryanvi">Haryanvi</button>
             <button class="search-tag-chip" data-query="Heartbreak">Heartbreak</button>
-            <button class="search-tag-chip" data-query="Attaullah Khan">Attaullah Khan</button>
-            <button class="search-tag-chip" data-query="Dard">Dard</button>
           </div>
 
           <div class="search-results-section">
@@ -255,9 +296,12 @@
 
           <div class="category-chips-bar">
             <button class="cat-chip-lib active" data-filter="all">All Tracks</button>
-            <button class="cat-chip-lib" data-filter="heartbreak">Heartbreak</button>
-            <button class="cat-chip-lib" data-filter="deep">Deep Emotion</button>
-            <button class="cat-chip-lib" data-filter="memories">Memories</button>
+            <button class="cat-chip-lib" data-filter="💖 Romantic Hits">💖 Romantic</button>
+            <button class="cat-chip-lib" data-filter="💔 Heartbreak Hits">💔 Heartbreak</button>
+            <button class="cat-chip-lib" data-filter="👑 Guru Randhawa Special">👑 Guru Randhawa</button>
+            <button class="cat-chip-lib" data-filter="🎤 Hindi Rap & Hip-Hop">🎤 Hindi Rap</button>
+            <button class="cat-chip-lib" data-filter="✨ New Hits 2026">✨ New 2026</button>
+            <button class="cat-chip-lib" data-filter="🔥 Haryanvi Bangers">🔥 Haryanvi</button>
           </div>
 
           <div class="tracks-section">
@@ -402,6 +446,26 @@
       </button>
     </nav>
 
+  </div>
+
+  <!-- ══════════ APP DOWNLOAD / PWA MODAL ══════════ -->
+  <div id="download-modal" class="modal-overlay hidden">
+    <div class="modal-card liquid-glass animate-pop">
+      <button id="close-download-modal" class="modal-close-btn">✕</button>
+      <div class="modal-header">
+        <img src="/logo.svg" alt="Avara Logo" width="56" height="56" class="modal-logo-img" />
+        <h2 class="modal-title">Install Avara Music App</h2>
+        <p class="modal-sub">Experience high quality music playback, PWA offline listening & instant app launcher on your Android, iOS, or Desktop device.</p>
+      </div>
+
+      <div class="modal-actions">
+        <button id="trigger-pwa-install-btn" class="modal-primary-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Install Web App (PWA)</span>
+        </button>
+        <div class="modal-hint">💡 On iPhone / Safari: Tap <strong>Share</strong> icon and select <strong>Add to Home Screen</strong>.</div>
+      </div>
+    </div>
   </div>
 
   <!-- Preloader script -->
