@@ -285,6 +285,18 @@ function toggleFullscreenVideo() {
   }
 }
 
+// ─── Pro Feature: Share Song via Native Share / WhatsApp ──────────────────────
+function shareCurrentSong() {
+  const song = playlist[currentIdx];
+  if (!song) return;
+  const text = `🎧 "${song.title}" by ${song.artist} — Listen on Avara Music!\n👉 https://avara-ashiq.vercel.app/`;
+  if (navigator.share) {
+    navigator.share({ title: song.title, text, url: 'https://avara-ashiq.vercel.app/' }).catch(() => {});
+  } else {
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+  }
+}
+
 // ─── PWA Prompt & Download Modal ──────────────────────────────────────────────
 
 
@@ -932,20 +944,33 @@ function switchTab(tab) {
 
 function openPlayer() {
   inPlayer = true;
-  const views = [D.homeView, D.searchView, D.libraryView, D.likedView];
-  views.forEach(v => v && v.classList.replace('active-view','hidden-view'));
-  D.playerView.classList.replace('hidden-view','active-view');
+  // Hide all content views
+  [D.homeView, D.searchView, D.libraryView, D.likedView].forEach(v => {
+    if (v) { v.classList.remove('active-view'); v.classList.add('hidden-view'); }
+  });
+  // Show player view
+  if (D.playerView) {
+    D.playerView.classList.remove('hidden-view');
+    D.playerView.classList.add('active-view');
+  }
+  // Hide mini player bar
   if (D.miniPlayer) D.miniPlayer.classList.add('hidden');
 }
 
 function closePlayer() {
   inPlayer = false;
-  D.playerView.classList.replace('active-view','hidden-view');
+  // Hide player
+  if (D.playerView) {
+    D.playerView.classList.remove('active-view');
+    D.playerView.classList.add('hidden-view');
+  }
+  // Restore previous tab — show mini player again if song is loaded
   switchTab(currentTab || 'home');
+  showMini();
 }
 
 function showMini() {
-  if (!inPlayer && D.miniPlayer) {
+  if (!inPlayer && D.miniPlayer && playlist[currentIdx]) {
     D.miniPlayer.classList.remove('hidden');
   }
 }
@@ -1293,9 +1318,18 @@ function bindAll() {
   if (D.miniPlayBtn) D.miniPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
 
 
-  if (D.sdPlayBtn) D.sdPlayBtn.addEventListener('click', togglePlay);
-  if (D.sdPrevBtn) D.sdPrevBtn.addEventListener('click', prevTrack);
-  if (D.sdNextBtn) D.sdNextBtn.addEventListener('click', nextTrack);
+  if (D.sdPlayBtn) D.sdPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
+  if (D.sdPrevBtn) D.sdPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); prevTrack(); });
+  if (D.sdNextBtn) D.sdNextBtn.addEventListener('click', (e) => { e.stopPropagation(); nextTrack(); });
+
+  // Desktop Sidebar player panel — click art/title area to reopen full player
+  if (D.sdPlayerPanel) {
+    D.sdPlayerPanel.addEventListener('click', (e) => {
+      if (e.target.closest('#sd-play') || e.target.closest('#sd-prev') || e.target.closest('#sd-next') || e.target.closest('#sd-progress-track')) return;
+      if (playlist[currentIdx]) openPlayer();
+    });
+  }
+
   if (D.sdProgressTrack) D.sdProgressTrack.addEventListener('click', (e) => {
     if (!ytIsReady || !ytPlayer) return;
     const r = D.sdProgressTrack.getBoundingClientRect();

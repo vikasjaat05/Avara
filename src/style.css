@@ -165,17 +165,28 @@ html, body {
 @media (min-width: 768px) {
   .desktop-sidebar { display: flex; }
   .mobile-nav { display: none !important; }
-  #mini-player { display: none !important; }
   .view { position: absolute; inset: 0; bottom: 0 !important; }
 
-  /* Desktop Full Player — cover entire screen ONLY when active */
+  /* Desktop: mini player bar hidden — sidebar panel is used instead */
+  #mini-player { display: none !important; }
+
+  /* Desktop Full Player — covers entire screen including sidebar ONLY when active */
   #player-view.active-view {
     position: fixed !important;
     inset: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
     z-index: 999 !important;
-    bottom: 0 !important;
+  }
+
+  /* Desktop Sidebar player panel — make it clearly clickable to reopen */
+  #sd-player-panel:not(.hidden) {
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #sd-player-panel:not(.hidden):hover {
+    background: var(--bg-card-hover);
+    border-radius: 12px;
   }
 }
 
