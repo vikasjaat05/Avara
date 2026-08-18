@@ -415,12 +415,14 @@ html, body {
    FLOATING MINI PLAYER
 ───────────────────────────────────────────────── */
 .mini-player {
-  position: absolute; bottom: 62px; left: 10px; right: 10px;
+  position: absolute;
+  bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  left: 12px; right: 12px;
   background: var(--mini-player-bg);
-  border: 1px solid var(--border); border-radius: 14px; z-index: 100;
+  border: 1px solid var(--border); border-radius: 16px; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 12px; backdrop-filter: blur(16px);
-  box-shadow: var(--shadow);
+  padding: 8px 12px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
   animation: miniFloat .3s ease-out;
 }
 @keyframes miniFloat { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -528,18 +530,25 @@ html, body {
 ───────────────────────────────────────────────── */
 .mobile-nav {
   position: absolute; bottom: 0; left: 0; right: 0;
-  height: 56px; background: var(--bg-sidebar);
+  height: calc(60px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-sidebar);
   border-top: 1px solid var(--border);
-  display: flex; justify-around: opacity; align-items: center;
-  z-index: 200; padding-bottom: env(safe-area-inset-bottom);
+  display: flex; justify-content: space-around; align-items: center;
+  z-index: 200;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   transition: background-color .3s;
 }
 .mob-nav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   background: none; border: none; cursor: pointer; color: var(--text-muted);
   font-family: var(--font-body); font-size: 10px; font-weight: 600;
-  padding: 4px 12px; transition: color .15s;
+  padding: 8px 0; transition: color .2s, transform .15s;
+  position: relative;
 }
-.mob-nav-btn svg { width: 22px; height: 22px; }
-.mob-nav-btn.active { color: var(--accent); }
+.mob-nav-btn svg { width: 22px; height: 22px; transition: transform .2s ease; }
+.mob-nav-btn.active { color: var(--accent); font-weight: 700; }
+.mob-nav-btn.active svg { transform: translateY(-1px) scale(1.08); filter: drop-shadow(0 2px 8px var(--accent-glow)); }
 .mob-nav-btn:active { transform: scale(.92); }
+
