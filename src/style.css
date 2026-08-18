@@ -693,12 +693,25 @@ html, body {
 }
 .download-app-btn:active { transform: scale(0.96); }
 
+/* Hide Install App button when app is running in installed Mobile App / Standalone PWA mode */
+@media all and (display-mode: standalone), (display-mode: window-controls-overlay), (display-mode: minimal-ui) {
+  .download-app-btn, #sd-download-app, #header-download-btn {
+    display: none !important;
+  }
+}
+.is-standalone-app .download-app-btn,
+.is-standalone-app #sd-download-app,
+.is-standalone-app #header-download-btn {
+  display: none !important;
+}
+
 .download-highlight {
   background: var(--accent-gradient) !important;
   color: #fff !important;
   border-radius: 12px !important;
   margin-top: 12px;
 }
+
 
 /* Modal Overlay */
 .modal-overlay {

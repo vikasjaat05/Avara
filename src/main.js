@@ -229,9 +229,30 @@ function shareCurrentSong() {
 
 // ─── PWA Prompt & Download Modal ──────────────────────────────────────────────
 function initDownloadModal() {
+  const checkStandalone = () => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                        window.navigator.standalone ||
+                        document.referrer.includes('android-app://');
+    if (isStandalone) {
+      document.body.classList.add('is-standalone-app');
+      if (D.headerDownloadBtn) D.headerDownloadBtn.style.display = 'none';
+      if (D.sdDownloadBtn) D.sdDownloadBtn.style.display = 'none';
+    }
+  };
+  checkStandalone();
+  try {
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', checkStandalone);
+  } catch(e) {}
+
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPwaPrompt = e;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    document.body.classList.add('is-standalone-app');
+    if (D.headerDownloadBtn) D.headerDownloadBtn.style.display = 'none';
+    if (D.sdDownloadBtn) D.sdDownloadBtn.style.display = 'none';
   });
 
   const openModal = () => {
@@ -254,11 +275,12 @@ function initDownloadModal() {
           closeModal();
         });
       } else {
-        alert('Avara App added to Home Screen! You can also click Download Android APK.');
+        alert('Avara App added to Home Screen!');
       }
     });
   }
 }
+
 
 // ─── Theme Toggle & Dynamic Meta Color Sync ─────────────────────────────────
 function initTheme() {
