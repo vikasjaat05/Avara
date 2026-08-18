@@ -739,34 +739,48 @@ function playTrack(idx) {
 }
 
 function togglePlay() {
-  if (isAndroidApp) {
-    if (isPlaying) window.AndroidBridge.pauseSong();
-    else window.AndroidBridge.resumeSong();
+  if (isAndroidApp && window.AndroidBridge) {
+    if (isPlaying) {
+      try { window.AndroidBridge.pauseSong(); } catch(e) {}
+      isPlaying = false;
+    } else {
+      try { window.AndroidBridge.resumeSong(); } catch(e) {}
+      isPlaying = true;
+    }
+    setPlayUI(isPlaying);
     return;
   }
 
   if (isNativeAudioPlaying) {
     nativeAudio.pause();
-    if (ytPlayer && ytIsReady) try { ytPlayer.pauseVideo(); } catch(e) {}
+    isPlaying = false;
+    setPlayUI(false);
+    if (ytIsReady && ytPlayer) try { ytPlayer.pauseVideo(); } catch(e) {}
   } else if (nativeAudio.src) {
     nativeAudio.play().catch(() => {});
-    if (ytPlayer && ytIsReady) try { ytPlayer.playVideo(); } catch(e) {}
-  } else {
-    if (!ytIsReady || !ytPlayer) {
-      playTrack(currentIdx);
-      return;
-    }
-    if (isPlaying) {
+    isPlaying = true;
+    setPlayUI(true);
+    if (ytIsReady && ytPlayer) try { ytPlayer.playVideo(); } catch(e) {}
+  } else if (ytIsReady && ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+    const state = ytPlayer.getPlayerState();
+    if (state === 1) {
       ytPlayer.pauseVideo();
+      isPlaying = false;
+      setPlayUI(false);
     } else {
       ytPlayer.playVideo();
+      isPlaying = true;
+      setPlayUI(true);
     }
+  } else {
+    playTrack(currentIdx);
   }
 }
 
 function prevTrack() { playTrack(shuffleOn ? randIdx() : currentIdx - 1); }
 function nextTrack() { playTrack(shuffleOn ? randIdx() : currentIdx + 1); }
 function randIdx()   { return Math.floor(Math.random() * playlist.length); }
+
 
 
 // ─── UI Updates ──────────────────────────────────────────────────────────────
