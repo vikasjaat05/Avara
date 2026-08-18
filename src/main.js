@@ -1,38 +1,6 @@
 import './style.css';
 import { AVARA_SONGS } from './songs.js';
 
-// Web Audio API Background Keep-Alive Context (Fixes Mobile Screen Lock Audio!)
-let audioCtx = null;
-
-let keepAliveOsc = null;
-
-function enableBackgroundAudio() {
-  try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      keepAliveOsc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      gain.gain.value = 0.0001; // virtually silent frequency keep-alive
-      keepAliveOsc.connect(gain);
-      gain.connect(audioCtx.destination);
-      keepAliveOsc.start();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  } catch(e) {}
-
-  if (D.bgAudio) {
-    D.bgAudio.play().catch(() => {});
-  }
-}
-
-function stopBackgroundAudio() {
-  if (D.bgAudio) {
-    try { D.bgAudio.pause(); } catch(e) {}
-  }
-}
-
 // ─── LocalStorage Keys ───────────────────────────────────────────────────────
 const KEY_LAST_SONG_ID = 'avara_last_song_id';
 const KEY_LAST_TIME    = 'avara_last_progress_time';
@@ -40,7 +8,6 @@ const KEY_LIKED_IDS    = 'avara_liked_song_ids';
 const KEY_THEME_MODE   = 'avara_theme_mode';
 const KEY_MOOD_COUNTS  = 'avara_mood_counts';
 const KEY_PLAY_HISTORY = 'avara_play_history';
-const KEY_PERMS_DONE   = 'avara_perms_done';
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let ytPlayer          = null;
@@ -67,36 +34,10 @@ let sleepTimerMinutes = 0;
 let eqPresets         = ['Normal', 'Bass Boost 🔊', 'Vocal 🎤', 'Acoustic 🎸', 'Treble ✨'];
 let eqCurrentIdx      = 0;
 
-// O(1) Fast Map Lookup (Fixes 100% Lag!)
-let songIdIndexMap    = new Map();
-
-function rebuildSongIndexMap() {
-  songIdIndexMap.clear();
-  playlist.forEach((song, idx) => {
-    if (song && song.id) songIdIndexMap.set(song.id, idx);
-  });
-}
-
-function getSongIndex(song) {
-  if (!song || !song.id) return -1;
-  return songIdIndexMap.has(song.id) ? songIdIndexMap.get(song.id) : -1;
-}
-
 // ─── DOM References ──────────────────────────────────────────────────────────
 let D = {};
 
 function grabDOM() {
-  // Silent Keep-Alive Audio for Background Playback
-  D.bgAudio         = document.getElementById('bg-keepalive');
-
-
-  // Permissions Modal DOM
-  D.permsModal          = document.getElementById('permissions-modal');
-  D.closePermsModal     = document.getElementById('close-permissions-modal');
-  D.grantNotifBtn       = document.getElementById('grant-notif-perm-btn');
-  D.grantLocBtn         = document.getElementById('grant-loc-perm-btn');
-  D.donePermsBtn        = document.getElementById('done-permissions-btn');
-
   // Views
   D.homeView        = document.getElementById('home-view');
   D.searchView      = document.getElementById('search-view');
@@ -132,12 +73,26 @@ function grabDOM() {
   D.likedCountSub       = document.getElementById('liked-count-sub');
   D.playAllLikedBtn     = document.getElementById('play-all-liked-btn');
 
+  // Hero Spotlight
+  D.heroBanner      = document.getElementById('hero-banner');
+  D.heroBg          = document.getElementById('hero-bg');
+  D.heroTitle       = document.getElementById('hero-title');
+  D.heroArtist      = document.getElementById('hero-artist');
+  D.heroPlayBtn     = document.getElementById('hero-play-btn');
+
   // Header Actions & Theme
   D.themeToggleBtn  = document.getElementById('theme-toggle-btn');
   D.sunIcon         = document.getElementById('theme-sun-icon');
   D.moonIcon        = document.getElementById('theme-moon-icon');
   D.searchToggle    = document.getElementById('search-toggle-btn');
   D.catChips        = document.querySelectorAll('.cat-chip');
+
+  // Download App DOM
+  D.headerDownloadBtn = document.getElementById('header-download-btn');
+  D.sdDownloadBtn     = document.getElementById('sd-download-app');
+  D.downloadModal     = document.getElementById('download-modal');
+  D.closeDownloadModal= document.getElementById('close-download-modal');
+  D.triggerPwaBtn     = document.getElementById('trigger-pwa-install-btn');
 
   // Pro Toolbar Elements
   D.sleepTimerBtn   = document.getElementById('sleep-timer-btn');
@@ -206,195 +161,6 @@ function grabDOM() {
   D.navLiked        = document.getElementById('nav-liked-mob');
 }
 
-// ─── Background Audio Keep-Alive for Phone Lock & Switching Apps ─────────────
-function startBackgroundKeepAlive() {
-  enableBackgroundAudio();
-}
-
-function stopBackgroundKeepAlive() {
-  stopBackgroundAudio();
-}
-
-
-// Override visibilitychange so mobile browsers do NOT freeze playback!
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden' && isPlaying) {
-    startBackgroundKeepAlive();
-    if (ytPlayer && ytIsReady) {
-      try { ytPlayer.playVideo(); } catch(e) {}
-    }
-  }
-});
-
-// ─── Screen Wake Lock API ────────────────────────────────────────────────────
-let wakeLockObj = null;
-async function requestWakeLock() {
-  try {
-    if ('wakeLock' in navigator) {
-      wakeLockObj = await navigator.wakeLock.request('screen');
-    }
-  } catch(e) {}
-}
-
-// ─── Service Worker Registration ──────────────────────────────────────────────
-function initServiceWorker() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  }
-}
-
-// ─── Real Native App Permissions Modal ───────────────────────────────────────
-function initPermissionsModal() {
-  const isDone = localStorage.getItem(KEY_PERMS_DONE);
-  if (!isDone && D.permsModal) {
-    setTimeout(() => D.permsModal.classList.remove('hidden'), 800);
-  }
-
-  // Restore previous states if granted
-  if (localStorage.getItem('avara_perm_notif') === 'granted' && D.grantNotifBtn) {
-    D.grantNotifBtn.textContent = 'Allowed ✓';
-    D.grantNotifBtn.classList.add('active');
-  }
-  if (localStorage.getItem('avara_perm_loc') === 'granted' && D.grantLocBtn) {
-    D.grantLocBtn.textContent = 'Allowed ✓';
-    D.grantLocBtn.classList.add('active');
-  }
-
-  const closeModal = () => {
-    if (D.permsModal) D.permsModal.classList.add('hidden');
-    localStorage.setItem(KEY_PERMS_DONE, 'true');
-    enableBackgroundAudio();
-    requestWakeLock();
-  };
-
-  if (D.closePermsModal) D.closePermsModal.addEventListener('click', closeModal);
-  if (D.donePermsBtn)    D.donePermsBtn.addEventListener('click', closeModal);
-
-  const grantBgBtn = document.getElementById('grant-bg-perm-btn');
-  if (grantBgBtn) {
-    grantBgBtn.addEventListener('click', () => {
-      enableBackgroundAudio();
-      requestWakeLock();
-      grantBgBtn.textContent = 'Enabled ✓';
-      grantBgBtn.classList.add('active');
-    });
-  }
-
-  if (D.grantNotifBtn) {
-    D.grantNotifBtn.addEventListener('click', async () => {
-      if ('Notification' in window) {
-        try {
-          const permission = await Notification.requestPermission();
-          if (permission === 'granted') {
-            D.grantNotifBtn.textContent = 'Allowed ✓';
-            D.grantNotifBtn.classList.add('active');
-            localStorage.setItem('avara_perm_notif', 'granted');
-            try {
-              new Notification('Avara Music', {
-                body: '🎵 Background music & notification controls active!',
-                icon: '/logo.svg'
-              });
-            } catch(e) {}
-          } else {
-            D.grantNotifBtn.textContent = 'Allowed ✓';
-            D.grantNotifBtn.classList.add('active');
-            localStorage.setItem('avara_perm_notif', 'granted');
-          }
-        } catch(e) {
-          D.grantNotifBtn.textContent = 'Allowed ✓';
-          D.grantNotifBtn.classList.add('active');
-          localStorage.setItem('avara_perm_notif', 'granted');
-        }
-      } else {
-        D.grantNotifBtn.textContent = 'Allowed ✓';
-        D.grantNotifBtn.classList.add('active');
-      }
-    });
-  }
-
-  if (D.grantLocBtn) {
-    D.grantLocBtn.addEventListener('click', () => {
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          () => {
-            D.grantLocBtn.textContent = 'Allowed ✓';
-            D.grantLocBtn.classList.add('active');
-            localStorage.setItem('avara_perm_loc', 'granted');
-          },
-          () => {
-            D.grantLocBtn.textContent = 'Allowed ✓';
-            D.grantLocBtn.classList.add('active');
-            localStorage.setItem('avara_perm_loc', 'granted');
-          },
-          { timeout: 3000 }
-        );
-      } else {
-        D.grantLocBtn.textContent = 'Allowed ✓';
-        D.grantLocBtn.classList.add('active');
-      }
-    });
-  }
-}
-
-
-// ─── Top Hero Swiper Carousel (Continuous Smooth Auto-Loop) ───────────────────
-let swiperCurrentIndex = 0;
-let swiperInterval = null;
-
-function initHeroSwiper() {
-  const wrapper = document.getElementById('swiper-wrapper');
-  const slides  = document.querySelectorAll('.swiper-slide');
-  const dots    = document.querySelectorAll('.swiper-dot');
-  if (!wrapper || !slides.length) return;
-
-  function goToSlide(idx) {
-    swiperCurrentIndex = (idx + slides.length) % slides.length;
-    wrapper.style.transform = `translateX(-${swiperCurrentIndex * 100}%)`;
-    slides.forEach((s, i) => s.classList.toggle('active', i === swiperCurrentIndex));
-    dots.forEach((d, i) => d.classList.toggle('active', i === swiperCurrentIndex));
-  }
-
-  dots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      const idx = parseInt(dot.dataset.index);
-      goToSlide(idx);
-      restartSwiperTimer();
-    });
-  });
-
-  document.querySelectorAll('.slide-play-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const songId = btn.dataset.songId;
-      const realIdx = songIdIndexMap.has(songId) ? songIdIndexMap.get(songId) : 0;
-      playTrack(realIdx);
-      openPlayer();
-    });
-  });
-
-  // Touch Swipe Support
-  let startX = 0;
-  wrapper.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
-  wrapper.addEventListener('touchend', (e) => {
-    const endX = e.changedTouches[0].clientX;
-    if (startX - endX > 40) { goToSlide(swiperCurrentIndex + 1); restartSwiperTimer(); }
-    else if (endX - startX > 40) { goToSlide(swiperCurrentIndex - 1); restartSwiperTimer(); }
-  }, { passive: true });
-
-  function startSwiperTimer() {
-    if (swiperInterval) clearInterval(swiperInterval);
-    swiperInterval = setInterval(() => {
-      goToSlide(swiperCurrentIndex + 1);
-    }, 3500);
-  }
-
-  function restartSwiperTimer() {
-    startSwiperTimer();
-  }
-
-  startSwiperTimer();
-}
-
 // ─── Media Session API (Lock Screen & Bluetooth Sync) ─────────────────────────
 function setupMediaSession(song) {
   if ('mediaSession' in navigator && song) {
@@ -461,6 +227,39 @@ function shareCurrentSong() {
   }
 }
 
+// ─── PWA Prompt & Download Modal ──────────────────────────────────────────────
+function initDownloadModal() {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPwaPrompt = e;
+  });
+
+  const openModal = () => {
+    if (D.downloadModal) D.downloadModal.classList.remove('hidden');
+  };
+  const closeModal = () => {
+    if (D.downloadModal) D.downloadModal.classList.add('hidden');
+  };
+
+  if (D.headerDownloadBtn) D.headerDownloadBtn.addEventListener('click', openModal);
+  if (D.sdDownloadBtn) D.sdDownloadBtn.addEventListener('click', openModal);
+  if (D.closeDownloadModal) D.closeDownloadModal.addEventListener('click', closeModal);
+
+  if (D.triggerPwaBtn) {
+    D.triggerPwaBtn.addEventListener('click', () => {
+      if (deferredPwaPrompt) {
+        deferredPwaPrompt.prompt();
+        deferredPwaPrompt.userChoice.then(() => {
+          deferredPwaPrompt = null;
+          closeModal();
+        });
+      } else {
+        alert('Avara App added to Home Screen! You can also click Download Android APK.');
+      }
+    });
+  }
+}
+
 // ─── Theme Toggle & Dynamic Meta Color Sync ─────────────────────────────────
 function initTheme() {
   const savedTheme = localStorage.getItem(KEY_THEME_MODE);
@@ -496,8 +295,28 @@ function toggleTheme() {
   applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
 }
 
-// ─── Boomerang Canvas Video Background Loop ──────────────────────────────────
-// ─── Lightweight Background Initialization (Zero Memory Leak) ────────────────
+// ─── Web Audio API Background Keep-Alive Context ────────────────────────────
+let audioCtx = null;
+let keepAliveOsc = null;
+
+function enableBackgroundAudio() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      keepAliveOsc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.0001; // silent keep-alive
+      keepAliveOsc.connect(gain);
+      gain.connect(audioCtx.destination);
+      keepAliveOsc.start();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  } catch(e) {}
+}
+
+// ─── Boomerang Canvas Video Background Loop (Zero Memory Leak) ───────────────
 function initBoomerangBg() {
   const video = document.getElementById('bm-video');
   if (video) {
@@ -514,7 +333,7 @@ function restoreSavedState() {
     if (rawLiked) {
       const arr = JSON.parse(rawLiked);
       arr.forEach(id => {
-        const idx = getSongIndex({ id });
+        const idx = playlist.findIndex(s => s.id === id);
         if (idx !== -1) likedSet.add(idx);
       });
     }
@@ -533,7 +352,7 @@ function restoreSavedState() {
     const savedTime   = parseFloat(localStorage.getItem(KEY_LAST_TIME) || '0');
 
     if (savedSongId) {
-      const idx = getSongIndex({ id: savedSongId });
+      const idx = playlist.findIndex(s => s.id === savedSongId);
       if (idx !== -1) {
         currentIdx = idx;
         initialSeek = savedTime > 0 ? savedTime : 0;
@@ -616,7 +435,6 @@ function onYTState(e) {
   const S = window.YT.PlayerState;
   if (e.data === S.PLAYING) {
     isPlaying = true;
-    startBackgroundKeepAlive();
     setPlayUI(true);
     startTick();
   } else if (e.data === S.PAUSED || e.data === S.CUED) {
@@ -636,10 +454,11 @@ function onYTState(e) {
 function _doPlay(idx) {
   const song = playlist[idx];
   if (!song) return;
+  enableBackgroundAudio();
   saveState();
   recordSongPlay(song);
   setupMediaSession(song);
-  startBackgroundKeepAlive();
+
 
   if (initialSeek > 0) {
     const startSec = Math.floor(initialSeek);
@@ -672,9 +491,7 @@ function togglePlay() {
   }
   if (isPlaying) {
     ytPlayer.pauseVideo();
-    stopBackgroundKeepAlive();
   } else {
-    startBackgroundKeepAlive();
     if (initialSeek > 0) {
       _doPlay(currentIdx);
     } else {
@@ -691,6 +508,11 @@ function randIdx()   { return Math.floor(Math.random() * playlist.length); }
 function updateTrackUI(song) {
   if (!song) return;
   const thumb = `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`;
+
+  // Hero update
+  if (D.heroBg)     D.heroBg.style.backgroundImage = `url(${thumb})`;
+  if (D.heroTitle)  D.heroTitle.textContent = song.title;
+  if (D.heroArtist) D.heroArtist.textContent = song.artist;
 
   // Player view
   if (D.playerArt)    D.playerArt.src = thumb;
@@ -883,7 +705,7 @@ function renderRecommendedSection() {
   if (D.recMoodBadge) D.recMoodBadge.textContent = badgeText;
 
   recommendedSongs.forEach((song) => {
-    const realIdx = getSongIndex(song);
+    const realIdx = playlist.indexOf(song);
     const card = document.createElement('div');
     card.className = 'shelf-card';
     card.innerHTML = `
@@ -908,7 +730,7 @@ function renderHomeSections() {
     D.quickGrid.innerHTML = '';
     const quickSongs = playlist.slice(0, 8);
     quickSongs.forEach((song) => {
-      const realIdx = getSongIndex(song);
+      const realIdx = playlist.indexOf(song);
       const card = document.createElement('div');
       card.className = 'quick-card' + (realIdx === currentIdx ? ' playing-card' : '');
       card.dataset.idx = realIdx;
@@ -949,11 +771,10 @@ function renderHomeSections() {
 function renderCategoryShelf(container, categoryFullName, badgeTag) {
   if (!container) return;
   container.innerHTML = '';
-  // Cap home shelf to 30 items for 60 FPS smooth horizontal scrolling
-  const songs = playlist.filter(s => s.category === categoryFullName || (s.category && s.category.includes(badgeTag))).slice(0, 30);
+  const songs = playlist.filter(s => s.category === categoryFullName || (s.category && s.category.includes(badgeTag)));
 
   songs.forEach((song) => {
-    const realIdx = getSongIndex(song);
+    const realIdx = playlist.indexOf(song);
     const card = document.createElement('div');
     card.className = 'shelf-card';
     card.innerHTML = `
@@ -987,7 +808,7 @@ function renderSearchResults(query) {
 
   const matches = q
     ? playlist.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q) || (s.category && s.category.toLowerCase().includes(q)))
-    : playlist.slice(0, 50);
+    : playlist.slice(0, 20);
 
   if (matches.length === 0) {
     D.searchResultsList.innerHTML = `
@@ -1035,92 +856,68 @@ function renderLikedSongs() {
   renderSongRowList(D.likedSongsList, likedArr);
 }
 
-// ─── Helper: Render Standard Song Rows with Virtual Infinite Batching ────────
+// ─── Helper: Render Standard Song Rows ────────────────────────────────────────
 function renderSongRowList(container, songs) {
-  container.innerHTML = '';
-  const batchSize = 40;
-  let currentRenderedIndex = 0;
+  songs.forEach((song) => {
+    const realIdx = playlist.indexOf(song);
+    const liked   = likedSet.has(realIdx);
+    const el = document.createElement('div');
+    el.className = 'song-row' + (realIdx === currentIdx && isPlaying ? ' playing' : '');
+    el.dataset.idx = realIdx;
+    el.innerHTML = `
+      <div class="song-thumb-wrap">
+        <img class="song-thumb" src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
+      </div>
+      <div class="song-row-info">
+        <div class="song-row-title">${song.title}</div>
+        <div class="song-row-artist">${song.artist}</div>
+      </div>
+      <button class="song-row-like-btn ${liked ? 'liked' : ''}" data-idx="${realIdx}" aria-label="Like">
+        <svg viewBox="0 0 24 24" fill="${liked ? 'var(--accent)' : 'none'}" stroke="${liked ? 'var(--accent)' : 'currentColor'}" stroke-width="2" width="18" height="18">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+      </button>
+    `;
 
-  function renderBatch() {
-    const nextBatch = songs.slice(currentRenderedIndex, currentRenderedIndex + batchSize);
-    nextBatch.forEach((song) => {
-      const realIdx = getSongIndex(song);
-      const liked   = likedSet.has(realIdx);
-      const el = document.createElement('div');
-      el.className = 'song-row' + (realIdx === currentIdx && isPlaying ? ' playing' : '');
-      el.dataset.idx = realIdx;
-      el.innerHTML = `
-        <div class="song-thumb-wrap">
-          <img class="song-thumb" src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
-        </div>
-        <div class="song-row-info">
-          <div class="song-row-title">${song.title}</div>
-          <div class="song-row-artist">${song.artist}</div>
-        </div>
-        <button class="song-row-like-btn ${liked ? 'liked' : ''}" data-idx="${realIdx}" aria-label="Like">
-          <svg viewBox="0 0 24 24" fill="${liked ? 'var(--accent)' : 'none'}" stroke="${liked ? 'var(--accent)' : 'currentColor'}" stroke-width="2" width="18" height="18">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          </svg>
-        </button>
-      `;
-
-      el.addEventListener('click', (e) => {
-        if (e.target.closest('.song-row-like-btn')) return;
-        playTrack(realIdx);
-        openPlayer();
-      });
-
-      el.querySelector('.song-row-like-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const idx = parseInt(e.currentTarget.dataset.idx);
-        const btn = e.currentTarget;
-        const svg = btn.querySelector('svg');
-        if (likedSet.has(idx)) {
-          likedSet.delete(idx);
-          btn.classList.remove('liked');
-          svg.setAttribute('fill', 'none');
-          svg.setAttribute('stroke', 'currentColor');
-        } else {
-          likedSet.add(idx);
-          btn.classList.add('liked');
-          svg.setAttribute('fill', 'var(--accent)');
-          svg.setAttribute('stroke', 'var(--accent)');
-        }
-        saveState();
-        if (idx === currentIdx) setLikeUI(likedSet.has(idx));
-        if (currentTab === 'liked') renderLikedSongs();
-      });
-
-      container.appendChild(el);
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.song-row-like-btn')) return;
+      playTrack(realIdx);
+      openPlayer();
     });
 
-    currentRenderedIndex += batchSize;
+    el.querySelector('.song-row-like-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = parseInt(e.currentTarget.dataset.idx);
+      const btn = e.currentTarget;
+      const svg = btn.querySelector('svg');
+      if (likedSet.has(idx)) {
+        likedSet.delete(idx);
+        btn.classList.remove('liked');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+      } else {
+        likedSet.add(idx);
+        btn.classList.add('liked');
+        svg.setAttribute('fill', 'var(--accent)');
+        svg.setAttribute('stroke', 'var(--accent)');
+      }
+      saveState();
+      if (idx === currentIdx) setLikeUI(likedSet.has(idx));
+      if (currentTab === 'liked') renderLikedSongs();
+    });
 
-    // Attach sentinel for infinite scroll if more items remain
-    if (currentRenderedIndex < songs.length) {
-      const sentinel = document.createElement('div');
-      sentinel.className = 'load-more-sentinel';
-      sentinel.style.height = '40px';
-      container.appendChild(sentinel);
-
-      const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          observer.disconnect();
-          sentinel.remove();
-          renderBatch();
-        }
-      }, { rootMargin: '200px' });
-
-      observer.observe(sentinel);
-    }
-  }
-
-  renderBatch();
+    container.appendChild(el);
+  });
 }
 
 // ─── Event Bindings ──────────────────────────────────────────────────────────
 function bindAll() {
   if (D.themeToggleBtn) D.themeToggleBtn.addEventListener('click', toggleTheme);
+
+  if (D.heroPlayBtn) D.heroPlayBtn.addEventListener('click', () => {
+    playTrack(currentIdx);
+    openPlayer();
+  });
 
   D.backBtn.addEventListener('click', closePlayer);
   D.playPauseBtn.addEventListener('click', togglePlay);
@@ -1207,14 +1004,10 @@ function bindAll() {
     });
   }
 
-  // Dedicated Search View Input Listener (Debounced 150ms)
+  // Dedicated Search View Input Listener
   if (D.mainSearchInput) {
-    let searchDebounce = null;
     D.mainSearchInput.addEventListener('input', (e) => {
-      if (searchDebounce) clearTimeout(searchDebounce);
-      searchDebounce = setTimeout(() => {
-        renderSearchResults(e.target.value);
-      }, 150);
+      renderSearchResults(e.target.value);
     });
   }
   if (D.mainSearchClear) {
@@ -1256,7 +1049,7 @@ function bindAll() {
     D.playAllLikedBtn.addEventListener('click', () => {
       const likedArr = playlist.filter((_, i) => likedSet.has(i));
       if (likedArr.length) {
-        const realIdx = getSongIndex(likedArr[0]);
+        const realIdx = playlist.indexOf(likedArr[0]);
         playTrack(realIdx);
         openPlayer();
       }
@@ -1270,7 +1063,7 @@ function renderFilteredHome(catFilter) {
   if (D.quickGrid) {
     D.quickGrid.innerHTML = '';
     filtered.slice(0, 8).forEach((song) => {
-      const realIdx = getSongIndex(song);
+      const realIdx = playlist.indexOf(song);
       const card = document.createElement('div');
       card.className = 'quick-card' + (realIdx === currentIdx ? ' playing-card' : '');
       card.dataset.idx = realIdx;
@@ -1293,13 +1086,10 @@ function renderFilteredHome(catFilter) {
 
 // ─── Boot & Initialization ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  rebuildSongIndexMap();
   grabDOM();
   initTheme();
-  initServiceWorker();
-  initPermissionsModal();
+  initDownloadModal();
   initBoomerangBg();
-  initHeroSwiper();
   restoreSavedState();
   updateTrackUI(playlist[currentIdx]);
   setPlayUI(false);
@@ -1313,4 +1103,3 @@ document.addEventListener('DOMContentLoaded', () => {
   bindAll();
   switchTab('home');
 });
-
