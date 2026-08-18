@@ -167,6 +167,16 @@ html, body {
   .mobile-nav { display: none !important; }
   #mini-player { display: none !important; }
   .view { position: absolute; inset: 0; bottom: 0 !important; }
+
+  /* Desktop Full Player — cover entire screen including sidebar */
+  #player-view {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999 !important;
+    bottom: 0 !important;
+  }
 }
 
 .sidebar-logo {
