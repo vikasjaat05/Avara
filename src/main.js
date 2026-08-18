@@ -214,7 +214,68 @@ function toggleEqualizer() {
   else D.eqPresetBtn.classList.remove('active');
 }
 
+// ─── Top Hero Swiper Carousel Logic ───────────────────────────────────────────
+let swiperCurrentIndex = 0;
+let swiperInterval = null;
+
+function initHeroSwiper() {
+  const wrapper = document.getElementById('swiper-wrapper');
+  const slides  = document.querySelectorAll('.swiper-slide');
+  const dots    = document.querySelectorAll('.swiper-dot');
+  if (!wrapper || !slides.length) return;
+
+  function goToSlide(idx) {
+    swiperCurrentIndex = (idx + slides.length) % slides.length;
+    wrapper.style.transform = `translateX(-${swiperCurrentIndex * 100}%)`;
+    slides.forEach((s, i) => s.classList.toggle('active', i === swiperCurrentIndex));
+    dots.forEach((d, i) => d.classList.toggle('active', i === swiperCurrentIndex));
+  }
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const idx = parseInt(dot.dataset.index);
+      goToSlide(idx);
+      restartSwiperTimer();
+    });
+  });
+
+  document.querySelectorAll('.slide-play-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const songId = btn.dataset.songId;
+      const realIdx = playlist.findIndex(s => s.id === songId);
+      if (realIdx !== -1) {
+        playTrack(realIdx);
+        openPlayer();
+      }
+    });
+  });
+
+  // Touch Swipe Support
+  let startX = 0;
+  wrapper.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  wrapper.addEventListener('touchend', (e) => {
+    const endX = e.changedTouches[0].clientX;
+    if (startX - endX > 40) { goToSlide(swiperCurrentIndex + 1); restartSwiperTimer(); }
+    else if (endX - startX > 40) { goToSlide(swiperCurrentIndex - 1); restartSwiperTimer(); }
+  }, { passive: true });
+
+  function startSwiperTimer() {
+    if (swiperInterval) clearInterval(swiperInterval);
+    swiperInterval = setInterval(() => {
+      goToSlide(swiperCurrentIndex + 1);
+    }, 4000);
+  }
+
+  function restartSwiperTimer() {
+    startSwiperTimer();
+  }
+
+  startSwiperTimer();
+}
+
 // ─── Pro Feature: Share Song via WhatsApp & Native Share ──────────────────────
+
 function shareCurrentSong() {
   const song = playlist[currentIdx];
   if (!song) return;
@@ -809,7 +870,8 @@ function renderHomeSections() {
 function renderCategoryShelf(container, categoryFullName, badgeTag) {
   if (!container) return;
   container.innerHTML = '';
-  const songs = playlist.filter(s => s.category === categoryFullName || (s.category && s.category.includes(badgeTag)));
+  // Cap home shelf to 40 items for 60 FPS smooth horizontal scrolling
+  const songs = playlist.filter(s => s.category === categoryFullName || (s.category && s.category.includes(badgeTag))).slice(0, 40);
 
   songs.forEach((song) => {
     const realIdx = playlist.indexOf(song);
@@ -832,6 +894,8 @@ function renderCategoryShelf(container, categoryFullName, badgeTag) {
 }
 
 // ─── Render Search Results ───────────────────────────────────────────────────
+let searchDebounceTimeout = null;
+
 function renderSearchResults(query) {
   if (!D.searchResultsList) return;
   const q = (query || '').trim().toLowerCase();
@@ -846,7 +910,7 @@ function renderSearchResults(query) {
 
   const matches = q
     ? playlist.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q) || (s.category && s.category.toLowerCase().includes(q)))
-    : playlist.slice(0, 20);
+    : playlist.slice(0, 50);
 
   if (matches.length === 0) {
     D.searchResultsList.innerHTML = `
@@ -894,59 +958,89 @@ function renderLikedSongs() {
   renderSongRowList(D.likedSongsList, likedArr);
 }
 
-// ─── Helper: Render Standard Song Rows ────────────────────────────────────────
+// ─── Helper: Render Standard Song Rows with Virtual Infinite Batching ────────
 function renderSongRowList(container, songs) {
-  songs.forEach((song) => {
-    const realIdx = playlist.indexOf(song);
-    const liked   = likedSet.has(realIdx);
-    const el = document.createElement('div');
-    el.className = 'song-row' + (realIdx === currentIdx && isPlaying ? ' playing' : '');
-    el.dataset.idx = realIdx;
-    el.innerHTML = `
-      <div class="song-thumb-wrap">
-        <img class="song-thumb" src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
-      </div>
-      <div class="song-row-info">
-        <div class="song-row-title">${song.title}</div>
-        <div class="song-row-artist">${song.artist}</div>
-      </div>
-      <button class="song-row-like-btn ${liked ? 'liked' : ''}" data-idx="${realIdx}" aria-label="Like">
-        <svg viewBox="0 0 24 24" fill="${liked ? 'var(--accent)' : 'none'}" stroke="${liked ? 'var(--accent)' : 'currentColor'}" stroke-width="2" width="18" height="18">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-        </svg>
-      </button>
-    `;
+  container.innerHTML = '';
+  const batchSize = 50;
+  let currentRenderedIndex = 0;
 
-    el.addEventListener('click', (e) => {
-      if (e.target.closest('.song-row-like-btn')) return;
-      playTrack(realIdx);
-      openPlayer();
+  function renderBatch() {
+    const nextBatch = songs.slice(currentRenderedIndex, currentRenderedIndex + batchSize);
+    nextBatch.forEach((song) => {
+      const realIdx = playlist.indexOf(song);
+      const liked   = likedSet.has(realIdx);
+      const el = document.createElement('div');
+      el.className = 'song-row' + (realIdx === currentIdx && isPlaying ? ' playing' : '');
+      el.dataset.idx = realIdx;
+      el.innerHTML = `
+        <div class="song-thumb-wrap">
+          <img class="song-thumb" src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
+        </div>
+        <div class="song-row-info">
+          <div class="song-row-title">${song.title}</div>
+          <div class="song-row-artist">${song.artist}</div>
+        </div>
+        <button class="song-row-like-btn ${liked ? 'liked' : ''}" data-idx="${realIdx}" aria-label="Like">
+          <svg viewBox="0 0 24 24" fill="${liked ? 'var(--accent)' : 'none'}" stroke="${liked ? 'var(--accent)' : 'currentColor'}" stroke-width="2" width="18" height="18">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </button>
+      `;
+
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.song-row-like-btn')) return;
+        playTrack(realIdx);
+        openPlayer();
+      });
+
+      el.querySelector('.song-row-like-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(e.currentTarget.dataset.idx);
+        const btn = e.currentTarget;
+        const svg = btn.querySelector('svg');
+        if (likedSet.has(idx)) {
+          likedSet.delete(idx);
+          btn.classList.remove('liked');
+          svg.setAttribute('fill', 'none');
+          svg.setAttribute('stroke', 'currentColor');
+        } else {
+          likedSet.add(idx);
+          btn.classList.add('liked');
+          svg.setAttribute('fill', 'var(--accent)');
+          svg.setAttribute('stroke', 'var(--accent)');
+        }
+        saveState();
+        if (idx === currentIdx) setLikeUI(likedSet.has(idx));
+        if (currentTab === 'liked') renderLikedSongs();
+      });
+
+      container.appendChild(el);
     });
 
-    el.querySelector('.song-row-like-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      const idx = parseInt(e.currentTarget.dataset.idx);
-      const btn = e.currentTarget;
-      const svg = btn.querySelector('svg');
-      if (likedSet.has(idx)) {
-        likedSet.delete(idx);
-        btn.classList.remove('liked');
-        svg.setAttribute('fill', 'none');
-        svg.setAttribute('stroke', 'currentColor');
-      } else {
-        likedSet.add(idx);
-        btn.classList.add('liked');
-        svg.setAttribute('fill', 'var(--accent)');
-        svg.setAttribute('stroke', 'var(--accent)');
-      }
-      saveState();
-      if (idx === currentIdx) setLikeUI(likedSet.has(idx));
-      if (currentTab === 'liked') renderLikedSongs();
-    });
+    currentRenderedIndex += batchSize;
 
-    container.appendChild(el);
-  });
+    // Attach sentinel for infinite scroll if more items remain
+    if (currentRenderedIndex < songs.length) {
+      const sentinel = document.createElement('div');
+      sentinel.className = 'load-more-sentinel';
+      sentinel.style.height = '40px';
+      container.appendChild(sentinel);
+
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          observer.disconnect();
+          sentinel.remove();
+          renderBatch();
+        }
+      }, { rootMargin: '200px' });
+
+      observer.observe(sentinel);
+    }
+  }
+
+  renderBatch();
 }
+
 
 // ─── Event Bindings ──────────────────────────────────────────────────────────
 function bindAll() {

@@ -1,0 +1,156 @@
+[
+  {
+    "num": 1,
+    "name": "Playlist 1: Romantic Hits",
+    "pid": "PL0Z67tlyTaWphlJ8dod2fSFGmBlUW_KJJ",
+    "total_in_playlist": 476,
+    "unique_added": 475
+  },
+  {
+    "num": 2,
+    "name": "Playlist 2: Sad Lyrical Songs",
+    "pid": "PL9bw4S5ePsEGNKwCCHEIFwRA_4bJ_FAUl",
+    "total_in_playlist": 438,
+    "unique_added": 434
+  },
+  {
+    "num": 3,
+    "name": "Playlist 3: Guru Randhawa Hits",
+    "pid": "PLj__M0sNdU5lIjM1OPg51JRmCtWBFpi8H",
+    "total_in_playlist": 169,
+    "unique_added": 169
+  },
+  {
+    "num": 4,
+    "name": "Playlist 4: Hindi Rap Hits",
+    "pid": "PL-_HauNKjNPu2dxYiqJaJBwSu0jheV6hv",
+    "total_in_playlist": 60,
+    "unique_added": 60
+  },
+  {
+    "num": 5,
+    "name": "Playlist 5: New Hits 2026",
+    "pid": "PL_rXc1ssylNdPfuWgpNQvqcsR3BL7h14k",
+    "total_in_playlist": 308,
+    "unique_added": 273
+  },
+  {
+    "num": 6,
+    "name": "Playlist 6: Haryanvi Bangers 1",
+    "pid": "PLz-kffXMozOhgRI19wW-3m3_z2l48c34n",
+    "total_in_playlist": 101,
+    "unique_added": 101
+  },
+  {
+    "num": 7,
+    "name": "Playlist 7: Haryanvi Bangers 2",
+    "pid": "PLUtf0PAkJEq_uyR8E8B_Ph5AwlEz0nfmY",
+    "total_in_playlist": 44,
+    "unique_added": 44
+  },
+  {
+    "num": 8,
+    "name": "Playlist 8: Haryanvi Bangers 3",
+    "pid": "PLnrhyvUIM6RtYsvw4DZjF62UD_FFaZzPk",
+    "total_in_playlist": 4317,
+    "unique_added": 4261
+  },
+  {
+    "num": 9,
+    "name": "Playlist 9: Romantic Hits 2",
+    "pid": "PLHuHXHyLu7BEWMBq3KixWN8xTAFlkE-Tx",
+    "total_in_playlist": 502,
+    "unique_added": 497
+  },
+  {
+    "num": 10,
+    "name": "Playlist 10: Romantic Hits 3",
+    "pid": "PL0Z67tlyTaWphlJ8dod2fSFGmBlUW_KJJ",
+    "total_in_playlist": 476,
+    "unique_added": 0
+  },
+  {
+    "num": 11,
+    "name": "Playlist 11: Romantic 4K Hits",
+    "pid": "PLUOEf-vLOCSkZ4zC_pbnyQWQ-thmQJ8Ny",
+    "total_in_playlist": 2426,
+    "unique_added": 2258
+  },
+  {
+    "num": 12,
+    "name": "Playlist 12: Pop & Dance Hits",
+    "pid": "PLMRKdK25AuPVjHl9Kdb-gkBy0Cm7Zi2xo",
+    "total_in_playlist": 152,
+    "unique_added": 126
+  },
+  {
+    "num": 13,
+    "name": "Playlist 13: Love Songs Special",
+    "pid": "PLafSq5UblCNWzrBiEOwBeIdoU8AFXfTqp",
+    "total_in_playlist": 917,
+    "unique_added": 875
+  },
+  {
+    "num": 14,
+    "name": "Playlist 14: Bollywood Party",
+    "pid": "PLXCoHsJ9oLeekGDmDf79G7W0jRZlK3nh5",
+    "total_in_playlist": 506,
+    "unique_added": 501
+  },
+  {
+    "num": 15,
+    "name": "Playlist 15: Romantic Melodies",
+    "pid": "PLUOEf-vLOCSnKxLaqvfnziciUcPjRkj12",
+    "total_in_playlist": 1251,
+    "unique_added": 676
+  },
+  {
+    "num": 16,
+    "name": "Playlist 16: Heartbreak Hits",
+    "pid": "PLRtrGnt-ZAxZwk06nXFn0_eEUXZGJJfge",
+    "total_in_playlist": 405,
+    "unique_added": 399
+  },
+  {
+    "num": 17,
+    "name": "Playlist 17: Haryanvi Hits 2026",
+    "pid": "PLUtf0PAkJEq8qqm_vqz5_x7WE4GsH6l8Y",
+    "total_in_playlist": 475,
+    "unique_added": 427
+  },
+  {
+    "num": 18,
+    "name": "Playlist 18: Haryanvi Superhits",
+    "pid": "PLnrhyvUIM6RtYsvw4DZjF62UD_FFaZzPk",
+    "total_in_playlist": 4317,
+    "unique_added": 0
+  },
+  {
+    "num": 19,
+    "name": "Playlist 19: Punjabi Superhits",
+    "pid": "PLFFyMei_d85U5RQdXjRQ5F012qr4vSmSa",
+    "total_in_playlist": 440,
+    "unique_added": 419
+  },
+  {
+    "num": 20,
+    "name": "Playlist 20: Desi Hip-Hop Hits",
+    "pid": "PL8u8EfXGvHvHHPytIDlCdIQUVJR8I1fqd",
+    "total_in_playlist": 686,
+    "unique_added": 667
+  },
+  {
+    "num": 21,
+    "name": "Playlist 21: Sad Songs 90s-2000s",
+    "pid": "PL9bw4S5ePsEGybGawTxOM3MsoSOSL1fzp",
+    "total_in_playlist": 501,
+    "unique_added": 499
+  },
+  {
+    "num": 22,
+    "name": "Playlist 22: Love Hits 2026",
+    "pid": "PLHuHXHyLu7BEWMBq3KixWN8xTAFlkE-Tx",
+    "total_in_playlist": 502,
+    "unique_added": 0
+  }
+]
