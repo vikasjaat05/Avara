@@ -1237,10 +1237,10 @@ function bindAll() {
     openPlayer();
   });
 
-  D.backBtn.addEventListener('click', closePlayer);
-  D.playPauseBtn.addEventListener('click', togglePlay);
-  D.prevBtn.addEventListener('click', prevTrack);
-  D.nextBtn.addEventListener('click', nextTrack);
+  if (D.backBtn)      D.backBtn.addEventListener('click', closePlayer);
+  if (D.playPauseBtn) D.playPauseBtn.addEventListener('click', togglePlay);
+  if (D.prevBtn)      D.prevBtn.addEventListener('click', prevTrack);
+  if (D.nextBtn)      D.nextBtn.addEventListener('click', nextTrack);
 
   // Pro Toolbar Controls
   if (D.videoModeBtn)       D.videoModeBtn.addEventListener('click', toggleVideoMode);
@@ -1249,40 +1249,49 @@ function bindAll() {
   if (D.eqPresetBtn)        D.eqPresetBtn.addEventListener('click', toggleEqualizer);
   if (D.shareSongBtn)       D.shareSongBtn.addEventListener('click', shareCurrentSong);
 
+  if (D.shuffleBtn) {
+    D.shuffleBtn.addEventListener('click', () => {
+      shuffleOn = !shuffleOn;
+      D.shuffleBtn.classList.toggle('active', shuffleOn);
+    });
+  }
+  if (D.repeatBtn) {
+    D.repeatBtn.addEventListener('click', () => {
+      repeatOn = !repeatOn;
+      D.repeatBtn.classList.toggle('active', repeatOn);
+    });
+  }
 
+  if (D.playerLikeBtn) {
+    D.playerLikeBtn.addEventListener('click', () => {
+      if (likedSet.has(currentIdx)) likedSet.delete(currentIdx);
+      else likedSet.add(currentIdx);
+      setLikeUI(likedSet.has(currentIdx));
+      saveState();
+      highlightRow();
+      if (currentTab === 'liked') renderLikedSongs();
+    });
+  }
 
-  D.shuffleBtn.addEventListener('click', () => {
-    shuffleOn = !shuffleOn;
-    D.shuffleBtn.classList.toggle('active', shuffleOn);
-  });
-  D.repeatBtn.addEventListener('click', () => {
-    repeatOn = !repeatOn;
-    D.repeatBtn.classList.toggle('active', repeatOn);
-  });
+  if (D.progressTrack) {
+    D.progressTrack.addEventListener('click', (e) => {
+      if (!ytIsReady || !ytPlayer) return;
+      const r = D.progressTrack.getBoundingClientRect();
+      const targetSec = (ytPlayer.getDuration() || 0) * Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      ytPlayer.seekTo(targetSec, true);
+      savePlaybackTime(targetSec);
+    });
+  }
 
-  D.playerLikeBtn.addEventListener('click', () => {
-    if (likedSet.has(currentIdx)) likedSet.delete(currentIdx);
-    else likedSet.add(currentIdx);
-    setLikeUI(likedSet.has(currentIdx));
-    saveState();
-    highlightRow();
-    if (currentTab === 'liked') renderLikedSongs();
-  });
+  if (D.volSlider) {
+    D.volSlider.addEventListener('input', () => {
+      if (ytIsReady && ytPlayer) ytPlayer.setVolume(+D.volSlider.value);
+    });
+  }
 
-  D.progressTrack.addEventListener('click', (e) => {
-    if (!ytIsReady || !ytPlayer) return;
-    const r = D.progressTrack.getBoundingClientRect();
-    const targetSec = (ytPlayer.getDuration() || 0) * Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-    ytPlayer.seekTo(targetSec, true);
-    savePlaybackTime(targetSec);
-  });
+  if (D.miniOpen)    D.miniOpen.addEventListener('click', openPlayer);
+  if (D.miniPlayBtn) D.miniPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
 
-  if (D.volSlider) D.volSlider.addEventListener('input', () => {
-    if (ytIsReady && ytPlayer) ytPlayer.setVolume(+D.volSlider.value);
-  });
-
-  D.miniOpen.addEventListener('click', openPlayer);
-  D.miniPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
 
   if (D.sdPlayBtn) D.sdPlayBtn.addEventListener('click', togglePlay);
   if (D.sdPrevBtn) D.sdPrevBtn.addEventListener('click', prevTrack);
