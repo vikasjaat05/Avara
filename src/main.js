@@ -32,6 +32,7 @@ function grabDOM() {
   D.quickGrid       = document.getElementById('quick-grid');
   D.shelfBewafai    = document.getElementById('shelf-bewafai');
   D.shelfDard       = document.getElementById('shelf-dard');
+  D.shelfMemories   = document.getElementById('shelf-memories');
   D.heroBanner      = document.getElementById('hero-banner');
   D.heroBg          = document.getElementById('hero-bg');
   D.heroTitle       = document.getElementById('hero-title');
@@ -389,12 +390,12 @@ function showMini() {
   }
 }
 
-// ─── Render Dynamic Home Sections from REAL Songs ─────────────────────────────
+// ─── Render Dynamic Home Sections from DISTINCT Songs (No Repeated Thumbnails!) ───
 function renderHomeSections() {
-  // 1. Quick Picks Grid (Real Songs with actual YouTube thumbnails)
+  // 1. Quick Picks Grid (Songs 1 to 8)
   if (D.quickGrid) {
     D.quickGrid.innerHTML = '';
-    const quickSongs = playlist.slice(0, 8);
+    const quickSongs = playlist.slice(1, 9);
     quickSongs.forEach((song) => {
       const realIdx = playlist.indexOf(song);
       const card = document.createElement('div');
@@ -418,11 +419,11 @@ function renderHomeSections() {
     });
   }
 
-  // 2. Shelf 1: Heartbreak Hits
+  // 2. Shelf 1: Heartbreak Hits (Unique Songs starting from index 9)
   if (D.shelfBewafai) {
     D.shelfBewafai.innerHTML = '';
-    const bewafaiSongs = playlist.filter(s => s.category && (s.category.includes('बेवफाई') || s.category.includes('heartbreak')));
-    (bewafaiSongs.length ? bewafaiSongs : playlist.slice(0, 6)).forEach((song) => {
+    const bewafaiSongs = playlist.slice(9).filter(s => s.category && s.category.includes('बेवफाई')).slice(0, 8);
+    bewafaiSongs.forEach((song) => {
       const realIdx = playlist.indexOf(song);
       const card = document.createElement('div');
       card.className = 'shelf-card';
@@ -442,11 +443,11 @@ function renderHomeSections() {
     });
   }
 
-  // 3. Shelf 2: Deep Emotion
+  // 3. Shelf 2: Deep Emotion (Unique Songs starting from index 15)
   if (D.shelfDard) {
     D.shelfDard.innerHTML = '';
-    const dardSongs = playlist.filter(s => s.category && (s.category.includes('दर्द') || s.category.includes('deep')));
-    (dardSongs.length ? dardSongs : playlist.slice(3, 9)).forEach((song) => {
+    const dardSongs = playlist.slice(15).filter(s => s.category && s.category.includes('दर्द')).slice(0, 8);
+    dardSongs.forEach((song) => {
       const realIdx = playlist.indexOf(song);
       const card = document.createElement('div');
       card.className = 'shelf-card';
@@ -463,6 +464,30 @@ function renderHomeSections() {
         openPlayer();
       });
       D.shelfDard.appendChild(card);
+    });
+  }
+
+  // 4. Shelf 3: Timeless Memories (Unique Songs starting from index 20)
+  if (D.shelfMemories) {
+    D.shelfMemories.innerHTML = '';
+    const memorySongs = playlist.slice(20).filter(s => s.category && s.category.includes('यादें')).slice(0, 8);
+    memorySongs.forEach((song) => {
+      const realIdx = playlist.indexOf(song);
+      const card = document.createElement('div');
+      card.className = 'shelf-card';
+      card.innerHTML = `
+        <div class="card-cover">
+          <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
+          <span class="card-cat-badge">Memories</span>
+        </div>
+        <div class="card-title">${song.title}</div>
+        <div class="card-sub">${song.artist}</div>
+      `;
+      card.addEventListener('click', () => {
+        playTrack(realIdx);
+        openPlayer();
+      });
+      D.shelfMemories.appendChild(card);
     });
   }
 }
@@ -502,7 +527,7 @@ function renderSongList(songs, filter) {
         <div class="song-row-artist">${song.artist}</div>
       </div>
       <button class="song-row-like-btn ${liked ? 'liked' : ''}" data-idx="${realIdx}" aria-label="Like">
-        <svg viewBox="0 0 24 24" fill="${liked ? 'var(--accent)' : 'none'}" stroke="${liked ? 'var(--accent)' : 'currentColor'}" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="${liked ? 'var(--accent)' : 'none'}" stroke="${liked ? 'var(--accent)' : 'currentColor'}" stroke-width="2" width="18" height="18">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
       </button>
@@ -550,16 +575,13 @@ function setSdNav(btn) {
 
 // ─── Event Bindings ──────────────────────────────────────────────────────────
 function bindAll() {
-  // Theme Toggle Button
   if (D.themeToggleBtn) D.themeToggleBtn.addEventListener('click', toggleTheme);
 
-  // Hero play button
   if (D.heroPlayBtn) D.heroPlayBtn.addEventListener('click', () => {
     playTrack(currentIdx);
     openPlayer();
   });
 
-  // Player controls
   D.backBtn.addEventListener('click', closePlayer);
   D.playPauseBtn.addEventListener('click', togglePlay);
   D.prevBtn.addEventListener('click', prevTrack);
@@ -580,7 +602,6 @@ function bindAll() {
     highlightRow();
   });
 
-  // Progress seek
   D.progressTrack.addEventListener('click', (e) => {
     if (!ytIsReady || !ytPlayer) return;
     const r = D.progressTrack.getBoundingClientRect();
@@ -589,16 +610,13 @@ function bindAll() {
     savePlaybackTime(targetSec);
   });
 
-  // Volume
   if (D.volSlider) D.volSlider.addEventListener('input', () => {
     if (ytIsReady && ytPlayer) ytPlayer.setVolume(+D.volSlider.value);
   });
 
-  // Mini player
   D.miniOpen.addEventListener('click', openPlayer);
   D.miniPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
 
-  // Desktop sidebar controls
   if (D.sdPlayBtn) D.sdPlayBtn.addEventListener('click', togglePlay);
   if (D.sdPrevBtn) D.sdPrevBtn.addEventListener('click', prevTrack);
   if (D.sdNextBtn) D.sdNextBtn.addEventListener('click', nextTrack);
@@ -610,7 +628,6 @@ function bindAll() {
     savePlaybackTime(targetSec);
   });
 
-  // Sidebar Nav
   if (D.sdDiscover) D.sdDiscover.addEventListener('click', () => { setSdNav(D.sdDiscover); renderSongList(playlist, 'all'); });
   if (D.sdSearch)   D.sdSearch.addEventListener('click',   () => { setSdNav(D.sdSearch); toggleSearch(); });
   if (D.sdLibrary)  D.sdLibrary.addEventListener('click',  () => { setSdNav(D.sdLibrary); renderSongList(playlist, 'all'); });
@@ -620,7 +637,6 @@ function bindAll() {
     renderSongList(liked, 'liked');
   });
 
-  // Mobile Bottom Nav
   D.navHome.addEventListener('click',   () => { setMobNav(D.navHome); renderSongList(playlist, 'all'); closePlayer(); });
   D.navSearch.addEventListener('click', () => { setMobNav(D.navSearch); closePlayer(); toggleSearch(); });
   D.navMusic.addEventListener('click',  () => { setMobNav(D.navMusic); renderSongList(playlist, 'all'); closePlayer(); });
@@ -631,7 +647,6 @@ function bindAll() {
     renderSongList(liked, 'liked');
   });
 
-  // Search
   if (D.searchToggle) D.searchToggle.addEventListener('click', toggleSearch);
   if (D.searchInput) D.searchInput.addEventListener('input', (e) => {
     const q = e.target.value.trim().toLowerCase();
@@ -645,7 +660,6 @@ function bindAll() {
     renderSongList(playlist, 'all');
   });
 
-  // Category Chips (English Filters)
   D.catChips.forEach(chip => chip.addEventListener('click', () => {
     D.catChips.forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
@@ -679,7 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   restoreSavedState();
   updateTrackUI(playlist[currentIdx]);
-  setPlayUI(false); // ALWAYS start in PAUSED state on page load (no autoplay)
+  setPlayUI(false);
 
   if (initialSeek > 0) {
     if (D.timeCur) D.timeCur.textContent = fmt(initialSeek);
