@@ -475,8 +475,9 @@
             </button>
           </div>
 
-          <div class="player-art-wrap">
+          <div class="player-art-wrap" id="player-art-wrap">
             <img id="player-art" class="player-art" src="" alt="art">
+            <div id="video-player-box" class="video-player-box hidden"></div>
           </div>
 
           <div class="player-info">
@@ -526,8 +527,12 @@
             <svg class="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
           </div>
 
-          <!-- Pro Audio Features Toolbar -->
+          <!-- Pro Audio Features & Video Mode Toolbar -->
           <div class="player-pro-toolbar">
+            <button id="video-mode-btn" class="pro-tool-btn" title="Watch Video">
+              <span>🎬</span>
+              <span id="video-mode-label">Watch Video</span>
+            </button>
             <button id="sleep-timer-btn" class="pro-tool-btn" title="Sleep Timer">
               <span>💤</span>
               <span id="sleep-timer-label">Off</span>
@@ -541,6 +546,7 @@
               <span>Share</span>
             </button>
           </div>
+
         </div>
       </div>
 

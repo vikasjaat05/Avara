@@ -100,6 +100,10 @@ function grabDOM() {
   D.eqPresetBtn     = document.getElementById('eq-preset-btn');
   D.eqModeLabel     = document.getElementById('eq-mode-label');
   D.shareSongBtn    = document.getElementById('share-song-btn');
+  D.videoModeBtn    = document.getElementById('video-mode-btn');
+  D.videoModeLabel  = document.getElementById('video-mode-label');
+  D.videoPlayerBox  = document.getElementById('video-player-box');
+
 
   // Full Player Overlay DOM
   D.playerBg        = document.getElementById('player-bg');
@@ -214,20 +218,54 @@ function toggleEqualizer() {
   else D.eqPresetBtn.classList.remove('active');
 }
 
-// ─── Pro Feature: Share Song via WhatsApp & Native Share ──────────────────────
-function shareCurrentSong() {
-  const song = playlist[currentIdx];
-  if (!song) return;
-  const text = `🎧 Listening to "${song.title}" by ${song.artist} on Avara Music!\n👉 https://avara-ashiq.vercel.app/`;
-  if (navigator.share) {
-    navigator.share({ title: song.title, text: text, url: 'https://avara-ashiq.vercel.app/' }).catch(() => {});
+// ─── Pro Feature: Video Mode / Audio Mode Switcher ───────────────────────────
+let isVideoMode = false;
+
+function toggleVideoMode() {
+  isVideoMode = !isVideoMode;
+
+  const ytContainer = document.getElementById('yt-player');
+
+  if (isVideoMode) {
+    if (D.videoModeLabel) D.videoModeLabel.textContent = '🎵 Audio Mode';
+    if (D.videoModeBtn) D.videoModeBtn.classList.add('active');
+    if (D.playerArt) D.playerArt.classList.add('hidden');
+    if (D.videoPlayerBox) {
+      D.videoPlayerBox.classList.remove('hidden');
+      if (ytContainer) {
+        D.videoPlayerBox.appendChild(ytContainer);
+        ytContainer.style.position = 'static';
+        ytContainer.style.width = '100%';
+        ytContainer.style.height = '100%';
+        ytContainer.style.zIndex = '10';
+      }
+    }
+    try {
+      if (ytPlayer && typeof ytPlayer.unMute === 'function') {
+        ytPlayer.unMute();
+      }
+    } catch(e) {}
   } else {
-    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-    window.open(waUrl, '_blank');
+    if (D.videoModeLabel) D.videoModeLabel.textContent = '🎬 Watch Video';
+    if (D.videoModeBtn) D.videoModeBtn.classList.remove('active');
+    if (D.playerArt) D.playerArt.classList.remove('hidden');
+    if (D.videoPlayerBox) {
+      D.videoPlayerBox.classList.add('hidden');
+    }
+    if (ytContainer) {
+      document.body.appendChild(ytContainer);
+      ytContainer.style.position = 'fixed';
+      ytContainer.style.left = '-600px';
+      ytContainer.style.top = '-600px';
+      ytContainer.style.width = '320px';
+      ytContainer.style.height = '180px';
+      ytContainer.style.zIndex = '-999';
+    }
   }
 }
 
 // ─── PWA Prompt & Download Modal ──────────────────────────────────────────────
+
 function initDownloadModal() {
   const checkStandalone = () => {
     const ua = navigator.userAgent || '';
@@ -1166,9 +1204,11 @@ function bindAll() {
   D.nextBtn.addEventListener('click', nextTrack);
 
   // Pro Toolbar Controls
+  if (D.videoModeBtn)  D.videoModeBtn.addEventListener('click', toggleVideoMode);
   if (D.sleepTimerBtn) D.sleepTimerBtn.addEventListener('click', toggleSleepTimer);
   if (D.eqPresetBtn)   D.eqPresetBtn.addEventListener('click', toggleEqualizer);
   if (D.shareSongBtn)  D.shareSongBtn.addEventListener('click', shareCurrentSong);
+
 
   D.shuffleBtn.addEventListener('click', () => {
     shuffleOn = !shuffleOn;

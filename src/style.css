@@ -199,10 +199,22 @@ html, body {
   display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
 .sd-player-panel.hidden { display: none; }
-.sd-art-wrap {
-  width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; position: relative;
+.player-art-wrap {
+  width: 100%; max-width: 320px; aspect-ratio: 1; margin: 0 auto 24px;
+  border-radius: 20px; overflow: hidden; box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+  position: relative;
 }
-.sd-art { width: 100%; height: 100%; object-fit: cover; }
+.player-art { width: 100%; height: 100%; object-fit: cover; }
+
+.video-player-box {
+  width: 100%; height: 100%; border-radius: 20px; overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6); border: 1px solid var(--border);
+  background: #000; position: relative;
+}
+.video-player-box iframe {
+  width: 100%; height: 100%; border: none; border-radius: 20px;
+}
+
 .sd-title  { font-family: var(--font-heading); font-size: 14px; font-weight: 700; text-align: center; }
 .sd-artist { font-size: 12px; color: var(--text-sub); text-align: center; }
 .sd-progress-wrap { width: 100%; }
