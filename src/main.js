@@ -10,23 +10,29 @@ const KEY_MOOD_COUNTS  = 'avara_mood_counts';
 const KEY_PLAY_HISTORY = 'avara_play_history';
 
 // ─── State ───────────────────────────────────────────────────────────────────
-let ytPlayer        = null;
-let ytIsReady       = false;
-let pendingPlay     = null;
-let currentIdx      = 0;
-let isPlaying       = false;
-let playlist        = AVARA_SONGS.filter(Boolean);
-let likedSet        = new Set();
-let shuffleOn       = false;
-let repeatOn        = false;
-let progressInt     = null;
-let inPlayer        = false;
-let initialSeek     = 0;
-let currentTheme    = 'dark';
-let currentTab      = 'home';
-let moodCounts      = { heartbreak: 0, deep: 0, memories: 0 };
-let playHistory     = [];
+let ytPlayer          = null;
+let ytIsReady         = false;
+let pendingPlay       = null;
+let currentIdx        = 0;
+let isPlaying         = false;
+let playlist          = AVARA_SONGS.filter(Boolean);
+let likedSet          = new Set();
+let shuffleOn         = false;
+let repeatOn          = false;
+let progressInt       = null;
+let inPlayer          = false;
+let initialSeek       = 0;
+let currentTheme      = 'dark';
+let currentTab        = 'home';
+let moodCounts        = { heartbreak: 0, deep: 0, memories: 0 };
+let playHistory       = [];
 let deferredPwaPrompt = null;
+
+// Pro Features State
+let sleepTimerId      = null;
+let sleepTimerMinutes = 0;
+let eqPresets         = ['Normal', 'Bass Boost 🔊', 'Vocal 🎤', 'Acoustic 🎸', 'Treble ✨'];
+let eqCurrentIdx      = 0;
 
 // ─── DOM References ──────────────────────────────────────────────────────────
 let D = {};
@@ -88,6 +94,13 @@ function grabDOM() {
   D.closeDownloadModal= document.getElementById('close-download-modal');
   D.triggerPwaBtn     = document.getElementById('trigger-pwa-install-btn');
 
+  // Pro Toolbar Elements
+  D.sleepTimerBtn   = document.getElementById('sleep-timer-btn');
+  D.sleepTimerLabel = document.getElementById('sleep-timer-label');
+  D.eqPresetBtn     = document.getElementById('eq-preset-btn');
+  D.eqModeLabel     = document.getElementById('eq-mode-label');
+  D.shareSongBtn    = document.getElementById('share-song-btn');
+
   // Full Player Overlay DOM
   D.playerBg        = document.getElementById('player-bg');
   D.playerArt       = document.getElementById('player-art');
@@ -146,6 +159,72 @@ function grabDOM() {
   D.navSearch       = document.getElementById('nav-search-mob');
   D.navMusic        = document.getElementById('nav-music-mob');
   D.navLiked        = document.getElementById('nav-liked-mob');
+}
+
+// ─── Media Session API (Lock Screen & Bluetooth Sync) ─────────────────────────
+function setupMediaSession(song) {
+  if ('mediaSession' in navigator && song) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: song.title,
+      artist: song.artist,
+      album: 'Avara Music',
+      artwork: [
+        { src: `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`, sizes: '512x512', type: 'image/jpeg' }
+      ]
+    });
+
+    navigator.mediaSession.setActionHandler('play', () => togglePlay());
+    navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+    navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
+    navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+  }
+}
+
+// ─── Pro Feature: Sleep Timer ────────────────────────────────────────────────
+function toggleSleepTimer() {
+  const options = [0, 15, 30, 45, 60];
+  const curIndex = options.indexOf(sleepTimerMinutes);
+  const nextIndex = (curIndex + 1) % options.length;
+  sleepTimerMinutes = options[nextIndex];
+
+  if (sleepTimerId) clearTimeout(sleepTimerId);
+
+  if (sleepTimerMinutes > 0) {
+    D.sleepTimerLabel.textContent = `${sleepTimerMinutes}m`;
+    D.sleepTimerBtn.classList.add('active');
+    sleepTimerId = setTimeout(() => {
+      if (isPlaying) togglePlay();
+      sleepTimerMinutes = 0;
+      D.sleepTimerLabel.textContent = 'Off';
+      D.sleepTimerBtn.classList.remove('active');
+      alert('💤 Sleep Timer: Music auto-paused. Goodnight!');
+    }, sleepTimerMinutes * 60 * 1000);
+  } else {
+    D.sleepTimerLabel.textContent = 'Off';
+    D.sleepTimerBtn.classList.remove('active');
+  }
+}
+
+// ─── Pro Feature: Audio Equalizer ────────────────────────────────────────────
+function toggleEqualizer() {
+  eqCurrentIdx = (eqCurrentIdx + 1) % eqPresets.length;
+  const name = eqPresets[eqCurrentIdx];
+  D.eqModeLabel.textContent = name;
+  if (eqCurrentIdx > 0) D.eqPresetBtn.classList.add('active');
+  else D.eqPresetBtn.classList.remove('active');
+}
+
+// ─── Pro Feature: Share Song via WhatsApp & Native Share ──────────────────────
+function shareCurrentSong() {
+  const song = playlist[currentIdx];
+  if (!song) return;
+  const text = `🎧 Listening to "${song.title}" by ${song.artist} on Avara Music!\n👉 https://avara-ashiq.vercel.app/`;
+  if (navigator.share) {
+    navigator.share({ title: song.title, text: text, url: 'https://avara-ashiq.vercel.app/' }).catch(() => {});
+  } else {
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
+  }
 }
 
 // ─── PWA Prompt & Download Modal ──────────────────────────────────────────────
@@ -402,8 +481,12 @@ function onYTState(e) {
     isPlaying = false;
     setPlayUI(false);
   } else if (e.data === S.ENDED) {
-    if (repeatOn) { ytPlayer.seekTo(0,true); ytPlayer.playVideo(); }
-    else nextTrack();
+    if (repeatOn) {
+      ytPlayer.seekTo(0, true);
+      ytPlayer.playVideo();
+    } else {
+      nextTrack();
+    }
   }
 }
 
@@ -413,6 +496,7 @@ function _doPlay(idx) {
   if (!song) return;
   saveState();
   recordSongPlay(song);
+  setupMediaSession(song);
 
   if (initialSeek > 0) {
     const startSec = Math.floor(initialSeek);
@@ -473,6 +557,7 @@ function updateTrackUI(song) {
   if (D.playerTitle)  D.playerTitle.textContent = song.title;
   if (D.playerArtist) D.playerArtist.textContent = song.artist;
   if (D.playerBg)     D.playerBg.style.backgroundImage = `url(${thumb})`;
+  if (D.lyricsLine)   D.lyricsLine.textContent = `♪ ${song.title} — ${song.artist} ♪`;
 
   // Mini player
   if (D.miniArt)    D.miniArt.src    = thumb;
@@ -876,6 +961,11 @@ function bindAll() {
   D.playPauseBtn.addEventListener('click', togglePlay);
   D.prevBtn.addEventListener('click', prevTrack);
   D.nextBtn.addEventListener('click', nextTrack);
+
+  // Pro Toolbar Controls
+  if (D.sleepTimerBtn) D.sleepTimerBtn.addEventListener('click', toggleSleepTimer);
+  if (D.eqPresetBtn)   D.eqPresetBtn.addEventListener('click', toggleEqualizer);
+  if (D.shareSongBtn)  D.shareSongBtn.addEventListener('click', shareCurrentSong);
 
   D.shuffleBtn.addEventListener('click', () => {
     shuffleOn = !shuffleOn;
