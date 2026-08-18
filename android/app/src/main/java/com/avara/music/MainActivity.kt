@@ -1,6 +1,7 @@
 package com.avara.music
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +12,9 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import android.Manifest
+import android.content.pm.PackageManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -57,6 +61,51 @@ class MainActivity : AppCompatActivity() {
 
         // Load Avara Music App URL
         webView.loadUrl("https://avara-ashiq.vercel.app/")
+
+        // Start Foreground Service for Background Music
+        val serviceIntent = Intent(this, MusicService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
+        }
+
+        checkPermissions()
+    }
+
+    private fun checkPermissions() {
+        val permissions = mutableListOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        val missingPermissions = permissions.filter {
+            ActivityCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (missingPermissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missingPermissions.toTypedArray(), 1)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Do NOT call webView.onPause() to keep music playing in background if possible
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Do NOT call webView.onResume() as we didn't pause it
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Stop service when app is totally closed by user
+        stopService(Intent(this, MusicService::class.java))
     }
 
     override fun onBackPressed() {

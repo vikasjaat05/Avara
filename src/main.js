@@ -1,5 +1,33 @@
-import './style.css';
-import { AVARA_SONGS } from './songs.js';
+// Web Audio API Background Keep-Alive Context (Fixes Mobile Screen Lock Audio!)
+let audioCtx = null;
+let keepAliveOsc = null;
+
+function enableBackgroundAudio() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      keepAliveOsc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.0001; // virtually silent frequency keep-alive
+      keepAliveOsc.connect(gain);
+      gain.connect(audioCtx.destination);
+      keepAliveOsc.start();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  } catch(e) {}
+
+  if (D.bgAudio) {
+    D.bgAudio.play().catch(() => {});
+  }
+}
+
+function stopBackgroundAudio() {
+  if (D.bgAudio) {
+    try { D.bgAudio.pause(); } catch(e) {}
+  }
+}
 
 // ─── LocalStorage Keys ───────────────────────────────────────────────────────
 const KEY_LAST_SONG_ID = 'avara_last_song_id';
@@ -56,6 +84,7 @@ let D = {};
 function grabDOM() {
   // Silent Keep-Alive Audio for Background Playback
   D.bgAudio         = document.getElementById('bg-keepalive');
+
 
   // Permissions Modal DOM
   D.permsModal          = document.getElementById('permissions-modal');
@@ -175,16 +204,13 @@ function grabDOM() {
 
 // ─── Background Audio Keep-Alive for Phone Lock & Switching Apps ─────────────
 function startBackgroundKeepAlive() {
-  if (D.bgAudio) {
-    D.bgAudio.play().catch(() => {});
-  }
+  enableBackgroundAudio();
 }
 
 function stopBackgroundKeepAlive() {
-  if (D.bgAudio) {
-    D.bgAudio.pause();
-  }
+  stopBackgroundAudio();
 }
+
 
 // Override visibilitychange so mobile browsers do NOT freeze playback!
 document.addEventListener('visibilitychange', () => {
