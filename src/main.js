@@ -1,10 +1,11 @@
 import './style.css';
 import { AVARA_SONGS } from './songs.js';
 
-// ─── LocalStorage Persistence Keys ───────────────────────────────────────────
+// ─── LocalStorage Keys ───────────────────────────────────────────────────────
 const KEY_LAST_SONG_ID = 'avara_last_song_id';
 const KEY_LAST_TIME    = 'avara_last_progress_time';
 const KEY_LIKED_IDS    = 'avara_liked_song_ids';
+const KEY_THEME_MODE   = 'avara_theme_mode';
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let ytPlayer     = null;
@@ -19,6 +20,7 @@ let repeatOn     = false;
 let progressInt  = null;
 let inPlayer     = false;
 let initialSeek  = 0;
+let currentTheme = 'dark';
 
 // ─── DOM References ──────────────────────────────────────────────────────────
 let D = {};
@@ -35,6 +37,9 @@ function grabDOM() {
   D.heroTitle       = document.getElementById('hero-title');
   D.heroArtist      = document.getElementById('hero-artist');
   D.heroPlayBtn     = document.getElementById('hero-play-btn');
+  D.themeToggleBtn  = document.getElementById('theme-toggle-btn');
+  D.sunIcon         = document.getElementById('theme-sun-icon');
+  D.moonIcon        = document.getElementById('theme-moon-icon');
 
   // Player DOM
   D.playerBg        = document.getElementById('player-bg');
@@ -103,6 +108,34 @@ function grabDOM() {
   D.catChips        = document.querySelectorAll('.cat-chip');
 }
 
+// ─── Theme Toggle Logic ───────────────────────────────────────────────────────
+function initTheme() {
+  const savedTheme = localStorage.getItem(KEY_THEME_MODE);
+  currentTheme = savedTheme || 'dark';
+  applyTheme(currentTheme);
+}
+
+function applyTheme(theme) {
+  currentTheme = theme;
+  document.body.classList.remove('theme-dark', 'theme-light');
+  document.body.classList.add(`theme-${theme}`);
+  localStorage.setItem(KEY_THEME_MODE, theme);
+
+  if (D.sunIcon && D.moonIcon) {
+    if (theme === 'dark') {
+      D.moonIcon.style.display = '';
+      D.sunIcon.style.display  = 'none';
+    } else {
+      D.moonIcon.style.display = 'none';
+      D.sunIcon.style.display  = '';
+    }
+  }
+}
+
+function toggleTheme() {
+  applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+}
+
 // ─── Persistence ─────────────────────────────────────────────────────────────
 function restoreSavedState() {
   try {
@@ -161,13 +194,11 @@ function initYT() {
       events: {
         onReady() {
           ytIsReady = true;
-          // Cue (preload) initial song at saved seek time WITHOUT playing
           try {
             const startSec = initialSeek > 0 ? Math.floor(initialSeek) : 0;
             ytPlayer.cueVideoById({ videoId: initialSong.id, startSeconds: startSec });
           } catch(e) {}
 
-          // If user clicked play BEFORE player was ready, play now
           if (pendingPlay !== null) {
             const idx = pendingPlay; pendingPlay = null;
             _doPlay(idx);
@@ -360,7 +391,7 @@ function showMini() {
 
 // ─── Render Dynamic Home Sections from REAL Songs ─────────────────────────────
 function renderHomeSections() {
-  // 1. Quick Picks Grid (6-8 real songs with actual YouTube thumbnails)
+  // 1. Quick Picks Grid (Real Songs with actual YouTube thumbnails)
   if (D.quickGrid) {
     D.quickGrid.innerHTML = '';
     const quickSongs = playlist.slice(0, 8);
@@ -387,10 +418,10 @@ function renderHomeSections() {
     });
   }
 
-  // 2. Shelf 1: 💔 बेवफाई
+  // 2. Shelf 1: Heartbreak Hits
   if (D.shelfBewafai) {
     D.shelfBewafai.innerHTML = '';
-    const bewafaiSongs = playlist.filter(s => s.category && s.category.includes('बेवफाई'));
+    const bewafaiSongs = playlist.filter(s => s.category && (s.category.includes('बेवफाई') || s.category.includes('heartbreak')));
     (bewafaiSongs.length ? bewafaiSongs : playlist.slice(0, 6)).forEach((song) => {
       const realIdx = playlist.indexOf(song);
       const card = document.createElement('div');
@@ -398,7 +429,7 @@ function renderHomeSections() {
       card.innerHTML = `
         <div class="card-cover">
           <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
-          <span class="card-cat-badge">💔 बेवफाई</span>
+          <span class="card-cat-badge">Heartbreak</span>
         </div>
         <div class="card-title">${song.title}</div>
         <div class="card-sub">${song.artist}</div>
@@ -411,10 +442,10 @@ function renderHomeSections() {
     });
   }
 
-  // 3. Shelf 2: 🔥 अत्यधिक दर्द
+  // 3. Shelf 2: Deep Emotion
   if (D.shelfDard) {
     D.shelfDard.innerHTML = '';
-    const dardSongs = playlist.filter(s => s.category && s.category.includes('दर्द'));
+    const dardSongs = playlist.filter(s => s.category && (s.category.includes('दर्द') || s.category.includes('deep')));
     (dardSongs.length ? dardSongs : playlist.slice(3, 9)).forEach((song) => {
       const realIdx = playlist.indexOf(song);
       const card = document.createElement('div');
@@ -422,7 +453,7 @@ function renderHomeSections() {
       card.innerHTML = `
         <div class="card-cover">
           <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
-          <span class="card-cat-badge">🔥 दर्द</span>
+          <span class="card-cat-badge">Deep Emotion</span>
         </div>
         <div class="card-title">${song.title}</div>
         <div class="card-sub">${song.artist}</div>
@@ -471,7 +502,7 @@ function renderSongList(songs, filter) {
         <div class="song-row-artist">${song.artist}</div>
       </div>
       <button class="song-row-like-btn ${liked ? 'liked' : ''}" data-idx="${realIdx}" aria-label="Like">
-        <svg viewBox="0 0 24 24" fill="${liked ? 'var(--avara-crimson)' : 'none'}" stroke="${liked ? 'var(--avara-crimson)' : 'currentColor'}" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="${liked ? 'var(--accent)' : 'none'}" stroke="${liked ? 'var(--accent)' : 'currentColor'}" stroke-width="2">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
       </button>
@@ -496,8 +527,8 @@ function renderSongList(songs, filter) {
       } else {
         likedSet.add(idx);
         btn.classList.add('liked');
-        svg.setAttribute('fill', 'var(--avara-crimson)');
-        svg.setAttribute('stroke', 'var(--avara-crimson)');
+        svg.setAttribute('fill', 'var(--accent)');
+        svg.setAttribute('stroke', 'var(--accent)');
       }
       saveState();
       if (idx === currentIdx) setLikeUI(likedSet.has(idx));
@@ -519,6 +550,9 @@ function setSdNav(btn) {
 
 // ─── Event Bindings ──────────────────────────────────────────────────────────
 function bindAll() {
+  // Theme Toggle Button
+  if (D.themeToggleBtn) D.themeToggleBtn.addEventListener('click', toggleTheme);
+
   // Hero play button
   if (D.heroPlayBtn) D.heroPlayBtn.addEventListener('click', () => {
     playTrack(currentIdx);
@@ -611,16 +645,22 @@ function bindAll() {
     renderSongList(playlist, 'all');
   });
 
-  // Category Chips
+  // Category Chips (English Filters)
   D.catChips.forEach(chip => chip.addEventListener('click', () => {
     D.catChips.forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     const f = chip.dataset.filter;
     if (f === 'all') {
       renderSongList(playlist, 'all');
-    } else {
-      const filtered = playlist.filter(s => s.category && s.category.includes(f));
-      renderSongList(filtered.length ? filtered : playlist, f);
+    } else if (f === 'heartbreak') {
+      const filtered = playlist.filter(s => s.category && s.category.includes('बेवफाई'));
+      renderSongList(filtered.length ? filtered : playlist.slice(0, 10), 'heartbreak');
+    } else if (f === 'deep') {
+      const filtered = playlist.filter(s => s.category && s.category.includes('दर्द'));
+      renderSongList(filtered.length ? filtered : playlist.slice(5, 15), 'deep');
+    } else if (f === 'memories') {
+      const filtered = playlist.filter(s => s.category && s.category.includes('यादें'));
+      renderSongList(filtered.length ? filtered : playlist.slice(10, 20), 'memories');
     }
   }));
 }
@@ -636,6 +676,7 @@ function toggleSearch() {
 // ─── Boot & Initialization ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   grabDOM();
+  initTheme();
   restoreSavedState();
   updateTrackUI(playlist[currentIdx]);
   setPlayUI(false); // ALWAYS start in PAUSED state on page load (no autoplay)

@@ -1,11 +1,6 @@
 /* =========================================================
-   Avara — Custom Brand Design System
-   Color Palette:
-     - Background: #0B0E14 (Obsidian Dark)
-     - Surface:    #161B22 (Sleek Dark Glass)
-     - Hover:      #21262D
-     - Accent:     #FF2D55 / #E50914 (Vibrant Crimson Red)
-     - Gradient:   linear-gradient(135deg, #FF2D55 0%, #B00020 100%)
+   Avara — Custom Brand Design System with Dark & Light Mode
+   Typography: 'Outfit' (Headings) & 'Inter' (Body)
    ========================================================= */
 
 *, *::before, *::after {
@@ -14,27 +9,52 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ─── DARK THEME VARIABLES (Default) ─── */
+body.theme-dark {
+  --bg:            #0F172A; /* Slate 900 */
+  --bg-sidebar:    #0B1120;
+  --bg-card:       #1E293B; /* Slate 800 */
+  --bg-card-hover: #334155; /* Slate 700 */
+  --border:        rgba(255,255,255,.08);
+  --text:          #F8FAFC;
+  --text-sub:      #94A3B8;
+  --text-muted:    #64748B;
+  --accent:        #6366F1; /* Indigo Accent */
+  --accent-gradient: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+  --accent-glow:   rgba(99,102,241,.35);
+  --mini-player-bg: rgba(30, 41, 59, 0.96);
+  --shadow:        0 10px 30px rgba(0,0,0,.5);
+}
+
+/* ─── LIGHT THEME VARIABLES ─── */
+body.theme-light {
+  --bg:            #F8FAFC; /* Slate 50 */
+  --bg-sidebar:    #FFFFFF;
+  --bg-card:       #FFFFFF; /* White Cards */
+  --bg-card-hover: #F1F5F9; /* Slate 100 */
+  --border:        rgba(0,0,0,.08);
+  --text:          #0F172A; /* Slate 900 */
+  --text-sub:      #475569;
+  --text-muted:    #94A3B8;
+  --accent:        #4F46E5; /* Indigo */
+  --accent-gradient: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+  --accent-glow:   rgba(79,70,229,.25);
+  --mini-player-bg: rgba(255, 255, 255, 0.96);
+  --shadow:        0 10px 30px rgba(15,23,42,.08);
+}
+
 :root {
-  --avara-crimson: #FF2D55;
-  --accent:        #FF2D55;
-  --accent-glow:   rgba(255,45,85,.35);
-  --bg:            #0B0E14;
-  --bg-card:       #161B22;
-  --bg-card-hover: #21262D;
-  --border:        rgba(255,255,255,.07);
-  --text:          #FFFFFF;
-  --text-sub:      rgba(255,255,255,.65);
-  --text-muted:    rgba(255,255,255,.35);
-  --font:          'Plus Jakarta Sans', -apple-system, sans-serif;
-  --radius:        14px;
+  --font-heading: 'Outfit', sans-serif;
+  --font-body:    'Inter', sans-serif;
 }
 
 html, body {
-  font-family: var(--font);
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
   height: 100dvh;
   overflow: hidden;
+  transition: background-color .3s ease, color .3s ease;
 }
 
 /* ─────────────────────────────────────────────────
@@ -42,7 +62,7 @@ html, body {
 ───────────────────────────────────────────────── */
 #preloader {
   position: fixed; inset: 0;
-  background: #07090C;
+  background: var(--bg);
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
   gap: 20px; z-index: 9999;
@@ -50,14 +70,14 @@ html, body {
 
 .pre-vinyl {
   width: 96px; height: 96px; border-radius: 50%;
-  background: radial-gradient(circle, #1a1e24 0%, #07090C 100%);
-  border: 2px solid rgba(255,45,85,.3);
+  background: radial-gradient(circle, var(--bg-card) 0%, var(--bg) 100%);
+  border: 2px solid var(--accent);
   position: relative;
   animation: vinylSpin 2s linear infinite;
-  box-shadow: 0 0 40px var(--accent-glow);
+  box-shadow: 0 0 35px var(--accent-glow);
 }
 .pre-vinyl-groove {
-  position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.06);
+  position: absolute; border-radius: 50%; border: 1px solid var(--border);
   top: 50%; left: 50%; transform: translate(-50%,-50%);
 }
 .pre-vinyl-groove:nth-child(1){width:76px;height:76px;}
@@ -66,12 +86,12 @@ html, body {
 .pre-vinyl-center {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
   width: 26px; height: 26px; border-radius: 50%;
-  background: var(--avara-crimson); display: flex; align-items: center; justify-content: center;
+  background: var(--accent); display: flex; align-items: center; justify-content: center;
 }
-.pre-vinyl-hole { width: 8px; height: 8px; border-radius: 50%; background: #07090C; }
+.pre-vinyl-hole { width: 8px; height: 8px; border-radius: 50%; background: var(--bg); }
 .pre-needle {
   position: absolute; top: -4px; right: 10px;
-  width: 3px; height: 40px; background: rgba(255,255,255,.7);
+  width: 3px; height: 40px; background: var(--text-sub);
   border-radius: 2px; transform-origin: bottom center; transform: rotate(25deg);
   animation: needleWave 2s ease-in-out infinite;
 }
@@ -80,7 +100,7 @@ html, body {
 
 .pre-bars { display: flex; align-items: flex-end; gap: 4px; height: 26px; }
 .pre-bar {
-  width: 4px; border-radius: 2px; background: var(--avara-crimson);
+  width: 4px; border-radius: 2px; background: var(--accent);
   animation: barBounce .6s ease-in-out infinite alternate;
 }
 .pre-bar:nth-child(1){height:10px;animation-delay:0s;}
@@ -90,8 +110,8 @@ html, body {
 .pre-bar:nth-child(5){height:12px;animation-delay:.15s;}
 @keyframes barBounce { 0% { transform: scaleY(.3); opacity: .4; } 100% { transform: scaleY(1.1); opacity: 1; } }
 
-.pre-title { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: 2px; }
-.pre-sub   { font-size: 12px; color: var(--text-sub); margin-top: -14px; }
+.pre-title { font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: 2px; }
+.pre-sub   { font-size: 13px; color: var(--text-sub); margin-top: -14px; }
 
 /* ─────────────────────────────────────────────────
    APP SHELL
@@ -106,9 +126,9 @@ html, body {
 ───────────────────────────────────────────────── */
 .desktop-sidebar {
   display: none; width: 260px; flex-shrink: 0;
-  background: #080A0E; border-right: 1px solid var(--border);
+  background: var(--bg-sidebar); border-right: 1px solid var(--border);
   flex-direction: column; padding: 24px 16px 20px; gap: 6px;
-  overflow-y: auto;
+  overflow-y: auto; transition: background-color .3s;
 }
 @media (min-width: 768px) {
   .desktop-sidebar { display: flex; }
@@ -123,25 +143,25 @@ html, body {
 }
 .logo-mark {
   width: 36px; height: 36px; border-radius: 10px;
-  background: linear-gradient(135deg, #FF2D55 0%, #B00020 100%);
+  background: var(--accent-gradient);
   display: flex; align-items: center; justify-content: center;
   color: #fff; box-shadow: 0 4px 14px var(--accent-glow);
 }
-.logo-text { font-size: 18px; font-weight: 800; letter-spacing: 1px; }
+.logo-text { font-family: var(--font-heading); font-size: 20px; font-weight: 800; letter-spacing: 1px; }
 
 .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
 .sd-nav-btn {
   display: flex; align-items: center; gap: 14px;
   background: none; border: none; cursor: pointer;
-  color: var(--text-sub); font-family: var(--font); font-size: 14px; font-weight: 600;
+  color: var(--text-sub); font-family: var(--font-body); font-size: 14px; font-weight: 600;
   padding: 10px 14px; border-radius: 10px;
   transition: all .2s; width: 100%; text-align: left;
 }
 .sd-nav-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
 .sd-nav-btn:hover { color: var(--text); background: var(--bg-card-hover); }
 .sd-nav-btn.active {
-  color: var(--text); background: rgba(255,45,85,.12);
-  border-left: 3px solid var(--avara-crimson);
+  color: var(--accent); background: var(--bg-card-hover);
+  font-weight: 700;
 }
 
 .sd-player-panel {
@@ -154,13 +174,13 @@ html, body {
   width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; position: relative;
 }
 .sd-art { width: 100%; height: 100%; object-fit: cover; }
-.sd-title  { font-size: 14px; font-weight: 700; text-align: center; }
+.sd-title  { font-family: var(--font-heading); font-size: 14px; font-weight: 700; text-align: center; }
 .sd-artist { font-size: 12px; color: var(--text-sub); text-align: center; }
 .sd-progress-wrap { width: 100%; }
 .sd-progress-track {
-  height: 4px; background: #252A32; border-radius: 2px; cursor: pointer; position: relative; margin-bottom: 4px;
+  height: 4px; background: var(--border); border-radius: 2px; cursor: pointer; position: relative; margin-bottom: 4px;
 }
-.sd-progress-fill { height: 100%; border-radius: 2px; background: var(--avara-crimson); width: 0%; }
+.sd-progress-fill { height: 100%; border-radius: 2px; background: var(--accent); width: 0%; }
 .sd-times { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
 .sd-controls { display: flex; align-items: center; justify-content: center; gap: 12px; }
 .sd-ctrl-btn {
@@ -170,7 +190,7 @@ html, body {
 .sd-ctrl-btn svg { width: 16px; height: 16px; }
 .sd-play-btn {
   width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer;
-  background: var(--avara-crimson); color: #fff;
+  background: var(--accent-gradient); color: #fff;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 4px 14px var(--accent-glow);
 }
@@ -198,29 +218,30 @@ html, body {
 .home-scroll::-webkit-scrollbar { display: none; }
 
 /* ─────────────────────────────────────────────────
-   AVARA BRAND HEADER
+   AVARA HEADER
 ───────────────────────────────────────────────── */
 .avara-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 20px 10px;
   position: sticky; top: 0; z-index: 50;
-  background: linear-gradient(to bottom, rgba(11,14,20,0.95) 70%, rgba(11,14,20,0));
+  background: var(--bg);
   backdrop-filter: blur(12px);
 }
 .brand-badge { display: flex; align-items: center; gap: 8px; }
 .brand-dot {
   width: 10px; height: 10px; border-radius: 50%;
-  background: var(--avara-crimson);
-  box-shadow: 0 0 10px var(--avara-crimson);
+  background: var(--accent); box-shadow: 0 0 10px var(--accent);
 }
-.brand-title { font-size: 16px; font-weight: 800; letter-spacing: 1.5px; }
+.brand-title { font-family: var(--font-heading); font-size: 18px; font-weight: 800; letter-spacing: 1.5px; }
+
+.header-actions { display: flex; align-items: center; gap: 8px; }
 
 .icon-circle-btn {
   background: var(--bg-card); border: 1px solid var(--border);
   cursor: pointer; color: var(--text);
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 38px; height: 38px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  transition: all .2s;
+  transition: all .2s; box-shadow: var(--shadow);
 }
 .icon-circle-btn:hover { background: var(--bg-card-hover); }
 
@@ -229,25 +250,25 @@ html, body {
   display: flex; align-items: center; gap: 10px;
   margin: 0 20px 12px; padding: 10px 14px;
   background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-  animation: slideDown .25s ease;
+  animation: slideDown .25s ease; box-shadow: var(--shadow);
 }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 .search-icon-sm { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
 .search-bar input {
   flex: 1; background: none; border: none; outline: none;
-  color: var(--text); font-family: var(--font); font-size: 13px;
+  color: var(--text); font-family: var(--font-body); font-size: 13px;
 }
 .search-bar input::placeholder { color: var(--text-muted); }
 .search-bar button { background: none; border: none; color: var(--text-muted); cursor: pointer; }
 
 /* ─────────────────────────────────────────────────
-   HERO SPOTLIGHT BANNER (Dynamic Real Song Feature)
+   HERO SPOTLIGHT BANNER
 ───────────────────────────────────────────────── */
 .hero-banner-section { padding: 4px 20px 16px; }
 .hero-banner {
   position: relative; width: 100%; height: 210px; border-radius: 18px;
   overflow: hidden; display: flex; align-items: flex-end;
-  box-shadow: 0 12px 30px rgba(0,0,0,.5);
+  box-shadow: var(--shadow); border: 1px solid var(--border);
 }
 .hero-bg {
   position: absolute; inset: 0; background-size: cover; background-position: center;
@@ -255,28 +276,28 @@ html, body {
 }
 .hero-overlay {
   position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(11,14,20,0.95) 15%, rgba(11,14,20,0.4) 60%, rgba(11,14,20,0.1) 100%);
+  background: linear-gradient(to top, var(--bg) 15%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.1) 100%);
 }
 .hero-content {
   position: relative; z-index: 2; padding: 18px; width: 100%;
 }
 .hero-tag {
   font-size: 10px; font-weight: 800; letter-spacing: 1px;
-  color: var(--avara-crimson); background: rgba(255,45,85,.15);
+  color: var(--accent); background: var(--accent-glow);
   padding: 4px 10px; border-radius: 100px; display: inline-block; margin-bottom: 8px;
-  border: 1px solid rgba(255,45,85,.3);
+  border: 1px solid var(--border);
 }
 .hero-title {
-  font-size: 20px; font-weight: 800; color: #fff;
+  font-family: var(--font-heading); font-size: 22px; font-weight: 800; color: #fff;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;
 }
-.hero-artist { font-size: 13px; color: var(--text-sub); margin-top: 3px; margin-bottom: 12px; }
+.hero-artist { font-size: 13px; color: rgba(255,255,255,.8); margin-top: 3px; margin-bottom: 12px; }
 
 .hero-play-btn {
   display: inline-flex; align-items: center; gap: 8px;
-  background: linear-gradient(135deg, #FF2D55 0%, #B00020 100%);
+  background: var(--accent-gradient);
   color: #fff; border: none; cursor: pointer;
-  padding: 10px 20px; border-radius: 100px; font-family: var(--font);
+  padding: 10px 20px; border-radius: 100px; font-family: var(--font-body);
   font-size: 13px; font-weight: 700; box-shadow: 0 6px 20px var(--accent-glow);
   transition: transform .2s, box-shadow .2s;
 }
@@ -294,25 +315,25 @@ html, body {
   flex-shrink: 0; padding: 8px 16px; border-radius: 100px;
   background: var(--bg-card); border: 1px solid var(--border);
   color: var(--text-sub); font-size: 12px; font-weight: 600;
-  font-family: var(--font); cursor: pointer; transition: all .2s;
+  font-family: var(--font-body); cursor: pointer; transition: all .2s;
 }
 .cat-chip.active {
-  background: var(--avara-crimson); color: #fff; border-color: var(--avara-crimson);
-  box-shadow: 0 4px 14px var(--accent-glow);
+  background: var(--accent); color: #fff; border-color: var(--accent);
+  box-shadow: 0 4px 14px var(--accent-glow); font-weight: 700;
 }
 
 /* ─────────────────────────────────────────────────
-   QUICK PICKS GRID (Real Songs from AVARA_SONGS)
+   QUICK PICKS GRID
 ───────────────────────────────────────────────── */
 .quick-grid-section { padding: 0 20px 20px; }
-.section-title { font-size: 18px; font-weight: 800; margin-bottom: 12px; letter-spacing: -.3px; }
+.section-title { font-family: var(--font-heading); font-size: 18px; font-weight: 800; margin-bottom: 12px; letter-spacing: -.3px; }
 
 .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .quick-card {
   display: flex; align-items: center; gap: 10px;
   background: var(--bg-card); border: 1px solid var(--border);
   border-radius: 10px; overflow: hidden; height: 54px; cursor: pointer;
-  transition: background .2s, transform .15s; position: relative;
+  transition: background .2s, transform .15s; position: relative; box-shadow: var(--shadow);
 }
 .quick-card:hover { background: var(--bg-card-hover); }
 .quick-card:active { transform: scale(.97); }
@@ -320,20 +341,20 @@ html, body {
 .quick-card img { width: 54px; height: 54px; object-fit: cover; flex-shrink: 0; }
 .quick-card-info { flex: 1; overflow: hidden; padding-right: 6px; }
 .quick-title {
-  font-size: 12px; font-weight: 700; color: var(--text);
+  font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .quick-artist { font-size: 10px; color: var(--text-sub); margin-top: 2px; }
 
-.quick-card.playing-card { border-color: var(--avara-crimson); background: rgba(255,45,85,.08); }
-.quick-card.playing-card .quick-title { color: var(--avara-crimson); }
+.quick-card.playing-card { border-color: var(--accent); background: var(--bg-card-hover); }
+.quick-card.playing-card .quick-title { color: var(--accent); }
 
 .eq-icon {
   margin-left: auto; margin-right: 10px;
   display: flex; align-items: flex-end; gap: 2px; height: 14px;
 }
 .eq-icon span {
-  width: 3px; background: var(--avara-crimson); border-radius: 1px;
+  width: 3px; background: var(--accent); border-radius: 1px;
   animation: eqBounce .5s ease-in-out infinite alternate;
 }
 .eq-icon span:nth-child(1){height: 6px; animation-delay: 0s;}
@@ -342,11 +363,11 @@ html, body {
 @keyframes eqBounce { 0% { transform: scaleY(.2); } 100% { transform: scaleY(1); } }
 
 /* ─────────────────────────────────────────────────
-   SHELVES (Horizontal Carousels of Real Songs)
+   SHELVES
 ───────────────────────────────────────────────── */
 .shelf-section { padding: 4px 0 24px; }
 .shelf-header { padding: 0 20px 12px; }
-.shelf-title { font-size: 18px; font-weight: 800; letter-spacing: -.3px; }
+.shelf-title { font-family: var(--font-heading); font-size: 18px; font-weight: 800; letter-spacing: -.3px; }
 
 .shelf-scroll {
   display: flex; gap: 14px; padding: 0 20px;
@@ -362,17 +383,17 @@ html, body {
 .card-cover {
   width: 140px; height: 140px; border-radius: 12px; overflow: hidden;
   position: relative; margin-bottom: 8px; background: var(--bg-card);
-  box-shadow: 0 6px 16px rgba(0,0,0,.4);
+  box-shadow: var(--shadow); border: 1px solid var(--border);
 }
 .card-cover img { width: 100%; height: 100%; object-fit: cover; }
 .card-cat-badge {
   position: absolute; top: 8px; left: 8px; font-size: 9px; font-weight: 700;
-  background: rgba(11,14,20,0.85); color: var(--text); padding: 3px 8px; border-radius: 100px;
-  backdrop-filter: blur(4px); border: 1px solid var(--border);
+  background: rgba(15,23,42,0.85); color: #fff; padding: 3px 8px; border-radius: 100px;
+  backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,.1);
 }
 
 .card-title {
-  font-size: 13px; font-weight: 700; color: var(--text);
+  font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .card-sub { font-size: 11px; color: var(--text-sub); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -389,8 +410,8 @@ html, body {
 }
 .song-row:hover  { background: var(--bg-card); }
 .song-row:active { background: var(--bg-card-hover); }
-.song-row.playing { background: rgba(255,45,85,.08); }
-.song-row.playing .song-row-title { color: var(--avara-crimson); }
+.song-row.playing { background: var(--bg-card-hover); }
+.song-row.playing .song-row-title { color: var(--accent); }
 
 .song-thumb-wrap {
   width: 48px; height: 48px; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: var(--bg-card);
@@ -399,7 +420,7 @@ html, body {
 
 .song-row-info { flex: 1; overflow: hidden; }
 .song-row-title {
-  font-size: 14px; font-weight: 600; color: var(--text);
+  font-family: var(--font-heading); font-size: 14px; font-weight: 600; color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .song-row-artist { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
@@ -411,19 +432,19 @@ html, body {
   transition: transform .2s, color .2s;
 }
 .song-row-like-btn svg { width: 18px; height: 18px; }
-.song-row-like-btn.liked { color: var(--avara-crimson); }
-.song-row-like-btn.liked svg { fill: var(--avara-crimson); stroke: var(--avara-crimson); }
+.song-row-like-btn.liked { color: var(--accent); }
+.song-row-like-btn.liked svg { fill: var(--accent); stroke: var(--accent); }
 
 /* ─────────────────────────────────────────────────
-   FLOATING MINI PLAYER (Avara Dark Glass Pill)
+   FLOATING MINI PLAYER
 ───────────────────────────────────────────────── */
 .mini-player {
   position: absolute; bottom: 62px; left: 10px; right: 10px;
-  background: rgba(22, 27, 34, 0.95);
+  background: var(--mini-player-bg);
   border: 1px solid var(--border); border-radius: 14px; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
   padding: 8px 12px; backdrop-filter: blur(16px);
-  box-shadow: 0 10px 30px rgba(0,0,0,.6), 0 0 20px rgba(255,45,85,.1);
+  box-shadow: var(--shadow);
   animation: miniFloat .3s ease-out;
 }
 @keyframes miniFloat { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -433,13 +454,13 @@ html, body {
 }
 .mini-art { width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
 .mini-info { flex: 1; overflow: hidden; }
-.mini-title { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mini-title { font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mini-artist-txt { font-size: 11px; color: var(--text-sub); margin-top: 1px; }
 
 .mini-right { display: flex; align-items: center; gap: 6px; }
 
 .mini-play-btn {
-  background: var(--avara-crimson); border: none; color: #fff; cursor: pointer;
+  background: var(--accent-gradient); border: none; color: #fff; cursor: pointer;
   width: 38px; height: 38px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 4px 12px var(--accent-glow);
@@ -448,17 +469,17 @@ html, body {
 
 .mini-prog-bar {
   position: absolute; bottom: 0; left: 10px; right: 10px; height: 2px;
-  background: rgba(255,255,255,.1); border-radius: 1px;
+  background: var(--border); border-radius: 1px;
 }
 .mini-prog-fill {
-  height: 100%; background: var(--avara-crimson); width: 0%; border-radius: 1px;
+  height: 100%; background: var(--accent); width: 0%; border-radius: 1px;
   transition: width .25s linear;
 }
 
 /* ─────────────────────────────────────────────────
    FULL PLAYER VIEW OVERLAY
 ───────────────────────────────────────────────── */
-#player-view { background: #0B0E14; z-index: 300; }
+#player-view { background: var(--bg); z-index: 300; }
 .player-bg {
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
@@ -474,16 +495,16 @@ html, body {
   background: var(--bg-card); border: 1px solid var(--border); color: var(--text); cursor: pointer;
   width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
 }
-.player-topbar-label { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: var(--avara-crimson); }
+.player-topbar-label { font-family: var(--font-heading); font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: var(--accent); }
 
 .player-art-wrap { display: flex; justify-content: center; margin: 20px 0; }
 .player-art {
   width: 100%; max-width: 300px; aspect-ratio: 1; object-fit: cover;
-  border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,.8);
+  border-radius: 18px; box-shadow: var(--shadow);
 }
 
 .player-info { margin-bottom: 10px; }
-.player-title { font-size: 22px; font-weight: 800; line-height: 1.3; }
+.player-title { font-family: var(--font-heading); font-size: 22px; font-weight: 800; line-height: 1.3; }
 .player-artist { font-size: 14px; color: var(--text-sub); margin-top: 4px; }
 
 .lyrics-strip { min-height: 44px; display: flex; align-items: center; justify-content: center; text-align: center; }
@@ -491,13 +512,13 @@ html, body {
 
 .progress-area { margin: 10px 0 6px; }
 .progress-track {
-  height: 4px; background: rgba(255,255,255,.15); border-radius: 2px;
+  height: 4px; background: var(--border); border-radius: 2px;
   position: relative; cursor: pointer; margin-bottom: 6px;
 }
-.progress-fill { height: 100%; background: var(--avara-crimson); border-radius: 2px; width: 0%; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; }
 .progress-thumb {
   position: absolute; top: 50%; transform: translate(-50%,-50%);
-  width: 12px; height: 12px; border-radius: 50%; background: #fff; left: 0%; opacity: 0; transition: opacity .2s;
+  width: 12px; height: 12px; border-radius: 50%; background: var(--text); left: 0%; opacity: 0; transition: opacity .2s;
 }
 .progress-track:hover .progress-thumb { opacity: 1; }
 .progress-times { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
@@ -507,10 +528,10 @@ html, body {
   background: none; border: none; color: var(--text-sub); cursor: pointer;
   width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
 }
-.ctrl-sm-btn.active { color: var(--avara-crimson); }
+.ctrl-sm-btn.active { color: var(--accent); }
 .play-btn {
   width: 64px; height: 64px; border-radius: 50%; border: none; cursor: pointer;
-  background: linear-gradient(135deg, #FF2D55 0%, #B00020 100%);
+  background: var(--accent-gradient);
   color: #fff; display: flex; align-items: center; justify-content: center;
   box-shadow: 0 8px 24px var(--accent-glow);
 }
@@ -520,10 +541,10 @@ html, body {
 .vol-icon { width: 14px; height: 14px; color: var(--text-muted); }
 .vol-slider {
   flex: 1; -webkit-appearance: none; appearance: none; height: 3px;
-  background: rgba(255,255,255,.15); border-radius: 2px; outline: none;
+  background: var(--border); border-radius: 2px; outline: none;
 }
 .vol-slider::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--avara-crimson);
+  -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--accent);
 }
 
 /* ─────────────────────────────────────────────────
@@ -531,17 +552,18 @@ html, body {
 ───────────────────────────────────────────────── */
 .mobile-nav {
   position: absolute; bottom: 0; left: 0; right: 0;
-  height: 56px; background: #080A0E;
+  height: 56px; background: var(--bg-sidebar);
   border-top: 1px solid var(--border);
   display: flex; justify-content: space-around; align-items: center;
   z-index: 200; padding-bottom: env(safe-area-inset-bottom);
+  transition: background-color .3s;
 }
 .mob-nav-btn {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   background: none; border: none; cursor: pointer; color: var(--text-muted);
-  font-family: var(--font); font-size: 10px; font-weight: 600;
+  font-family: var(--font-body); font-size: 10px; font-weight: 600;
   padding: 4px 12px; transition: color .15s;
 }
 .mob-nav-btn svg { width: 22px; height: 22px; }
-.mob-nav-btn.active { color: var(--avara-crimson); }
+.mob-nav-btn.active { color: var(--accent); }
 .mob-nav-btn:active { transform: scale(.92); }
