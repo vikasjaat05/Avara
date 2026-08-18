@@ -1,23 +1,16 @@
-/* ============================================================
-   Avara Ashiq — Spotify-Style Clean White UI
-   Matching the provided screenshot design exactly
-   ============================================================ */
-
-*, *::before, *::after {
-  margin: 0; padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+*{
+  margin:0;padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f5f5f5;
+  background: #fff;
   color: #111;
   height: 100dvh;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  margin: 0;
 }
 
 /* Preloader */
@@ -38,17 +31,20 @@ body {
 .pre-bar:nth-child(4){height:28px;animation-delay:.3s;}
 @keyframes preAnim{0%{transform:scaleY(.4);}100%{transform:scaleY(1);}}
 
-/* App Shell */
+
+/* App Shell — fills full viewport, no phone-frame wrapper */
 #app {
-  width: 100%; max-width: 390px;
+  width: 100%;
+  max-width: 480px;   /* readable on wide desktop screens */
   height: 100dvh;
-  position: relative; overflow: hidden;
+  margin: 0 auto;     /* center on wide screens */
+  position: relative;
+  overflow: hidden;
   background: #fff;
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
-@media(min-width:400px){
-  #app{border-radius:44px;height:92dvh;box-shadow:0 24px 80px rgba(0,0,0,.15);}
-}
+
 
 /* Views */
 .view {

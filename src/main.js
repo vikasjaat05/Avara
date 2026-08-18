@@ -7,7 +7,7 @@ let ytIsReady    = false;
 let pendingPlay  = null;   // queued play when player not ready yet
 let currentIdx   = 0;
 let isPlaying    = false;
-let playlist     = [...AVARA_SONGS];
+let playlist     = AVARA_SONGS.filter(Boolean);  // remove any undefined entries
 let likedSet     = new Set();
 let shuffleOn    = false;
 let repeatOn     = false;
@@ -251,7 +251,8 @@ function showMiniPlayer() {
 function renderSongList(songs) {
   if (!D.songList) return;
   D.songList.innerHTML = '';
-  songs.forEach((song) => {
+  const safeSongs = (songs || playlist).filter(Boolean);
+  safeSongs.forEach((song) => {
     const realIdx = playlist.indexOf(song);
     const row = document.createElement('div');
     row.className = 'song-row' + (realIdx === currentIdx && isPlaying ? ' playing' : '');
