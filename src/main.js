@@ -672,7 +672,7 @@ async function fetchAudioStreamUrl(songId) {
 }
 
 // ─── Playback ────────────────────────────────────────────────────────────────
-async function _doPlay(idx) {
+function _doPlay(idx) {
   const song = playlist[idx];
   if (!song) return;
   enableBackgroundAudio();
@@ -680,32 +680,36 @@ async function _doPlay(idx) {
   recordSongPlay(song);
   setupMediaSession(song);
 
-  // 1. If in Android App, use Native Media3 Player for 100% Background Audio
-  if (isAndroidApp) {
-    const streamUrl = await fetchAudioStreamUrl(song.id);
-    if (streamUrl) {
-      const thumb = `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`;
-      window.AndroidBridge.playSong(streamUrl, song.title, song.artist, thumb);
-      return;
-    }
+  // Synchronously trigger YouTube player on user gesture
+  if (ytIsReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+    try {
+      if (initialSeek > 0) {
+        ytPlayer.loadVideoById({ videoId: song.id, startSeconds: Math.floor(initialSeek) });
+      } else {
+        ytPlayer.loadVideoById({ videoId: song.id, startSeconds: 0 });
+      }
+      ytPlayer.playVideo();
+      isPlaying = true;
+      setPlayUI(true);
+    } catch(e) {}
   }
 
-  // 2. Fallback to YouTube iframe for desktop/web
-  try {
-    if (initialSeek > 0) {
-      ytPlayer.loadVideoById({ videoId: song.id, startSeconds: Math.floor(initialSeek) });
-    } else {
-      ytPlayer.loadVideoById({ videoId: song.id, startSeconds: 0 });
-    }
-    ytPlayer.playVideo();
-  } catch(e) {}
+  // 1. Android Native App Bridge
+  if (isAndroidApp && window.AndroidBridge) {
+    fetchAudioStreamUrl(song.id).then(streamUrl => {
+      if (streamUrl) {
+        const thumb = `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`;
+        window.AndroidBridge.playSong(streamUrl, song.title, song.artist, thumb);
+      }
+    });
+    return;
+  }
 
-  // 3. Fallback to native audio stream for standard mobile web
-  if (!isAndroidApp) {
-    const streamUrl = await fetchAudioStreamUrl(song.id);
-    if (streamUrl) {
+  // 2. Mobile Web Native Audio Stream Proxy (Background backup)
+  fetchAudioStreamUrl(song.id).then(streamUrl => {
+    if (streamUrl && nativeAudio) {
       try {
-        if (ytPlayer && typeof ytPlayer.mute === 'function') {
+        if (!isVideoMode && ytPlayer && typeof ytPlayer.mute === 'function') {
           ytPlayer.mute();
         }
       } catch(e) {}
@@ -714,16 +718,15 @@ async function _doPlay(idx) {
         nativeAudio.currentTime = initialSeek;
         initialSeek = 0;
       }
-      nativeAudio.play().catch(() => {});
-    } else {
-      try {
+      nativeAudio.play().catch(() => {
         if (ytPlayer && typeof ytPlayer.unMute === 'function') {
           ytPlayer.unMute();
         }
-      } catch(e) {}
+      });
     }
-  }
+  });
 }
+
 
 function playTrack(idx) {
   if (idx < 0) idx = playlist.length - 1;
