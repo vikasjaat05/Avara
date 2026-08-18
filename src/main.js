@@ -279,14 +279,32 @@ function showMini() {
 }
 
 // ─── Song List Render ────────────────────────────────────────────────────────
-function renderSongList(songs) {
+let _currentFilter = 'all'; // track current view for re-renders
+
+function renderSongList(songs, filter) {
   if (!D.songList) return;
+  if (filter !== undefined) _currentFilter = filter;
   D.songList.innerHTML = '';
   const safe = (songs || playlist).filter(Boolean);
+
+  // Empty state for liked songs
+  if (safe.length === 0 && _currentFilter === 'liked') {
+    D.songList.innerHTML = `
+      <div style="text-align:center;padding:60px 24px;color:rgba(255,255,255,.3)">
+        <div style="font-size:48px;margin-bottom:12px">♡</div>
+        <div style="font-size:15px;font-weight:600">No Liked Songs Yet</div>
+        <div style="font-size:13px;margin-top:6px">Tap ♡ on any song to add it here</div>
+      </div>
+    `;
+    return;
+  }
+
   safe.forEach((song, i) => {
     const realIdx = playlist.indexOf(song);
+    const liked   = likedSet.has(realIdx);
     const el = document.createElement('div');
     el.className = 'song-row' + (realIdx === currentIdx && isPlaying ? ' playing' : '');
+    el.dataset.idx = realIdx;
     el.style.animationDelay = (i * 0.04) + 's';
     el.innerHTML = `
       <div class="song-thumb-wrap">
@@ -296,16 +314,57 @@ function renderSongList(songs) {
         <div class="song-row-title">${song.title}</div>
         <div class="song-row-artist">${song.artist}</div>
       </div>
-      <button class="song-row-play-btn" aria-label="Play">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <button class="song-row-like-btn ${liked ? 'liked' : ''}" data-idx="${realIdx}" aria-label="Like">
+        <svg viewBox="0 0 24 24" fill="${liked ? '#e8455e' : 'none'}" stroke="${liked ? '#e8455e' : 'currentColor'}" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
       </button>
     `;
+
+    // Tap row → play + open player
     el.addEventListener('click', (e) => {
-      if (e.target.closest('.song-row-play-btn') || !e.target.closest('.song-row-play-btn')) {
-        playTrack(realIdx);
-        openPlayer();
-      }
+      if (e.target.closest('.song-row-like-btn')) return; // don't open player when liking
+      playTrack(realIdx);
+      openPlayer();
     });
+
+    // Heart button → toggle like
+    el.querySelector('.song-row-like-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx  = parseInt(e.currentTarget.dataset.idx);
+      const btn  = e.currentTarget;
+      const svg  = btn.querySelector('svg');
+      if (likedSet.has(idx)) {
+        likedSet.delete(idx);
+        btn.classList.remove('liked');
+        svg.setAttribute('fill',   'none');
+        svg.setAttribute('stroke', 'currentColor');
+        // If currently showing liked songs, remove this row
+        if (_currentFilter === 'liked') {
+          el.style.transition = 'opacity .25s, transform .25s';
+          el.style.opacity    = '0';
+          el.style.transform  = 'translateX(30px)';
+          setTimeout(() => {
+            el.remove();
+            // If list is now empty, re-render to show empty state
+            if (!D.songList.querySelector('.song-row')) {
+              renderSongList([], 'liked');
+            }
+          }, 260);
+        }
+      } else {
+        likedSet.add(idx);
+        btn.classList.add('liked');
+        svg.setAttribute('fill',   '#e8455e');
+        svg.setAttribute('stroke', '#e8455e');
+        // Bounce animation
+        btn.style.transform = 'scale(1.3)';
+        setTimeout(() => btn.style.transform = '', 200);
+      }
+      // Keep player like button in sync
+      if (idx === currentIdx) setLikeUI(likedSet.has(idx));
+    });
+
     D.songList.appendChild(el);
   });
 }
@@ -372,10 +431,10 @@ function bindAll() {
   if (D.sdDiscover) D.sdDiscover.addEventListener('click', () => { setSdNav(D.sdDiscover); renderSongList(playlist); });
   if (D.sdSearch)   D.sdSearch.addEventListener('click',   () => { setSdNav(D.sdSearch); toggleSearch(); });
   if (D.sdLibrary)  D.sdLibrary.addEventListener('click',  () => { setSdNav(D.sdLibrary); renderSongList(playlist); });
-  if (D.sdLiked)    D.sdLiked.addEventListener('click',    () => {
+  if (D.sdLiked) D.sdLiked.addEventListener('click', () => {
     setSdNav(D.sdLiked);
     const liked = playlist.filter((_,i) => likedSet.has(i));
-    renderSongList(liked.length ? liked : playlist);
+    renderSongList(liked, 'liked');
   });
 
   // Mobile bottom nav
@@ -386,7 +445,7 @@ function bindAll() {
     setMobNav(D.navLiked);
     closePlayer();
     const liked = playlist.filter((_,i) => likedSet.has(i));
-    renderSongList(liked.length ? liked : playlist);
+    renderSongList(liked, 'liked');
   });
 
   // Search
@@ -403,16 +462,21 @@ function bindAll() {
     renderSongList(playlist);
   });
 
-  // Filter chips
   D.filterChips.forEach(chip => chip.addEventListener('click', () => {
     D.filterChips.forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     const f = chip.dataset.filter;
-    if (f === 'all')   renderSongList(playlist);
-    else if (f === 'liked') renderSongList(playlist.filter((_,i) => likedSet.has(i)));
-    else renderSongList(playlist.filter(s => s.category && s.category.toLowerCase().includes(
-      f === 'sad' ? 'बेवफाई' : 'दर्द'
-    )));
+    if (f === 'all') {
+      renderSongList(playlist, 'all');
+    } else if (f === 'liked') {
+      const liked = playlist.filter((_,i) => likedSet.has(i));
+      renderSongList(liked, 'liked');
+    } else {
+      const filtered = playlist.filter(s => s.category && s.category.toLowerCase().includes(
+        f === 'sad' ? 'बेवफाई' : 'दर्द'
+      ));
+      renderSongList(filtered, f);
+    }
   }));
 }
 

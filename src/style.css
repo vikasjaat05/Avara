@@ -366,15 +366,17 @@ html, body {
 }
 .song-row-artist { font-size: 12px; color: var(--text2); margin-top: 3px; }
 
-.song-row-play-btn {
+/* Heart/like button in song row */
+.song-row-like-btn {
   width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
-  background: var(--bg3); border: none; cursor: pointer; color: var(--text2);
+  background: none; border: none; cursor: pointer; color: var(--text3);
   display: flex; align-items: center; justify-content: center;
-  transition: all .2s;
+  transition: transform .2s, color .2s;
 }
-.song-row-play-btn svg { width: 14px; height: 14px; }
-.song-row:hover .song-row-play-btn { background: var(--accent); color: #000; }
-.song-row-play-btn:active { transform: scale(.88); }
+.song-row-like-btn svg { width: 16px; height: 16px; }
+.song-row-like-btn:hover { transform: scale(1.2); }
+.song-row-like-btn.liked { color: #e8455e; }
+.song-row-like-btn:active { transform: scale(.85); }
 
 /* ─────────────────────────────────────────────────
    MINI PLAYER (mobile)
