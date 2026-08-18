@@ -6,6 +6,8 @@ const KEY_LAST_SONG_ID = 'avara_last_song_id';
 const KEY_LAST_TIME    = 'avara_last_progress_time';
 const KEY_LIKED_IDS    = 'avara_liked_song_ids';
 const KEY_THEME_MODE   = 'avara_theme_mode';
+const KEY_MOOD_COUNTS  = 'avara_mood_counts';
+const KEY_PLAY_HISTORY = 'avara_play_history';
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let ytPlayer     = null;
@@ -22,6 +24,8 @@ let inPlayer     = false;
 let initialSeek  = 0;
 let currentTheme = 'dark';
 let currentTab   = 'home';
+let moodCounts   = { heartbreak: 0, deep: 0, memories: 0 };
+let playHistory  = [];
 
 // ─── DOM References ──────────────────────────────────────────────────────────
 let D = {};
@@ -36,6 +40,10 @@ function grabDOM() {
 
   // Lists & Containers
   D.quickGrid       = document.getElementById('quick-grid');
+  D.shelfRecommended= document.getElementById('shelf-recommended');
+  D.recTitle        = document.getElementById('rec-shelf-title');
+  D.recSubtitle     = document.getElementById('rec-shelf-subtitle');
+  D.recMoodBadge    = document.getElementById('rec-mood-badge');
   D.shelfBewafai    = document.getElementById('shelf-bewafai');
   D.shelfDard       = document.getElementById('shelf-dard');
   D.shelfMemories   = document.getElementById('shelf-memories');
@@ -52,20 +60,6 @@ function grabDOM() {
   D.likedSongsList      = document.getElementById('liked-songs-list');
   D.likedCountSub       = document.getElementById('liked-count-sub');
   D.playAllLikedBtn     = document.getElementById('play-all-liked-btn');
-
-  // Home Music Widget DOM
-  D.widgetTitle     = document.getElementById('widget-title');
-  D.widgetArtist    = document.getElementById('widget-artist');
-  D.widgetProgTrack = document.getElementById('widget-prog-track');
-  D.widgetProgFill  = document.getElementById('widget-prog-fill');
-  D.widgetCur       = document.getElementById('widget-cur');
-  D.widgetRem       = document.getElementById('widget-rem');
-  D.widgetPlayBtn   = document.getElementById('widget-play-btn');
-  D.widgetPlayIcon  = document.getElementById('widget-play-icon');
-  D.widgetPauseIcon = document.getElementById('widget-pause-icon');
-  D.widgetPrevBtn   = document.getElementById('widget-prev-btn');
-  D.widgetNextBtn   = document.getElementById('widget-next-btn');
-  D.widgetHeartBtn  = document.getElementById('widget-heart-btn');
 
   // Hero Spotlight
   D.heroBanner      = document.getElementById('hero-banner');
@@ -240,7 +234,7 @@ function initBoomerangBg() {
   });
 }
 
-// ─── Persistence ─────────────────────────────────────────────────────────────
+// ─── Persistence & Listening History ─────────────────────────────────────────
 function restoreSavedState() {
   try {
     const rawLiked = localStorage.getItem(KEY_LIKED_IDS);
@@ -251,6 +245,14 @@ function restoreSavedState() {
         if (idx !== -1) likedSet.add(idx);
       });
     }
+  } catch(e) {}
+
+  try {
+    const rawMoods = localStorage.getItem(KEY_MOOD_COUNTS);
+    if (rawMoods) moodCounts = JSON.parse(rawMoods);
+
+    const rawHist = localStorage.getItem(KEY_PLAY_HISTORY);
+    if (rawHist) playHistory = JSON.parse(rawHist);
   } catch(e) {}
 
   try {
@@ -275,7 +277,27 @@ function saveState() {
     }
     const likedIds = Array.from(likedSet).map(idx => playlist[idx] && playlist[idx].id).filter(Boolean);
     localStorage.setItem(KEY_LIKED_IDS, JSON.stringify(likedIds));
+    localStorage.setItem(KEY_MOOD_COUNTS, JSON.stringify(moodCounts));
+    localStorage.setItem(KEY_PLAY_HISTORY, JSON.stringify(playHistory));
   } catch(e) {}
+}
+
+function recordSongPlay(song) {
+  if (!song) return;
+  const cat = song.category || '';
+  if (cat.includes('बेवफाई') || cat.includes('💔')) {
+    moodCounts.heartbreak = (moodCounts.heartbreak || 0) + 1;
+  } else if (cat.includes('दर्द') || cat.includes('🔥')) {
+    moodCounts.deep = (moodCounts.deep || 0) + 1;
+  } else if (cat.includes('यादें') || cat.includes('🌌') || cat.includes('प्यार')) {
+    moodCounts.memories = (moodCounts.memories || 0) + 1;
+  }
+
+  playHistory.unshift(song.id);
+  if (playHistory.length > 50) playHistory.pop();
+
+  saveState();
+  renderRecommendedSection();
 }
 
 function savePlaybackTime(sec) {
@@ -337,6 +359,7 @@ function _doPlay(idx) {
   const song = playlist[idx];
   if (!song) return;
   saveState();
+  recordSongPlay(song);
 
   if (initialSeek > 0) {
     const startSec = Math.floor(initialSeek);
@@ -392,10 +415,6 @@ function updateTrackUI(song) {
   if (D.heroTitle)  D.heroTitle.textContent = song.title;
   if (D.heroArtist) D.heroArtist.textContent = song.artist;
 
-  // Home Footer Music Widget update
-  if (D.widgetTitle)  D.widgetTitle.textContent  = song.title;
-  if (D.widgetArtist) D.widgetArtist.textContent = song.artist;
-
   // Player view
   if (D.playerArt)    D.playerArt.src = thumb;
   if (D.playerTitle)  D.playerTitle.textContent = song.title;
@@ -425,13 +444,10 @@ function setPlayUI(playing) {
   if (D.miniPauseIcon)  D.miniPauseIcon.style.display   = playing ? '' : 'none';
   if (D.sdPlayIcon)     D.sdPlayIcon.style.display      = playing ? 'none' : '';
   if (D.sdPauseIcon)    D.sdPauseIcon.style.display     = playing ? '' : 'none';
-  if (D.widgetPlayIcon) D.widgetPlayIcon.style.display  = playing ? 'none' : '';
-  if (D.widgetPauseIcon)D.widgetPauseIcon.style.display = playing ? '' : 'none';
 }
 
 function setLikeUI(liked) {
   if (D.playerLikeBtn) D.playerLikeBtn.classList.toggle('liked', liked);
-  if (D.widgetHeartBtn) D.widgetHeartBtn.classList.toggle('liked', liked);
 }
 
 function highlightRow() {
@@ -467,10 +483,6 @@ function startTick() {
       if (D.sdProgressFill) D.sdProgressFill.style.width = pct + '%';
       if (D.sdCur) D.sdCur.textContent = fmt(cur);
       if (D.sdRem) D.sdRem.textContent = '-' + fmt(dur - cur);
-
-      if (D.widgetProgFill) D.widgetProgFill.style.width = pct + '%';
-      if (D.widgetCur) D.widgetCur.textContent = fmt(cur);
-      if (D.widgetRem) D.widgetRem.textContent = '-' + fmt(dur - cur);
     } catch(_) {}
   }, 400);
 }
@@ -530,7 +542,7 @@ function openPlayer() {
   inPlayer = true;
   const views = [D.homeView, D.searchView, D.libraryView, D.likedView];
   views.forEach(v => v && v.classList.replace('active-view','hidden-view'));
-  D.playerView.classList.replace('hidden-view','active-view');
+  D.playerView.classList.replace('active-view','hidden-view');
   if (D.miniPlayer) D.miniPlayer.classList.add('hidden');
 }
 
@@ -544,6 +556,73 @@ function showMini() {
   if (!inPlayer && D.miniPlayer) {
     D.miniPlayer.classList.remove('hidden');
   }
+}
+
+// ─── AI Personalized Recommendation Engine ───────────────────────────────────
+function renderRecommendedSection() {
+  if (!D.shelfRecommended) return;
+  D.shelfRecommended.innerHTML = '';
+
+  const { heartbreak = 0, deep = 0, memories = 0 } = moodCounts;
+  const totalListened = heartbreak + deep + memories;
+
+  let topMood = 'mix';
+  if (totalListened >= 2) {
+    if (heartbreak >= deep && heartbreak >= memories) topMood = 'heartbreak';
+    else if (deep >= heartbreak && deep >= memories) topMood = 'deep';
+    else if (memories >= heartbreak && memories >= deep) topMood = 'memories';
+  }
+
+  let title = 'Recommended For You ✨';
+  let subtitle = 'Based on your recent listening history';
+  let badgeText = '✨ Personalized Mix';
+  let recommendedSongs = [];
+
+  if (topMood === 'heartbreak') {
+    title = 'Recommended For You 💔';
+    subtitle = 'Curated based on your Sad & Heartbreak listening vibe';
+    badgeText = '💔 Sad Vibe';
+    recommendedSongs = playlist.filter(s => s.category && (s.category.includes('बेवफाई') || s.category.includes('💔'))).slice(0, 10);
+  } else if (topMood === 'deep') {
+    title = 'Recommended For You 🔥';
+    subtitle = 'Curated based on your Deep Emotion & Dard listening vibe';
+    badgeText = '🔥 Deep Vibe';
+    recommendedSongs = playlist.filter(s => s.category && (s.category.includes('दर्द') || s.category.includes('🔥'))).slice(0, 10);
+  } else if (topMood === 'memories') {
+    title = 'Recommended For You 🌌';
+    subtitle = 'Curated based on your Love & Nostalgic Memories vibe';
+    badgeText = '🌌 Love Vibe';
+    recommendedSongs = playlist.filter(s => s.category && (s.category.includes('यादें') || s.category.includes('🌌'))).slice(0, 10);
+  } else {
+    // Default mixed recommendation
+    title = 'Recommended For You ✨';
+    subtitle = 'Play songs to unlock your custom AI mood mix';
+    badgeText = '✨ Mix Vibe';
+    recommendedSongs = playlist.slice(0, 10);
+  }
+
+  if (D.recTitle) D.recTitle.textContent = title;
+  if (D.recSubtitle) D.recSubtitle.textContent = subtitle;
+  if (D.recMoodBadge) D.recMoodBadge.textContent = badgeText;
+
+  recommendedSongs.forEach((song) => {
+    const realIdx = playlist.indexOf(song);
+    const card = document.createElement('div');
+    card.className = 'shelf-card';
+    card.innerHTML = `
+      <div class="card-cover">
+        <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" loading="lazy" alt="">
+        <span class="card-cat-badge">${badgeText.split(' ')[0]} Recommended</span>
+      </div>
+      <div class="card-title">${song.title}</div>
+      <div class="card-sub">${song.artist}</div>
+    `;
+    card.addEventListener('click', () => {
+      playTrack(realIdx);
+      openPlayer();
+    });
+    D.shelfRecommended.appendChild(card);
+  });
 }
 
 // ─── Render Dynamic Home Sections ─────────────────────────────────────────────
@@ -573,6 +652,8 @@ function renderHomeSections() {
       D.quickGrid.appendChild(card);
     });
   }
+
+  renderRecommendedSection();
 
   if (D.shelfBewafai) {
     D.shelfBewafai.innerHTML = '';
@@ -807,26 +888,6 @@ function bindAll() {
 
   D.miniOpen.addEventListener('click', openPlayer);
   D.miniPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
-
-  // Home Footer Music Widget Events
-  if (D.widgetPlayBtn) D.widgetPlayBtn.addEventListener('click', togglePlay);
-  if (D.widgetPrevBtn) D.widgetPrevBtn.addEventListener('click', prevTrack);
-  if (D.widgetNextBtn) D.widgetNextBtn.addEventListener('click', nextTrack);
-  if (D.widgetHeartBtn) D.widgetHeartBtn.addEventListener('click', () => {
-    if (likedSet.has(currentIdx)) likedSet.delete(currentIdx);
-    else likedSet.add(currentIdx);
-    setLikeUI(likedSet.has(currentIdx));
-    saveState();
-    highlightRow();
-    if (currentTab === 'liked') renderLikedSongs();
-  });
-  if (D.widgetProgTrack) D.widgetProgTrack.addEventListener('click', (e) => {
-    if (!ytIsReady || !ytPlayer) return;
-    const r = D.widgetProgTrack.getBoundingClientRect();
-    const targetSec = (ytPlayer.getDuration() || 0) * Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-    ytPlayer.seekTo(targetSec, true);
-    savePlaybackTime(targetSec);
-  });
 
   if (D.sdPlayBtn) D.sdPlayBtn.addEventListener('click', togglePlay);
   if (D.sdPrevBtn) D.sdPrevBtn.addEventListener('click', prevTrack);

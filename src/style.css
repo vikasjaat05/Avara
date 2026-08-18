@@ -419,11 +419,18 @@ html, body {
 @keyframes eqBounce { 0% { transform: scaleY(.2); } 100% { transform: scaleY(1); } }
 
 /* ─────────────────────────────────────────────────
-   SHELVES
+   SHELVES & RECOMMENDATIONS
 ───────────────────────────────────────────────── */
 .shelf-section { padding: 4px 0 24px; }
 .shelf-header { padding: 0 20px 12px; }
 .shelf-title { font-family: var(--font-heading); font-size: 18px; font-weight: 800; letter-spacing: -.3px; }
+.shelf-rec-header { display: flex; align-items: center; justify-content: space-between; }
+.shelf-subtitle { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+.rec-mood-badge {
+  font-size: 11px; font-weight: 700; color: #fff;
+  background: var(--accent-gradient); padding: 4px 12px; border-radius: 100px;
+  box-shadow: 0 4px 12px var(--accent-glow); flex-shrink: 0;
+}
 
 .shelf-scroll {
   display: flex; gap: 14px; padding: 0 20px;
