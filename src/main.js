@@ -517,12 +517,18 @@ function bindAll() {
     D.topChips.forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
     const f = chip.dataset.filter;
-    if (f === 'all' || f === 'music') {
+    if (f === 'all') {
       renderSongList(playlist, 'all');
-    } else if (f === 'podcasts') {
-      renderSongList(playlist.slice(0, 5), 'podcasts');
-    } else {
-      renderSongList(playlist.slice(5, 10), 'audiobooks');
+    } else if (f === 'trending') {
+      renderSongList(playlist.slice(0, 12), 'trending');
+    } else if (f === 'romantic') {
+      const romantic = playlist.filter(s => s.artist && (s.artist.includes('Sonu') || s.title.includes('Love') || s.title.includes('Dil') || s.category?.includes('यादें')));
+      renderSongList(romantic.length ? romantic : playlist.slice(0, 10), 'romantic');
+    } else if (f === 'sad') {
+      const sad = playlist.filter(s => s.category && (s.category.includes('दर्द') || s.category.includes('बेवफाई')));
+      renderSongList(sad.length ? sad : playlist.slice(5, 15), 'sad');
+    } else if (f === 'lofi') {
+      renderSongList(playlist.slice(10, 20), 'lofi');
     }
   }));
 

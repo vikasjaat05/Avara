@@ -9,7 +9,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Avara Music — Spotify Edition</title>
+  <title>Avara Music — Ultimate Soundscape</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -36,7 +36,7 @@
       <div class="pre-bar"></div>
     </div>
     <p class="pre-title">Avara Music</p>
-    <p class="pre-sub">Loading your soundscape…</p>
+    <p class="pre-sub">Loading your personalized soundscape…</p>
   </div>
 
   <!-- ═══════════ APP SHELL ═══════════ -->
@@ -51,7 +51,7 @@
         <div class="logo-mark">
           <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.435-5.308-1.76-8.786-.963-.335.077-.67-.133-.746-.47-.077-.334.132-.67.47-.745 3.808-.87 7.076-.496 9.712 1.115.293.18.386.563.207.856zm1.233-2.745c-.226.367-.706.482-1.073.257-2.688-1.652-6.785-2.131-9.965-1.166-.413.125-.848-.106-.973-.519-.125-.413.106-.848.519-.973 3.632-1.102 8.147-.568 11.235 1.328.367.226.482.706.257 1.073zm.134-2.863C14.73 9.027 8.49 8.82 4.937 9.9c-.5.152-1.027-.132-1.179-.633-.152-.5.132-1.027.633-1.179 4.088-1.24 10.98-1.004 15.116 1.45.45.267.598.849.33 1.298-.267.45-.849.598-1.298.33z"/></svg>
         </div>
-        <span class="logo-text">Spotify Avara</span>
+        <span class="logo-text">Avara Music</span>
       </div>
 
       <nav class="sidebar-nav">
@@ -112,16 +112,17 @@
       <div id="home-view" class="view active-view">
         <div class="home-scroll">
 
-          <!-- Top Spotify Bar (Avatar + Chips) -->
+          <!-- Top Bar (Avatar + Category Chips) -->
           <div class="top-spotify-bar">
             <div class="user-avatar-wrap">
               <img class="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="profile" />
             </div>
             <div class="header-chips-scroll">
-              <button class="top-chip" data-filter="all">All</button>
-              <button class="top-chip active" data-filter="music">Music</button>
-              <button class="top-chip" data-filter="podcasts">Podcasts</button>
-              <button class="top-chip" data-filter="audiobooks">Audiobooks</button>
+              <button class="top-chip active" data-filter="all">All</button>
+              <button class="top-chip" data-filter="trending">Trending</button>
+              <button class="top-chip" data-filter="romantic">Romantic</button>
+              <button class="top-chip" data-filter="sad">Heartbreak</button>
+              <button class="top-chip" data-filter="lofi">Lo-Fi Beats</button>
             </div>
             <button id="search-toggle-btn" class="header-icon-btn" aria-label="Search">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -131,91 +132,91 @@
           <!-- Search bar (Collapsible) -->
           <div id="search-bar" class="search-bar hidden">
             <svg class="search-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input id="search-input" type="text" placeholder="What do you want to listen to?" autocomplete="off">
+            <input id="search-input" type="text" placeholder="Search songs, artists, or mixes…" autocomplete="off">
             <button id="search-close">✕</button>
           </div>
 
-          <!-- 2-Column Quick Picks Grid (Matches Screenshot) -->
+          <!-- 2-Column Quick Mixes Grid -->
           <section class="quick-grid-section">
             <div class="quick-grid">
-              <div class="quick-card" data-playlist="orion">
-                <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Orion's Playlist Vol. 1</span>
-              </div>
-              <div class="quick-card" data-playlist="hydra">
-                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Hydra's Playlist Vol.1</span>
-              </div>
-              <div class="quick-card playing-card" data-playlist="chili">
+              <div class="quick-card playing-card" data-playlist="top50">
                 <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Red Hot Chili Peppers Mix</span>
+                <span class="quick-title">Avara Top 50 Hits</span>
                 <div class="eq-icon">
                   <span></span><span></span><span></span>
                 </div>
               </div>
-              <div class="quick-card" data-playlist="ophiuchus">
+              <div class="quick-card" data-playlist="darde">
+                <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=150&auto=format&fit=crop&q=80" alt="" />
+                <span class="quick-title">Dard-e-Dil Special</span>
+              </div>
+              <div class="quick-card" data-playlist="sonu">
+                <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=150&auto=format&fit=crop&q=80" alt="" />
+                <span class="quick-title">Sonu Nigam Melodies</span>
+              </div>
+              <div class="quick-card" data-playlist="arijit">
                 <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Ophiuchus' Playlist Vol. 1</span>
+                <span class="quick-title">Arijit Singh Essentials</span>
               </div>
-              <div class="quick-card" data-playlist="mix5">
+              <div class="quick-card" data-playlist="romantic">
                 <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Daily Mix 5</span>
+                <span class="quick-title">Romantic Duets Mix</span>
               </div>
-              <div class="quick-card" data-playlist="gacha">
+              <div class="quick-card" data-playlist="punjabi">
                 <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Gacha Life Songs 2017-20…</span>
+                <span class="quick-title">Punjabi Pop Hits</span>
               </div>
-              <div class="quick-card" data-playlist="pov">
+              <div class="quick-card" data-playlist="lofi">
                 <img src="https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">POV: Me Listening to Hi…</span>
+                <span class="quick-title">Midnight Lo-Fi Beats</span>
               </div>
-              <div class="quick-card" data-playlist="capsule">
+              <div class="quick-card" data-playlist="retro">
                 <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=150&auto=format&fit=crop&q=80" alt="" />
-                <span class="quick-title">Your Time Capsule</span>
+                <span class="quick-title">Bollywood Retro Gold</span>
               </div>
             </div>
           </section>
 
-          <!-- Section: Made For You -->
+          <!-- Section: Curated Daily Mixes -->
           <section class="shelf-section">
-            <h2 class="shelf-heading">Made For •Celestial•</h2>
+            <h2 class="shelf-heading">Made For You</h2>
             <div class="shelf-scroll">
               <div class="shelf-card mix-teal" data-mix="1">
                 <div class="card-cover">
                   <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=300&auto=format&fit=crop&q=80" alt="mix1" />
                   <span class="mix-tag">Daily Mix 1</span>
                 </div>
-                <div class="card-title">Daily Mix 1</div>
-                <div class="card-sub">Bruno Mars, Lady Gaga, Pitbull and more</div>
+                <div class="card-title">Romantic Hits</div>
+                <div class="card-sub">Sonu Nigam, Arijit Singh, Shreya Ghoshal</div>
               </div>
               <div class="shelf-card mix-pink" data-mix="2">
                 <div class="card-cover">
                   <img src="https://images.unsplash.com/photo-1469488865564-c2de10f69f96?w=300&auto=format&fit=crop&q=80" alt="mix2" />
                   <span class="mix-tag">Daily Mix 2</span>
                 </div>
-                <div class="card-title">Daily Mix 2</div>
-                <div class="card-sub">Eagles, Billie Eilish, Elton John and more</div>
+                <div class="card-title">Soulful Heartbreak</div>
+                <div class="card-sub">Attaullah Khan, Nikhil-Vinay, Udit Narayan</div>
               </div>
               <div class="shelf-card mix-purple" data-mix="3">
                 <div class="card-cover">
                   <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&auto=format&fit=crop&q=80" alt="mix3" />
                   <span class="mix-tag">Daily Mix 3</span>
                 </div>
-                <div class="card-title">Daily Mix 3</div>
-                <div class="card-sub">Eminem, Sonu Nigam, Arijit and more</div>
+                <div class="card-title">Retro Classics</div>
+                <div class="card-sub">Kishore Kumar, Lata Mangeshkar, R.D. Burman</div>
               </div>
             </div>
           </section>
 
-          <!-- Section: All Tracks & Mixes -->
+          <!-- Section: All Songs & Recommendations -->
           <section class="tracks-section">
-            <h2 class="shelf-heading">Uniquely Yours</h2>
+            <h2 class="shelf-heading">Recommended For You</h2>
             <div id="song-list"></div>
           </section>
 
         </div>
 
-        <!-- Floating Mobile Mini Player (Matches Maroon Floating Pill in Screenshot) -->
+        <!-- Floating Mobile Mini Player -->
         <div id="mini-player" class="mini-player hidden">
           <div class="mini-left" id="mini-open">
             <img id="mini-art" class="mini-art" src="" alt="art">
@@ -248,7 +249,7 @@
             <button id="back-btn" class="player-back-btn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
-            <span class="player-topbar-label">PLAYING FROM PLAYLIST</span>
+            <span class="player-topbar-label">NOW PLAYING FROM PLAYLIST</span>
             <button id="player-like-btn" class="player-like-btn">
               <svg id="player-like-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             </button>
@@ -266,7 +267,7 @@
           </div>
 
           <div class="lyrics-strip">
-            <div id="lyrics-line" class="lyrics-line">♪ &nbsp; Spotify Soundscape &nbsp; ♪</div>
+            <div id="lyrics-line" class="lyrics-line">♪ &nbsp; Avara Music Soundscape &nbsp; ♪</div>
           </div>
 
           <div class="progress-area">
@@ -309,7 +310,7 @@
 
     </main>
 
-    <!-- Mobile Bottom Navigation (Exact Spotify App Tabs) -->
+    <!-- Mobile Bottom Navigation -->
     <nav class="mobile-nav">
       <button id="nav-home" class="mob-nav-btn active">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -343,8 +344,8 @@
         el.style.opacity='0';
         setTimeout(function(){el&&el.parentNode&&el.parentNode.removeChild(el);},550);
       }
-      setTimeout(hide, 1800);
-      window.addEventListener('load',function(){setTimeout(hide, 600);});
+      setTimeout(hide, 1600);
+      window.addEventListener('load',function(){setTimeout(hide, 500);});
     }();
   </script>
 
