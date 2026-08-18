@@ -60,33 +60,20 @@ class MainActivity : AppCompatActivity() {
                 domStorageEnabled = true
                 databaseEnabled = true
                 
-                // PERFORMANCE BOOST: Cache settings
                 cacheMode = WebSettings.LOAD_DEFAULT
-                setRenderPriority(WebSettings.RenderPriority.HIGH)
-                
-                // Disable unnecessary features to save CPU
-                setSupportZoom(false)
-                builtInZoomControls = false
-                displayZoomControls = false
                 
                 allowFileAccess = true
                 allowContentAccess = true
                 mediaPlaybackRequiresUserGesture = false
                 mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 
-                // MAGIC FIX: Spoof Desktop User Agent
+                // CRITICAL: Desktop UA for Background YouTube Playback
                 userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
             }
             
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                     return false
-                }
-                
-                // Memory management: Clear cache if needed
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    super.onPageFinished(view, url)
-                    view?.clearCache(false)
                 }
             }
             webChromeClient = WebChromeClient()
@@ -103,8 +90,6 @@ class MainActivity : AppCompatActivity() {
                 .build()
             val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                 .setAudioAttributes(playbackAttributes)
-                .setAcceptsDelayedFocusGain(true)
-                .setOnAudioFocusChangeListener { }
                 .build()
             audioManager?.requestAudioFocus(focusRequest)
         } else {
@@ -116,7 +101,7 @@ class MainActivity : AppCompatActivity() {
     private fun acquireWakeLock() {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Avara::MainWakeLock")
-        wakeLock?.acquire(24 * 60 * 60 * 1000L /* 24 hours */)
+        wakeLock?.acquire(24 * 60 * 60 * 1000L)
     }
 
     private fun startMusicService() {
@@ -151,15 +136,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // CRITICAL: Prevent WebView from pausing when app goes to background
+    // DO NOT PAUSE WEBVIEW
     override fun onPause() {
         super.onPause()
-        // Do NOT call webView.onPause()
     }
 
     override fun onStop() {
         super.onStop()
-        // Do NOT call webView.onStop()
     }
 
     override fun onBackPressed() {

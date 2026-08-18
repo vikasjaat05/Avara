@@ -3,9 +3,7 @@ package com.avara.music
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.media.AudioFormat
-import android.media.AudioTrack
-import android.media.AudioManager
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -15,7 +13,6 @@ import androidx.core.app.NotificationCompat
 class MusicService : Service() {
 
     private var wakeLock: PowerManager.WakeLock? = null
-    private var silentTrack: AudioTrack? = null
     private var mediaSession: MediaSessionCompat? = null
     private val CHANNEL_ID = "AvaraMusicChannel"
     private val NOTIFICATION_ID = 101
@@ -26,49 +23,27 @@ class MusicService : Service() {
         super.onCreate()
         createNotificationChannel()
         
-        // 1. Acquire WakeLock to keep CPU running
+        // 1. Force CPU to stay awake
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Avara::MusicWakeLock")
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Avara::BackgroundMusicLock")
         wakeLock?.acquire(24 * 60 * 60 * 1000L /* 24 hours */)
 
-        // 2. Start Silent Audio to keep OS from killing the process
-        startSilentPlayback()
-
-        // 3. Setup MediaSession to register as a legitimate media player
+        // 2. Setup Media Session
         mediaSession = MediaSessionCompat(this, "AvaraMusicSession").apply {
             isActive = true
         }
     }
 
-    private fun startSilentPlayback() {
-        try {
-            val bufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
-            silentTrack = AudioTrack(
-                AudioManager.STREAM_MUSIC,
-                44100,
-                AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                bufferSize,
-                AudioTrack.MODE_STREAM
-            )
-            val silence = ShortArray(bufferSize)
-            silentTrack?.play()
-            
-            // Write silence in a background thread
-            Thread {
-                while (silentTrack != null) {
-                    try {
-                        silentTrack?.write(silence, 0, silence.size)
-                        Thread.sleep(1000)
-                    } catch (e: Exception) { break }
-                }
-            }.start()
-        } catch (e: Exception) {}
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val notification = createNotification()
-        startForeground(NOTIFICATION_ID, notification)
+        
+        // 3. Android 14+ Requires explicit foreground service type
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+        
         return START_STICKY
     }
 
@@ -81,27 +56,33 @@ class MusicService : Service() {
             else PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("AVARA Music")
-            .setContentText("🎧 Sangeet chal raha hai...")
+            .setContentText("Background playback active")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setContentIntent(pendingIntent)
-            .setStyle(androidx.media.app.NotificationCompat.MediaStyle()
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.setStyle(androidx.media.app.NotificationCompat.MediaStyle()
                 .setMediaSession(mediaSession?.sessionToken))
-            .build()
+        }
+
+        return builder.build()
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID,
-                "Avara Music Service Channel",
+                "Avara Music Background Service",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "Keeps music playing in background"
+                description = "Keeps music playing when app is in background"
                 setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
@@ -110,12 +91,7 @@ class MusicService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            silentTrack?.stop()
-            silentTrack?.release()
-            silentTrack = null
-            mediaSession?.release()
-            if (wakeLock?.isHeld == true) wakeLock?.release()
-        } catch (e: Exception) {}
+        mediaSession?.release()
+        if (wakeLock?.isHeld == true) wakeLock?.release()
     }
 }
