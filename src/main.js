@@ -1,5 +1,9 @@
+import './style.css';
+import { AVARA_SONGS } from './songs.js';
+
 // Web Audio API Background Keep-Alive Context (Fixes Mobile Screen Lock Audio!)
 let audioCtx = null;
+
 let keepAliveOsc = null;
 
 function enableBackgroundAudio() {
