@@ -244,7 +244,13 @@ html, body {
 .home-scroll, .view-scroll {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   padding-bottom: 120px;
+  -webkit-overflow-scrolling: touch;
 }
+.song-row, .quick-card, .swiper-slide {
+  contain: content;
+  will-change: transform;
+}
+
 .home-scroll::-webkit-scrollbar, .view-scroll::-webkit-scrollbar { display: none; }
 
 /* View Headers */
