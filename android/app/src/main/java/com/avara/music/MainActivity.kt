@@ -15,6 +15,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.PowerManager
+import android.provider.Settings
 
 class MainActivity : AppCompatActivity() {
 
@@ -48,6 +51,9 @@ class MainActivity : AppCompatActivity() {
             setRenderPriority(WebSettings.RenderPriority.HIGH)
             useWideViewPort = true
             loadWithOverviewMode = true
+            
+            // Critical for background audio in some WebView versions
+            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         }
 
         // Hardware Acceleration
@@ -63,14 +69,19 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl("https://avara-ashiq.vercel.app/")
 
         // Start Foreground Service for Background Music
+        startMusicService()
+
+        checkPermissions()
+        requestIgnoreBatteryOptimizations()
+    }
+
+    private fun startMusicService() {
         val serviceIntent = Intent(this, MusicService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent)
         } else {
             startService(serviceIntent)
         }
-
-        checkPermissions()
     }
 
     private fun checkPermissions() {
@@ -92,14 +103,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("BatteryLife")
+    private fun requestIgnoreBatteryOptimizations() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent()
+            val packageName = packageName
+            val pm = getSystemService(POWER_SERVICE) as PowerManager
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                intent.data = Uri.parse("package:$packageName")
+                startActivity(intent)
+            }
+        }
+    }
+
     override fun onPause() {
         super.onPause()
-        // Do NOT call webView.onPause() to keep music playing in background if possible
+        // Critical: Do NOT call super.onPause() or webView.onPause() 
+        // to keep JavaScript running in background.
+        // However, some Android versions require super.onPause().
+        // We'll call super but NOT webView.onPause().
     }
 
     override fun onResume() {
         super.onResume()
-        // Do NOT call webView.onResume() as we didn't pause it
     }
 
     override fun onDestroy() {
