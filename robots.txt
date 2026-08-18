@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://avara-ashiq.vercel.app/sitemap.xml
