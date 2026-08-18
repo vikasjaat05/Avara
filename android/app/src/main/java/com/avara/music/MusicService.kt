@@ -1,97 +1,83 @@
 package com.avara.music
 
-import android.app.*
-import android.content.Context
 import android.content.Intent
-import android.content.pm.ServiceInfo
-import android.os.Build
-import android.os.IBinder
-import android.os.PowerManager
-import android.support.v4.media.session.MediaSessionCompat
-import androidx.core.app.NotificationCompat
+import androidx.annotation.OptIn
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.MediaSession
+import androidx.media3.session.MediaSessionService
+import androidx.media3.session.SessionResult
 
-class MusicService : Service() {
+class MusicService : MediaSessionService() {
 
-    private var wakeLock: PowerManager.WakeLock? = null
-    private var mediaSession: MediaSessionCompat? = null
-    private val CHANNEL_ID = "AvaraMusicChannel"
-    private val NOTIFICATION_ID = 101
+    private var mediaSession: MediaSession? = null
+    private lateinit var player: ExoPlayer
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    companion object {
+        const val ACTION_NEXT = "com.avara.music.NEXT"
+        const val ACTION_PREVIOUS = "com.avara.music.PREVIOUS"
+    }
 
+    private val callback = object : MediaSession.Callback {
+        @Suppress("DEPRECATION")
+        override fun onPlayerCommandRequest(
+            session: MediaSession,
+            controller: MediaSession.ControllerInfo,
+            playerCommand: Int
+        ): Int {
+            when (playerCommand) {
+                Player.COMMAND_SEEK_TO_NEXT -> {
+                    sendBroadcast(Intent(ACTION_NEXT))
+                    return SessionResult.RESULT_SUCCESS
+                }
+                Player.COMMAND_SEEK_TO_PREVIOUS -> {
+                    sendBroadcast(Intent(ACTION_PREVIOUS))
+                    return SessionResult.RESULT_SUCCESS
+                }
+            }
+            return super.onPlayerCommandRequest(session, controller, playerCommand)
+        }
+    }
+
+    @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel()
-        
-        // 1. Force CPU to stay awake
-        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Avara::BackgroundMusicLock")
-        wakeLock?.acquire(24 * 60 * 60 * 1000L /* 24 hours */)
 
-        // 2. Setup Media Session
-        mediaSession = MediaSessionCompat(this, "AvaraMusicSession").apply {
-            isActive = true
-        }
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .build()
+
+        player = ExoPlayer.Builder(this)
+            .setAudioAttributes(audioAttributes, true)
+            .setHandleAudioBecomingNoisy(true)
+            .build()
+
+        mediaSession = MediaSession.Builder(this, player)
+            .setCallback(callback)
+            .build()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val notification = createNotification()
-        
-        // 3. Android 14+ Requires explicit foreground service type
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
-        } else {
-            startForeground(NOTIFICATION_ID, notification)
-        }
-        
-        return START_STICKY
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
+        return mediaSession
     }
 
-    private fun createNotification(): Notification {
-        val notificationIntent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, notificationIntent,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) 
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT 
-            else PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("AVARA Music")
-            .setContentText("Background playback active")
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setContentIntent(pendingIntent)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder.setStyle(androidx.media.app.NotificationCompat.MediaStyle()
-                .setMediaSession(mediaSession?.sessionToken))
-        }
-
-        return builder.build()
-    }
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(
-                CHANNEL_ID,
-                "Avara Music Background Service",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Keeps music playing when app is in background"
-                setShowBadge(false)
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-            }
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(serviceChannel)
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        val player = mediaSession?.player
+        if (player == null || !player.playWhenReady || player.mediaItemCount == 0) {
+            stopSelf()
         }
     }
 
     override fun onDestroy() {
+        mediaSession?.run {
+            player.release()
+            release()
+            mediaSession = null
+        }
         super.onDestroy()
-        mediaSession?.release()
-        if (wakeLock?.isHeld == true) wakeLock?.release()
     }
 }

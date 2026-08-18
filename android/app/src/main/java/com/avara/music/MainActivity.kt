@@ -2,30 +2,56 @@ package com.avara.music
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.media.AudioAttributes
-import android.media.AudioFocusRequest
-import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.webkit.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
+import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.MoreExecutors
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
-    private var wakeLock: PowerManager.WakeLock? = null
-    private var audioManager: AudioManager? = null
+    private var controllerFuture: ListenableFuture<MediaController>? = null
+    private val controller: MediaController?
+        get() = if (controllerFuture?.isDone == true) controllerFuture?.get() else null
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Log.d("Avara", "Notification permission granted")
+        }
+    }
+
+    private val musicReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                MusicService.ACTION_NEXT -> {
+                    runOnUiThread { webView.evaluateJavascript("window.playNextTrack?.()", null) }
+                }
+                MusicService.ACTION_PREVIOUS -> {
+                    runOnUiThread { webView.evaluateJavascript("window.playPreviousTrack?.()", null) }
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,37 +65,84 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_main)
-        
+
         setupWebView()
-        requestAudioFocus()
-        acquireWakeLock()
-        checkPermissions()
-        startMusicService()
+        checkNotificationPermission()
         promptBatteryOptimization()
+        
+        val filter = IntentFilter().apply {
+            addAction(MusicService.ACTION_NEXT)
+            addAction(MusicService.ACTION_PREVIOUS)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(musicReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(musicReceiver, filter)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        initializeController()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        releaseController()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(musicReceiver)
+    }
+
+    private fun initializeController() {
+        val sessionToken = SessionToken(this, ComponentName(this, MusicService::class.java))
+        controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
+        controllerFuture?.addListener({
+            // Controller is ready
+            setupPlayerListeners()
+        }, MoreExecutors.directExecutor())
+    }
+
+    private fun releaseController() {
+        controllerFuture?.let {
+            MediaController.releaseFuture(it)
+        }
+    }
+
+    private fun setupPlayerListeners() {
+        controller?.addListener(object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                if (isPlaying) {
+                    runOnUiThread { webView.evaluateJavascript("window.onNativePlaybackStarted?.()", null) }
+                } else {
+                    runOnUiThread { webView.evaluateJavascript("window.onNativePlaybackPaused?.()", null) }
+                }
+            }
+        })
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
         webView = findViewById(R.id.webView)
         webView.apply {
-            // Speed up rendering
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
             
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
                 databaseEnabled = true
-                
                 cacheMode = WebSettings.LOAD_DEFAULT
-                
                 allowFileAccess = true
                 allowContentAccess = true
                 mediaPlaybackRequiresUserGesture = false
                 mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                
-                // CRITICAL: Desktop UA for Background YouTube Playback
                 userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
             }
+            
+            addJavascriptInterface(AvaraWebAppInterface(), "AndroidBridge")
             
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -81,43 +154,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestAudioFocus() {
-        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val playbackAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build()
-            val focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                .setAudioAttributes(playbackAttributes)
-                .build()
-            audioManager?.requestAudioFocus(focusRequest)
-        } else {
-            @Suppress("DEPRECATION")
-            audioManager?.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
-        }
-    }
-
-    private fun acquireWakeLock() {
-        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Avara::MainWakeLock")
-        wakeLock?.acquire(24 * 60 * 60 * 1000L)
-    }
-
-    private fun startMusicService() {
-        val serviceIntent = Intent(this, MusicService::class.java)
-        ContextCompat.startForegroundService(this, serviceIntent)
-    }
-
-    private fun checkPermissions() {
-        val permissions = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
+    private fun checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-        
-        val missing = permissions.filter { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }
-        if (missing.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, missing.toTypedArray(), 101)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
 
@@ -136,13 +177,59 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // DO NOT PAUSE WEBVIEW
-    override fun onPause() {
-        super.onPause()
-    }
+    inner class AvaraWebAppInterface {
+        @JavascriptInterface
+        fun playSong(url: String, title: String, artist: String, artUrl: String) {
+            runOnUiThread {
+                val mediaMetadata = MediaMetadata.Builder()
+                    .setTitle(title)
+                    .setArtist(artist)
+                    .setArtworkUri(Uri.parse(artUrl))
+                    .build()
 
-    override fun onStop() {
-        super.onStop()
+                val mediaItem = MediaItem.Builder()
+                    .setUri(url)
+                    .setMediaId(url)
+                    .setMediaMetadata(mediaMetadata)
+                    .build()
+
+                controller?.run {
+                    setMediaItem(mediaItem)
+                    prepare()
+                    play()
+                }
+            }
+        }
+
+        @JavascriptInterface
+        fun pauseSong() {
+            runOnUiThread { controller?.pause() }
+        }
+
+        @JavascriptInterface
+        fun resumeSong() {
+            runOnUiThread { controller?.play() }
+        }
+
+        @JavascriptInterface
+        fun seekTo(positionMs: Long) {
+            runOnUiThread { controller?.seekTo(positionMs) }
+        }
+
+        @JavascriptInterface
+        fun setVolume(volume: Float) {
+            runOnUiThread { controller?.volume = volume }
+        }
+        
+        @JavascriptInterface
+        fun nextSong() {
+            runOnUiThread { webView.evaluateJavascript("window.playNextTrack?.()", null) }
+        }
+
+        @JavascriptInterface
+        fun previousSong() {
+            runOnUiThread { webView.evaluateJavascript("window.playPreviousTrack?.()", null) }
+        }
     }
 
     override fun onBackPressed() {
@@ -151,11 +238,5 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (wakeLock?.isHeld == true) wakeLock?.release()
-        stopService(Intent(this, MusicService::class.java))
     }
 }
