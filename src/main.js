@@ -558,6 +558,12 @@ document.addEventListener('DOMContentLoaded', () => {
   grabDOM();
   restoreSavedState();
   updateTrackUI(playlist[currentIdx]);
+  setPlayUI(false); // ALWAYS start in PAUSED state on page load (no autoplay)
+
+  if (initialSeek > 0) {
+    if (D.timeCur) D.timeCur.textContent = fmt(initialSeek);
+  }
+
   showMini();
   renderSongList(playlist, 'all');
   initYT();
