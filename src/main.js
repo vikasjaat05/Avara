@@ -230,19 +230,26 @@ function shareCurrentSong() {
 // ─── PWA Prompt & Download Modal ──────────────────────────────────────────────
 function initDownloadModal() {
   const checkStandalone = () => {
+    const ua = navigator.userAgent || '';
+    const isWebView = /wv|Android.*Version\/[0-9]/i.test(ua) || window.Android || Boolean(window.chrome && window.chrome.webview);
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                        window.matchMedia('(display-mode: fullscreen)').matches ||
+                        window.matchMedia('(display-mode: minimal-ui)').matches ||
                         window.navigator.standalone ||
-                        document.referrer.includes('android-app://');
+                        document.referrer.includes('android-app://') ||
+                        isWebView;
     if (isStandalone) {
       document.body.classList.add('is-standalone-app');
-      if (D.headerDownloadBtn) D.headerDownloadBtn.style.display = 'none';
-      if (D.sdDownloadBtn) D.sdDownloadBtn.style.display = 'none';
+      document.querySelectorAll('.download-app-btn, #sd-download-app, #header-download-btn, .download-highlight').forEach(el => {
+        el.style.setProperty('display', 'none', 'important');
+      });
     }
   };
   checkStandalone();
   try {
     window.matchMedia('(display-mode: standalone)').addEventListener('change', checkStandalone);
   } catch(e) {}
+
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
