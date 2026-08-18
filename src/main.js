@@ -135,7 +135,7 @@ function grabDOM() {
   D.navLiked        = document.getElementById('nav-liked-mob');
 }
 
-// ─── Theme Toggle Logic ───────────────────────────────────────────────────────
+// ─── Theme Toggle & Dynamic Meta Color Sync ─────────────────────────────────
 function initTheme() {
   const savedTheme = localStorage.getItem(KEY_THEME_MODE);
   currentTheme = savedTheme || 'dark';
@@ -147,6 +147,13 @@ function applyTheme(theme) {
   document.body.classList.remove('theme-dark', 'theme-light');
   document.body.classList.add(`theme-${theme}`);
   localStorage.setItem(KEY_THEME_MODE, theme);
+
+  const themeColor = theme === 'dark' ? '#0F172A' : '#F8FAFC';
+  const metaTheme = document.getElementById('meta-theme-color');
+  if (metaTheme) metaTheme.setAttribute('content', themeColor);
+
+  const msNavColor = document.getElementById('meta-ms-nav-color');
+  if (msNavColor) msNavColor.setAttribute('content', themeColor);
 
   if (D.sunIcon && D.moonIcon) {
     if (theme === 'dark') {
@@ -542,7 +549,7 @@ function openPlayer() {
   inPlayer = true;
   const views = [D.homeView, D.searchView, D.libraryView, D.likedView];
   views.forEach(v => v && v.classList.replace('active-view','hidden-view'));
-  D.playerView.classList.replace('active-view','hidden-view');
+  D.playerView.classList.replace('hidden-view','active-view');
   if (D.miniPlayer) D.miniPlayer.classList.add('hidden');
 }
 
