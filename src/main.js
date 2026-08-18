@@ -161,9 +161,13 @@ function initYT() {
       events: {
         onReady() {
           ytIsReady = true;
-          if (initialSeek > 0) {
-            try { ytPlayer.seekTo(initialSeek, false); } catch(_) {}
-          }
+          // Cue (preload) initial song at saved seek time WITHOUT playing
+          try {
+            const startSec = initialSeek > 0 ? Math.floor(initialSeek) : 0;
+            ytPlayer.cueVideoById({ videoId: initialSong.id, startSeconds: startSec });
+          } catch(e) {}
+
+          // If user clicked play BEFORE player was ready, play now
           if (pendingPlay !== null) {
             const idx = pendingPlay; pendingPlay = null;
             _doPlay(idx);
@@ -184,7 +188,7 @@ function onYTState(e) {
     isPlaying = true;
     setPlayUI(true);
     startTick();
-  } else if (e.data === S.PAUSED) {
+  } else if (e.data === S.PAUSED || e.data === S.CUED) {
     isPlaying = false;
     setPlayUI(false);
   } else if (e.data === S.ENDED) {
