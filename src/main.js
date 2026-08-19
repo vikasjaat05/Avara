@@ -477,17 +477,6 @@ function initHeroSwiper() {
   startSwiperTimer();
 }
 
-// ─── Boomerang Canvas Video Background Loop (Zero Memory Leak) ───────────────
-
-function initBoomerangBg() {
-  const video = document.getElementById('bm-video');
-  if (video) {
-    video.loop = true;
-    video.play().catch(() => {});
-  }
-}
-
-
 // ─── Persistence & Listening History ─────────────────────────────────────────
 function restoreSavedState() {
   try {
@@ -1491,7 +1480,6 @@ document.addEventListener('DOMContentLoaded', () => {
   grabDOM();
   initTheme();
   initDownloadModal();
-  initBoomerangBg();
   initHeroSwiper();
   restoreSavedState();
   updateTrackUI(playlist[currentIdx]);
