@@ -944,11 +944,7 @@ function switchTab(tab) {
 
 function openPlayer() {
   inPlayer = true;
-  // Hide all content views
-  [D.homeView, D.searchView, D.libraryView, D.likedView].forEach(v => {
-    if (v) { v.classList.remove('active-view'); v.classList.add('hidden-view'); }
-  });
-  // Show player view
+  // Show luxury player view overlay
   if (D.playerView) {
     D.playerView.classList.remove('hidden-view');
     D.playerView.classList.add('active-view');
@@ -959,13 +955,11 @@ function openPlayer() {
 
 function closePlayer() {
   inPlayer = false;
-  // Hide player
+  // Hide player view overlay smoothly
   if (D.playerView) {
     D.playerView.classList.remove('active-view');
     D.playerView.classList.add('hidden-view');
   }
-  // Restore previous tab — show mini player again if song is loaded
-  switchTab(currentTab || 'home');
   showMini();
 }
 
@@ -1300,29 +1294,40 @@ function bindAll() {
 
   if (D.progressTrack) {
     D.progressTrack.addEventListener('click', (e) => {
-      if (!ytIsReady || !ytPlayer) return;
       const r = D.progressTrack.getBoundingClientRect();
-      const targetSec = (ytPlayer.getDuration() || 0) * Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-      ytPlayer.seekTo(targetSec, true);
-      savePlaybackTime(targetSec);
+      const fraction = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      if (isNativeAudioPlaying && nativeAudio.duration) {
+        const targetSec = nativeAudio.duration * fraction;
+        nativeAudio.currentTime = targetSec;
+        savePlaybackTime(targetSec);
+      } else if (ytIsReady && ytPlayer) {
+        const targetSec = (ytPlayer.getDuration() || 0) * fraction;
+        ytPlayer.seekTo(targetSec, true);
+        savePlaybackTime(targetSec);
+      }
     });
   }
 
   if (D.volSlider) {
     D.volSlider.addEventListener('input', () => {
-      if (ytIsReady && ytPlayer) ytPlayer.setVolume(+D.volSlider.value);
+      const vol = +D.volSlider.value;
+      if (ytIsReady && ytPlayer) ytPlayer.setVolume(vol);
+      if (nativeAudio) nativeAudio.volume = vol / 100;
     });
   }
 
   if (D.miniOpen)    D.miniOpen.addEventListener('click', openPlayer);
+  if (D.miniPlayer)  D.miniPlayer.addEventListener('click', (e) => {
+    if (e.target.closest('#mini-play-btn')) return;
+    openPlayer();
+  });
   if (D.miniPlayBtn) D.miniPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
-
 
   if (D.sdPlayBtn) D.sdPlayBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
   if (D.sdPrevBtn) D.sdPrevBtn.addEventListener('click', (e) => { e.stopPropagation(); prevTrack(); });
   if (D.sdNextBtn) D.sdNextBtn.addEventListener('click', (e) => { e.stopPropagation(); nextTrack(); });
 
-  // Desktop Sidebar player panel — click art/title area to reopen full player
+  // Desktop Sidebar player panel — click card to reopen full player
   if (D.sdPlayerPanel) {
     D.sdPlayerPanel.addEventListener('click', (e) => {
       if (e.target.closest('#sd-play') || e.target.closest('#sd-prev') || e.target.closest('#sd-next') || e.target.closest('#sd-progress-track')) return;
@@ -1331,11 +1336,28 @@ function bindAll() {
   }
 
   if (D.sdProgressTrack) D.sdProgressTrack.addEventListener('click', (e) => {
-    if (!ytIsReady || !ytPlayer) return;
     const r = D.sdProgressTrack.getBoundingClientRect();
-    const targetSec = (ytPlayer.getDuration() || 0) * Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-    ytPlayer.seekTo(targetSec, true);
-    savePlaybackTime(targetSec);
+    const fraction = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    if (isNativeAudioPlaying && nativeAudio.duration) {
+      const targetSec = nativeAudio.duration * fraction;
+      nativeAudio.currentTime = targetSec;
+      savePlaybackTime(targetSec);
+    } else if (ytIsReady && ytPlayer) {
+      const targetSec = (ytPlayer.getDuration() || 0) * fraction;
+      ytPlayer.seekTo(targetSec, true);
+      savePlaybackTime(targetSec);
+    }
+  });
+
+  // Global Keyboard Shortcuts (Esc to minimize player, Space to toggle play)
+  document.addEventListener('keydown', (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    if (e.key === 'Escape' && inPlayer) {
+      closePlayer();
+    } else if (e.code === 'Space') {
+      e.preventDefault();
+      togglePlay();
+    }
   });
 
   // Desktop Sidebar Tab Switching
