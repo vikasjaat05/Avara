@@ -26,45 +26,46 @@
 
 <body class="theme-dark">
 
-  <!-- ═══════════ ULTRA-LUXURY STUDIO PRELOADER ═══════════ -->
+  <!-- ═══════════ NEON SONIC PRISM PRELOADER ═══════════ -->
   <div id="preloader">
-    <div class="pre-ambient-glow"></div>
+    <div class="pre-sonic-ambient"></div>
+    <div class="pre-sonic-ring ring-1"></div>
+    <div class="pre-sonic-ring ring-2"></div>
 
-    <div class="pre-content">
-      <!-- Floating App Logo with Soft Glow -->
-      <div class="pre-icon-wrapper">
-        <div class="pre-icon-glow"></div>
-        <img src="/logo.png" class="pre-app-icon" alt="Avara Music" width="86" height="86" />
+    <div class="pre-sonic-stage">
+      <!-- Glowing Logo Prism Core -->
+      <div class="pre-logo-prism">
+        <div class="pre-prism-glow"></div>
+        <img src="/logo.png" class="pre-prism-icon" alt="Avara Music" width="80" height="80" />
       </div>
 
-      <!-- Clean Brand Typography -->
-      <div class="pre-brand">
-        <h1 class="pre-title">AVARA</h1>
-        <span class="pre-tagline">SOUND OF EMOTION</span>
+      <!-- Typography -->
+      <div class="pre-brand-box">
+        <h1 class="pre-sonic-title">AVARA</h1>
+        <span class="pre-sonic-sub">HI-FI SOUND ENGINE</span>
       </div>
 
-      <!-- Sleek Rhythmic Sound Equalizer -->
-      <div class="pre-equalizer">
-        <span class="eq-bar eq-1"></span>
-        <span class="eq-bar eq-2"></span>
-        <span class="eq-bar eq-3"></span>
-        <span class="eq-bar eq-4"></span>
-        <span class="eq-bar eq-5"></span>
+      <!-- 7-Band Studio Sound Equalizer -->
+      <div class="pre-sound-eq">
+        <span class="p-bar p1"></span>
+        <span class="p-bar p2"></span>
+        <span class="p-bar p3"></span>
+        <span class="p-bar p4"></span>
+        <span class="p-bar p5"></span>
+        <span class="p-bar p6"></span>
+        <span class="p-bar p7"></span>
       </div>
 
-      <!-- Clean Progress Bar & Status -->
-      <div class="pre-loader-track">
-        <div class="pre-loader-bar"></div>
+      <!-- Progress Track -->
+      <div class="pre-sonic-track">
+        <div class="pre-sonic-fill"></div>
       </div>
-      <div class="pre-status">Crafting your audio experience…</div>
+      <div class="pre-sonic-hint">Mastering acoustic soundscape…</div>
     </div>
   </div>
 
   <!-- ═══════════ APP SHELL ═══════════ -->
   <div id="app">
-
-    <!-- YouTube player: off-screen -->
-    <div id="yt-player" style="position:fixed;left:-600px;top:-600px;width:320px;height:180px;z-index:-999;"></div>
 
     <!-- ══════════ DESKTOP SIDEBAR ══════════ -->
     <aside class="desktop-sidebar">
@@ -500,6 +501,7 @@
               <div class="player-art-wrap" id="player-art-wrap">
                 <img id="player-art" class="player-art" src="" alt="Album Art">
                 <div id="video-player-box" class="video-player-box hidden">
+                  <div id="yt-player" class="yt-embed-iframe"></div>
                   <button id="fullscreen-video-btn" class="video-fs-btn" title="Full Screen Video">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
                     <span>Full Screen</span>

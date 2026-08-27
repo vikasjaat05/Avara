@@ -245,27 +245,13 @@ let isVideoMode = false;
 
 function toggleVideoMode() {
   isVideoMode = !isVideoMode;
-
-  const ytContainer = document.getElementById('yt-player');
   const song = playlist[currentIdx];
 
   if (isVideoMode) {
     if (D.videoModeLabel) D.videoModeLabel.textContent = '🎵 Audio Mode';
     if (D.videoModeBtn) D.videoModeBtn.classList.add('active');
     if (D.playerArt) D.playerArt.classList.add('hidden');
-    if (D.videoPlayerBox) {
-      D.videoPlayerBox.classList.remove('hidden');
-      if (ytContainer) {
-        D.videoPlayerBox.appendChild(ytContainer);
-        ytContainer.style.position = 'absolute';
-        ytContainer.style.inset = '0';
-        ytContainer.style.width = '100%';
-        ytContainer.style.height = '100%';
-        ytContainer.style.left = '0';
-        ytContainer.style.top = '0';
-        ytContainer.style.zIndex = '10';
-      }
-    }
+    if (D.videoPlayerBox) D.videoPlayerBox.classList.remove('hidden');
 
     // Capture current playback progress and pause native background audio
     let curTime = 0;
@@ -290,17 +276,18 @@ function toggleVideoMode() {
     if (D.videoModeLabel) D.videoModeLabel.textContent = '🎬 Watch Video';
     if (D.videoModeBtn) D.videoModeBtn.classList.remove('active');
     if (D.playerArt) D.playerArt.classList.remove('hidden');
-    if (D.videoPlayerBox) {
-      D.videoPlayerBox.classList.add('hidden');
+    if (D.videoPlayerBox) D.videoPlayerBox.classList.add('hidden');
+
+    let curTime = 0;
+    if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+      curTime = ytPlayer.getCurrentTime() || 0;
     }
-    if (ytContainer) {
-      document.body.appendChild(ytContainer);
-      ytContainer.style.position = 'fixed';
-      ytContainer.style.left = '-600px';
-      ytContainer.style.top = '-600px';
-      ytContainer.style.width = '320px';
-      ytContainer.style.height = '180px';
-      ytContainer.style.zIndex = '-999';
+    if (nativeAudio && nativeAudio.src) {
+      nativeAudio.currentTime = curTime;
+      nativeAudio.play().then(() => {
+        isNativeAudioPlaying = true;
+        if (ytPlayer && typeof ytPlayer.mute === 'function') ytPlayer.mute();
+      }).catch(() => {});
     }
   }
 }
