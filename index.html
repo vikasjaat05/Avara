@@ -634,7 +634,7 @@
       });
     }
 
-  <!-- Service Worker Auto Update & Cosmic Black Hole Preloader script -->
+  <!-- Service Worker Auto Update & Studio Preloader script -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -651,15 +651,15 @@
         done = true;
         var el = document.getElementById('preloader');
         if(!el) return;
-        el.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+        el.style.transition = 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
         el.style.opacity = '0';
         el.style.transform = 'scale(0.97)';
         setTimeout(function(){
           el && el.parentNode && el.parentNode.removeChild(el);
-        }, 650);
+        }, 550);
       }
-      // Exact 3.5s total duration for clean experience
-      setTimeout(hide, 3500);
+      // Exact 3s total duration
+      setTimeout(hide, 3000);
     }();
   </script>
 

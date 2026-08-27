@@ -217,7 +217,7 @@ html, body {
   100% { transform: scaleY(1); opacity: 1; filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.8)); }
 }
 
-/* Progress Track (Synchronized to 3.5s) */
+/* Progress Track (Synchronized to 3s) */
 .pre-loader-track {
   width: 160px; height: 3px;
   background: rgba(255, 255, 255, 0.08);
@@ -232,7 +232,7 @@ html, body {
   background: linear-gradient(90deg, #EF4444, #F97316, #FBBF24);
   border-radius: 10px;
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-  animation: progressFill 3.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: progressFill 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 @keyframes progressFill {
   0% { width: 5%; }
