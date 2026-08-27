@@ -26,43 +26,31 @@
 
 <body class="theme-dark">
 
-  <!-- ═══════════ MINIMAL APPLE WAVEFORM PULSE PRELOADER ═══════════ -->
+  <!-- ═══════════ "AVARA" CINEMATIC TEXT ANIMATION PRELOADER ═══════════ -->
   <div id="preloader">
-    <div class="apple-preloader-stage">
+    <div class="avara-cinematic-stage">
+      <div class="avara-ambient-blast"></div>
+      <div class="avara-light-flare"></div>
       
-      <!-- Phase 1: Glowing Heartbeat Audio Waveform Line -->
-      <div class="apple-waveform-box">
-        <svg class="apple-wave-svg" viewBox="0 0 360 80" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#EF4444" stop-opacity="0.1" />
-              <stop offset="35%" stop-color="#EF4444" stop-opacity="0.9" />
-              <stop offset="50%" stop-color="#FFFFFF" stop-opacity="1" />
-              <stop offset="65%" stop-color="#F97316" stop-opacity="0.9" />
-              <stop offset="100%" stop-color="#EF4444" stop-opacity="0.1" />
-            </linearGradient>
-            <filter id="waveGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          <path class="wave-line" d="M 0 40 L 90 40 L 115 40 L 130 18 L 145 62 L 160 8 L 175 70 L 190 28 L 205 52 L 220 40 L 245 40 L 360 40" />
-        </svg>
+      <!-- Letter By Letter Laser & Bass Drop Sequence -->
+      <div class="avara-letters-container">
+        <span class="a-let let-1">A</span>
+        <span class="a-let let-2">V</span>
+        <span class="a-let let-3">A</span>
+        <span class="a-let let-4">R</span>
+        <span class="a-let let-5">A</span>
       </div>
 
-      <!-- Phase 2: Logo & Typography Reveal -->
-      <div class="apple-reveal-box">
-        <div class="apple-logo-glow"></div>
-        <div class="apple-logo-squircle">
-          <img src="/logo.png" class="apple-logo-img" alt="Avara" width="76" height="76" />
-        </div>
-        <h1 class="apple-brand-title">AVARA</h1>
-        <p class="apple-brand-tagline">Sound of Emotion</p>
+      <!-- Shimmering Laser Underline -->
+      <div class="avara-laser-line">
+        <div class="avara-laser-glow"></div>
       </div>
 
+      <!-- Subtitle Tag -->
+      <div class="avara-tag-reveal">
+        <span class="avara-sound-dot"></span>
+        <span class="avara-tag-text">SOUND OF EMOTION</span>
+      </div>
     </div>
   </div>
 

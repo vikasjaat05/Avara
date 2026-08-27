@@ -108,11 +108,11 @@ html, body {
 }
 
 /* ─────────────────────────────────────────────────
-   MINIMAL APPLE WAVEFORM PULSE PRELOADER
+   "AVARA" CINEMATIC TEXT ANIMATION PRELOADER
 ───────────────────────────────────────────────── */
 #preloader {
   position: fixed; inset: 0;
-  background: #000000;
+  background: #040509;
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
   z-index: 99999;
@@ -127,131 +127,145 @@ html, body {
   100% { opacity: 0; pointer-events: none; visibility: hidden; display: none; }
 }
 
-.apple-preloader-stage {
-  position: relative;
-  width: 320px;
-  height: 220px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Phase 1: Glowing Heartbeat Audio Waveform Line */
-.apple-waveform-box {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  animation: waveBoxFadeOut 0.5s ease 1.5s forwards;
-}
-
-.apple-wave-svg {
-  width: 320px;
-  height: 80px;
-  overflow: visible;
-}
-
-.wave-line {
-  stroke: url(#waveGrad);
-  stroke-width: 2.8;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: url(#waveGlow);
-  stroke-dasharray: 400;
-  stroke-dashoffset: 400;
-  animation: 
-    drawWave 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.1s forwards,
-    pulseWaveLine 0.7s ease-in-out 0.8s infinite alternate;
-}
-
-@keyframes drawWave {
-  0% { stroke-dashoffset: 400; opacity: 0.4; }
-  60% { opacity: 1; }
-  100% { stroke-dashoffset: 0; opacity: 1; }
-}
-
-@keyframes pulseWaveLine {
-  0% { transform: scaleY(0.9); filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6)); }
-  100% { transform: scaleY(1.15); filter: drop-shadow(0 0 14px rgba(239, 68, 68, 0.95)); }
-}
-
-@keyframes waveBoxFadeOut {
-  0% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(0.9); visibility: hidden; }
-}
-
-/* Phase 2: Transformed Logo & Typography Reveal */
-.apple-reveal-box {
+.avara-cinematic-stage {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  opacity: 0;
-  transform: scale(0.85) translateY(8px);
-  animation: appleRevealIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards;
+  justify-content: center;
+  padding: 20px;
 }
 
-@keyframes appleRevealIn {
-  0% { opacity: 0; transform: scale(0.85) translateY(8px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.apple-logo-glow {
+/* Background Ambient Pulse Blast */
+.avara-ambient-blast {
   position: absolute;
-  top: 10px;
-  width: 90px; height: 90px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.35) 0%, transparent 70%);
-  filter: blur(20px);
+  width: 380px; height: 180px;
+  background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.35) 0%, rgba(249, 115, 22, 0.12) 45%, transparent 75%);
+  filter: blur(55px);
   pointer-events: none;
+  animation: ambientBlastPulse 2.8s ease-in-out infinite alternate;
+}
+@keyframes ambientBlastPulse {
+  0% { opacity: 0.4; transform: scale(0.85); }
+  50% { opacity: 0.95; transform: scale(1.15); }
+  100% { opacity: 0.6; transform: scale(1); }
 }
 
-.apple-logo-squircle {
-  position: relative;
-  width: 80px; height: 80px;
-  border-radius: 22px;
-  background: #FFFFFF;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 
-    0 16px 36px rgba(0, 0, 0, 0.8),
-    0 0 28px rgba(239, 68, 68, 0.45);
+/* Letters Row Container */
+.avara-letters-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  margin-bottom: 20px;
-  animation: logoSoftFloat 2.4s ease-in-out 1.7s infinite alternate;
+  gap: 14px;
+  margin-bottom: 12px;
 }
 
-@keyframes logoSoftFloat {
-  0% { transform: translateY(0) scale(1); }
-  100% { transform: translateY(-3px) scale(1.02); }
-}
-
-.apple-logo-img {
-  width: 100%; height: 100%; object-fit: cover;
-}
-
-.apple-brand-title {
+/* Individual Cinematic Letters */
+.a-let {
   font-family: var(--font-heading);
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: 12px;
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: 2px;
   color: #FFFFFF;
-  margin: 0 0 6px 12px; /* balance letter-spacing */
-  text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(-30px) scale(0.6);
+  filter: blur(8px) drop-shadow(0 0 20px rgba(239, 68, 68, 0.8));
+  animation: letterDropIn 0.65s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
 }
 
-.apple-brand-tagline {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 4px;
-  color: rgba(255, 255, 255, 0.4);
+@media (max-width: 480px) {
+  .a-let { font-size: 42px; gap: 8px; }
+  .avara-letters-container { gap: 10px; }
+}
+
+/* Rapid Sequential Letter Drops (0.15s to 0.75s) */
+.let-1 { animation-delay: 0.15s; }
+.let-2 { animation-delay: 0.30s; color: #FFA07A; }
+.let-3 { animation-delay: 0.45s; }
+.let-4 { animation-delay: 0.60s; color: #FFA07A; }
+.let-5 { animation-delay: 0.75s; }
+
+@keyframes letterDropIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-36px) scale(0.5);
+    filter: blur(12px) drop-shadow(0 0 30px #EF4444);
+    text-shadow: 0 0 20px #EF4444;
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(4px) scale(1.08);
+    filter: blur(0px) drop-shadow(0 0 16px rgba(239, 68, 68, 0.9));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 25px rgba(239, 68, 68, 0.5);
+  }
+}
+
+/* Shimmering Neon Laser Underline */
+.avara-laser-line {
+  position: relative;
+  width: 180px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  transform: scaleX(0);
+  animation: laserExpand 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.95s forwards;
+}
+
+@keyframes laserExpand {
+  0% { transform: scaleX(0); opacity: 0; }
+  100% { transform: scaleX(1); opacity: 1; }
+}
+
+.avara-laser-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, #EF4444, #FFFFFF, #F97316, transparent);
+  box-shadow: 0 0 10px #EF4444, 0 0 20px #F97316;
+  animation: laserShimmer 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes laserShimmer {
+  0% { transform: translateX(-60%); }
+  100% { transform: translateX(60%); }
+}
+
+/* Subtitle Reveal */
+.avara-tag-reveal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: tagRevealIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
+}
+
+@keyframes tagRevealIn {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.avara-sound-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #EF4444;
+  box-shadow: 0 0 8px #EF4444;
+  animation: dotBlink 1s infinite alternate;
+}
+@keyframes dotBlink { 0% { opacity: 0.4; } 100% { opacity: 1; } }
+
+.avara-tag-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 5px;
+  color: rgba(255, 255, 255, 0.55);
   text-transform: uppercase;
-  margin: 0 0 0 4px;
 }
 
 /* ─────────────────────────────────────────────────
