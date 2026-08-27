@@ -166,17 +166,18 @@ html, body {
 
 .pre-logo-wrap {
   width: 76px; height: 76px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(239,68,68,0.15));
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  background: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.4);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 28px rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 28px rgba(239, 68, 68, 0.45), 0 8px 24px rgba(0, 0, 0, 0.4);
   animation: logoFloat 2.4s ease-in-out infinite alternate;
+  overflow: hidden;
 }
-.pre-logo-img { width: 52px; height: 52px; object-fit: contain; }
+.pre-logo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; }
 @keyframes logoFloat {
-  0% { transform: translateY(2px) scale(0.96); box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
-  100% { transform: translateY(-3px) scale(1.04); box-shadow: 0 0 32px rgba(239, 68, 68, 0.7); }
+  0% { transform: translateY(2px) scale(0.96); box-shadow: 0 0 18px rgba(239, 68, 68, 0.35); }
+  100% { transform: translateY(-3px) scale(1.04); box-shadow: 0 0 32px rgba(239, 68, 68, 0.65); }
 }
 
 .pre-brand {
@@ -278,8 +279,8 @@ html, body {
   display: flex; align-items: center; gap: 12px;
   padding: 4px 10px 20px;
 }
-.brand-logo-img { width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 2px 8px var(--accent-glow)); }
-.brand-logo-img-sm { width: 26px; height: 26px; object-fit: contain; filter: drop-shadow(0 2px 6px var(--accent-glow)); }
+.brand-logo-img { width: 32px; height: 32px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.brand-logo-img-sm { width: 26px; height: 26px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
 
 .logo-text { font-family: var(--font-heading); font-size: 20px; font-weight: 800; letter-spacing: 1px; }
 
