@@ -627,8 +627,16 @@
     </div>
   </div>
 
-  <!-- Preloader script -->
+  <!-- Service Worker Auto Update & Preloader script -->
   <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').then(function(reg) {
+          reg.update();
+        }).catch(function() {});
+      });
+    }
+
     !function(){
       var done=false;
       function hide(){
@@ -639,8 +647,8 @@
         el.style.opacity='0';
         setTimeout(function(){el&&el.parentNode&&el.parentNode.removeChild(el);},550);
       }
-      setTimeout(hide, 1500);
-      window.addEventListener('load',function(){setTimeout(hide, 450);});
+      setTimeout(hide, 1400);
+      window.addEventListener('load',function(){setTimeout(hide, 400);});
     }();
   </script>
 
