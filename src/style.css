@@ -108,279 +108,307 @@ html, body {
 }
 
 /* ─────────────────────────────────────────────────
-   CYBER-VINYL HOLOGRAPHIC PRELOADER
+   COSMIC BLACK HOLE MUSIC PRELOADER
 ───────────────────────────────────────────────── */
 #preloader {
   position: fixed; inset: 0;
-  background: #060911;
+  background: #03060C;
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
   z-index: 99999;
   overflow: hidden;
   user-select: none;
+  perspective: 1000px;
 }
 
-/* Cosmic Ambient Glow & Sonic Ripples */
-.pre-ambient-glow {
-  position: absolute;
-  width: 420px; height: 420px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, rgba(249, 115, 22, 0.15) 45%, transparent 70%);
-  filter: blur(60px);
-  animation: ambientFloat 4s ease-in-out infinite alternate;
+/* Cosmic Nebula Stars & Gravitational Warping */
+.space-stars {
+  position: absolute; inset: 0;
+  background-image: 
+    radial-gradient(1.5px 1.5px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.8), rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 160px 120px, #ff4444, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 240px 90px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 300px 180px, #f97316, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 340px 60px, rgba(255,255,255,0.7), rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 360px 360px;
+  opacity: 0.65;
+  animation: starsTwinkle 6s ease-in-out infinite alternate;
   pointer-events: none;
 }
-@keyframes ambientFloat {
-  0% { transform: scale(0.85) translate(0, 0); opacity: 0.6; }
-  100% { transform: scale(1.2) translate(5px, -5px); opacity: 0.95; }
+@keyframes starsTwinkle {
+  0% { opacity: 0.45; transform: scale(1); }
+  100% { opacity: 0.85; transform: scale(1.05); }
 }
 
-.pre-ripple {
+.space-glow-violet {
+  position: absolute;
+  width: 460px; height: 460px;
+  background: radial-gradient(circle, rgba(147, 51, 234, 0.28) 0%, rgba(79, 70, 229, 0.12) 50%, transparent 75%);
+  filter: blur(70px);
+  pointer-events: none;
+  animation: glowBreathe 5s ease-in-out infinite alternate;
+}
+.space-glow-amber {
+  position: absolute;
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.35) 0%, rgba(249, 115, 22, 0.18) 45%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  animation: glowBreathe 4s ease-in-out infinite alternate-reverse;
+}
+@keyframes glowBreathe {
+  0% { transform: scale(0.88); opacity: 0.6; }
+  100% { transform: scale(1.22); opacity: 1; }
+}
+
+/* Gravitational Ripple Waves */
+.grav-wave {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  animation: sonicRipple 3s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  animation: gravWaveWarp 3.6s cubic-bezier(0.1, 0.85, 0.25, 1) infinite;
   pointer-events: none;
 }
-.ripple-1 { width: 180px; height: 180px; animation-delay: 0s; }
-.ripple-2 { width: 260px; height: 260px; animation-delay: 0.9s; }
-.ripple-3 { width: 340px; height: 340px; animation-delay: 1.8s; }
-
-@keyframes sonicRipple {
-  0% { transform: scale(0.6); opacity: 0.8; }
-  100% { transform: scale(1.7); opacity: 0; }
+.wave-1 { width: 160px; height: 160px; animation-delay: 0s; }
+.wave-2 { width: 260px; height: 260px; animation-delay: 1.2s; }
+.wave-3 { width: 360px; height: 360px; animation-delay: 2.4s; }
+@keyframes gravWaveWarp {
+  0% { transform: scale(0.5); opacity: 0.85; border-color: rgba(239, 68, 68, 0.6); }
+  100% { transform: scale(2.2); opacity: 0; border-color: rgba(147, 51, 234, 0.1); }
 }
 
-/* Central Stage Container */
-.pre-stage {
+/* Central Black Hole Stage */
+.black-hole-stage {
   position: relative;
   display: flex; flex-direction: column;
   align-items: center;
-  padding: 34px 28px 28px;
-  border-radius: 32px;
-  background: rgba(13, 18, 30, 0.75);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  padding: 34px 28px 26px;
+  border-radius: 36px;
+  background: rgba(8, 12, 22, 0.82);
+  backdrop-filter: blur(36px);
+  -webkit-backdrop-filter: blur(36px);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 50px rgba(239, 68, 68, 0.18);
-  max-width: 350px; width: 90%;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), 0 0 60px rgba(239, 68, 68, 0.22);
+  max-width: 360px; width: 92%;
+  z-index: 10;
 }
 
-/* 3D Turntable Core */
-.pre-turntable {
+/* 3D Swirling Black Hole Gravitational Well */
+.black-hole-container {
   position: relative;
-  width: 140px; height: 140px;
+  width: 220px; height: 220px;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
+  perspective: 800px;
 }
 
-/* Vinyl Disc */
-.vinyl-disc {
-  position: relative;
-  width: 130px; height: 130px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #222 0%, #111 40%, #080808 100%);
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(239, 68, 68, 0.35);
-  display: flex; align-items: center; justify-content: center;
-  animation: spinVinyl 3.6s linear infinite;
-  overflow: hidden;
+/* Relativistic Plasma Jets */
+.plasma-jet {
+  position: absolute;
+  width: 4px; height: 75px;
+  border-radius: 4px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.95), rgba(239, 68, 68, 0.8), transparent);
+  filter: drop-shadow(0 0 10px #EF4444);
+  z-index: 1;
 }
-@keyframes spinVinyl {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.top-jet { top: -20px; animation: jetFlare 0.8s ease-in-out infinite alternate; }
+.btm-jet { bottom: -20px; transform: rotate(180deg); animation: jetFlare 0.8s ease-in-out infinite alternate 0.4s; }
+@keyframes jetFlare {
+  0% { transform: scaleY(0.7) scaleX(0.8); opacity: 0.6; }
+  100% { transform: scaleY(1.25) scaleX(1.3); opacity: 1; }
 }
 
-.vinyl-groove {
+/* Burning Accretion Disks */
+.accretion-disk {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-.g1 { width: 108px; height: 108px; }
-.g2 { width: 88px; height: 88px; }
-.g3 { width: 72px; height: 72px; }
-
-.vinyl-shine {
-  position: absolute; inset: 0;
-  border-radius: 50%;
-  background: conic-gradient(from 45deg, transparent, rgba(255, 255, 255, 0.16) 25deg, transparent 50deg, transparent 180deg, rgba(255, 255, 255, 0.12) 205deg, transparent 230deg);
   pointer-events: none;
 }
+.disk-outer {
+  width: 190px; height: 190px;
+  background: conic-gradient(from 0deg, #ff2222, #ff7700, #ffcc00, #9333ea, #ff2222);
+  filter: blur(12px);
+  opacity: 0.75;
+  animation: spinAccretion 3.2s linear infinite;
+}
+.disk-inner {
+  width: 140px; height: 140px;
+  background: conic-gradient(from 180deg, #ff0055, #ff5500, #ffea00, #7928ca, #ff0055);
+  filter: blur(6px);
+  opacity: 0.9;
+  animation: spinAccretion 1.8s linear infinite reverse;
+}
+@keyframes spinAccretion {
+  0% { transform: rotate(0deg) scale(0.96); }
+  50% { transform: rotate(180deg) scale(1.04); }
+  100% { transform: rotate(360deg) scale(0.96); }
+}
 
-.vinyl-hub {
-  position: relative;
-  width: 58px; height: 58px;
+/* Photon Ring (Lensed Light Ring) */
+.photon-ring {
+  position: absolute;
+  width: 110px; height: 110px;
   border-radius: 50%;
-  background: #FFFFFF;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 16px rgba(239, 68, 68, 0.5), inset 0 0 4px rgba(0,0,0,0.2);
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  overflow: hidden;
+  border: 3px solid #FFF;
+  box-shadow: 0 0 25px #FF5500, 0 0 45px #EF4444, inset 0 0 20px #FFA500;
+  animation: photonPulse 1.4s ease-in-out infinite alternate;
   z-index: 2;
 }
-.vinyl-logo-img {
+@keyframes photonPulse {
+  0% { transform: scale(0.95); filter: drop-shadow(0 0 10px #FF5500); }
+  100% { transform: scale(1.05); filter: drop-shadow(0 0 22px #EF4444); }
+}
+
+/* The Event Horizon Abyss & Center Singularity */
+.event-horizon {
+  position: relative;
+  width: 86px; height: 86px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #000000 65%, #050505 100%);
+  box-shadow: 0 0 30px #000000, inset 0 0 20px rgba(0, 0, 0, 0.95);
+  border: 1.5px solid rgba(255, 68, 68, 0.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 8;
+}
+
+.singularity-core {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: #FFFFFF;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 35px rgba(239, 68, 68, 0.7);
+  animation: singularityPulse 2s ease-in-out infinite alternate;
+  overflow: hidden;
+}
+.black-hole-logo {
   width: 100%; height: 100%; object-fit: cover;
 }
-.vinyl-center-dot {
-  position: absolute;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #111;
-  border: 1.5px solid #F97316;
-  box-shadow: 0 0 6px #F97316;
+@keyframes singularityPulse {
+  0% { transform: scale(0.9); box-shadow: 0 0 16px rgba(255, 255, 255, 0.8), 0 0 25px rgba(239, 68, 68, 0.5); }
+  100% { transform: scale(1.1); box-shadow: 0 0 28px rgba(255, 255, 255, 1), 0 0 45px rgba(239, 68, 68, 0.9); }
 }
 
-/* Floating Tonearm Needle */
-.turntable-needle {
-  position: absolute;
-  top: -12px; right: -14px;
-  width: 50px; height: 60px;
+/* Spiraling Song Thumbnails Sucked into the Black Hole Vortex */
+.spiral-vortex {
+  position: absolute; inset: 0;
   pointer-events: none;
   z-index: 5;
-  animation: needleBob 2.8s ease-in-out infinite alternate;
-}
-@keyframes needleBob {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(-3deg); }
-}
-.needle-base {
-  width: 12px; height: 12px; border-radius: 50%;
-  background: linear-gradient(135deg, #777, #333);
-  border: 1.5px solid #bbb;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  position: absolute; top: 0; right: 0;
-}
-.needle-arm {
-  position: absolute; top: 8px; right: 4px;
-  width: 2.5px; height: 38px;
-  background: linear-gradient(to bottom, #ccc, #777);
-  transform-origin: top center;
-  transform: rotate(32deg);
-  border-radius: 2px;
-}
-.needle-cartridge {
-  position: absolute; bottom: 8px; left: 10px;
-  width: 8px; height: 14px;
-  background: #1a1a1a; border: 1px solid #ff4444;
-  border-radius: 2px;
-  transform: rotate(20deg);
-  display: flex; align-items: center; justify-content: center;
-}
-.needle-laser {
-  width: 3px; height: 3px; border-radius: 50%;
-  background: #ff2222;
-  box-shadow: 0 0 8px #ff2222, 0 0 14px #ff2222;
-  animation: laserPulse 0.6s infinite alternate;
-}
-@keyframes laserPulse {
-  0% { opacity: 0.6; transform: scale(0.8); }
-  100% { opacity: 1; transform: scale(1.3); }
 }
 
-/* 360 Radial Visualizer Wavebars */
-.radial-visualizer {
-  position: absolute; inset: -14px;
-  border-radius: 50%;
-  pointer-events: none;
+.vortex-card {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.7), 0 0 10px rgba(239, 68, 68, 0.5);
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
 }
-.rad-bar {
-  position: absolute; top: 50%; left: 50%;
-  width: 3px; height: 12px;
-  background: linear-gradient(to top, #EF4444, #F97316);
-  border-radius: 3px;
-  transform-origin: center -70px;
-  transform: translate(-50%, -50%) rotate(var(--deg));
-  animation: radPulse 0.8s ease-in-out infinite alternate;
-  animation-delay: var(--delay);
-}
-@keyframes radPulse {
-  0% { height: 4px; opacity: 0.3; }
-  100% { height: 16px; opacity: 1; filter: drop-shadow(0 0 6px #EF4444); }
+.vortex-card img {
+  width: 100%; height: 100%; object-fit: cover;
 }
 
-/* Typography & Live Audio Frequency Status */
-.pre-meta {
+/* Realistic 3D Gravitational Spiral & Warp Inflow Keyframes */
+.v-card-1 { animation: vortexOrbit 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; animation-delay: 0s; }
+.v-card-2 { animation: vortexOrbit 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; animation-delay: 0.7s; }
+.v-card-3 { animation: vortexOrbit 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; animation-delay: 1.4s; }
+.v-card-4 { animation: vortexOrbit 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; animation-delay: 2.1s; }
+.v-card-5 { animation: vortexOrbit 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; animation-delay: 2.8s; }
+.v-card-6 { animation: vortexOrbit 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; animation-delay: 3.5s; }
+
+@keyframes vortexOrbit {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) translate(95px) rotate(0deg) scale(1.05);
+    opacity: 0;
+    filter: blur(0px) brightness(1);
+  }
+  15% {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) translate(70px) rotate(-180deg) scale(0.85);
+    filter: drop-shadow(0 0 8px #FF5500) brightness(1.3);
+  }
+  80% {
+    transform: translate(-50%, -50%) rotate(320deg) translate(40px) rotate(-320deg) scale(0.5);
+    opacity: 0.9;
+    filter: blur(1px) drop-shadow(0 0 12px #EF4444) brightness(1.6);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(420deg) translate(8px) rotate(-420deg) scale(0.08);
+    opacity: 0;
+    filter: blur(3px) brightness(2.5);
+  }
+}
+
+/* Gravitational Typography & Status */
+.bh-meta {
   text-align: center;
   margin-bottom: 16px;
 }
-.pre-brand-title {
+.bh-title {
   font-family: var(--font-heading);
-  font-size: 30px; font-weight: 900;
-  letter-spacing: 5px;
-  background: linear-gradient(135deg, #FFFFFF 0%, #FFA07A 50%, #EF4444 100%);
+  font-size: 32px; font-weight: 900;
+  letter-spacing: 6px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFA07A 40%, #EF4444 80%, #9333EA 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
-.pre-brand-sub {
+.bh-sub {
   display: inline-flex; align-items: center; gap: 7px;
-  padding: 4px 14px;
+  padding: 5px 15px;
   border-radius: 100px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
-.live-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: #10B981;
-  box-shadow: 0 0 8px #10B981;
-  animation: dotBlink 1s infinite alternate;
+.bh-pulse-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #F97316;
+  box-shadow: 0 0 10px #F97316, 0 0 18px #EF4444;
+  animation: dotFlare 0.9s infinite alternate;
 }
-@keyframes dotBlink { 0% { opacity: 0.4; } 100% { opacity: 1; } }
-.pre-freq-text {
+@keyframes dotFlare {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.3); opacity: 1; }
+}
+.bh-status-text {
   font-size: 11px; font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
-  letter-spacing: 0.8px;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.6px;
 }
 
-/* Studio Stereo VU Meter */
-.pre-vu-meter {
-  display: flex; gap: 10px;
-  margin-bottom: 20px;
-}
-.vu-channel {
-  display: flex; gap: 3.5px; align-items: center;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 4px 6px; border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-.vu-led {
-  width: 4.5px; height: 10px; border-radius: 1.5px;
-  opacity: 0.25;
-  transition: opacity 0.1s;
-}
-.l-green { background: #10B981; animation: vuLight 0.5s ease-in-out infinite alternate; }
-.l-amber { background: #F59E0B; animation: vuLight 0.5s ease-in-out infinite alternate; animation-delay: 0.15s; }
-.l-red   { background: #EF4444; animation: vuLight 0.5s ease-in-out infinite alternate; animation-delay: 0.3s; }
-@keyframes vuLight {
-  0% { opacity: 0.2; transform: scaleY(0.7); }
-  100% { opacity: 1; transform: scaleY(1.1); filter: drop-shadow(0 0 4px currentColor); }
-}
-
-/* Progress Track & Sound Spec */
-.pre-loader-bar-wrap {
+/* Quantum Progress Analyzer */
+.bh-loader-box {
   width: 100%;
   display: flex; flex-direction: column; gap: 8px;
 }
-.pre-loader-bar {
-  width: 100%; height: 4px;
+.bh-progress-track {
+  width: 100%; height: 5px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
 }
-.pre-loader-pulse {
+.bh-progress-fill {
   width: 50%; height: 100%;
-  background: linear-gradient(90deg, #EF4444, #F97316, #FBBF24);
+  background: linear-gradient(90deg, #9333EA, #EF4444, #F97316, #FBBF24);
   border-radius: 10px;
-  animation: loaderPulseMove 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: bhLoaderPulse 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
-@keyframes loaderPulseMove {
+@keyframes bhLoaderPulse {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(250%); }
 }
 
-.pre-spec-hz {
+.bh-quantum-stats {
   display: flex; justify-content: space-between;
-  font-size: 10px; font-weight: 600;
-  color: rgba(255, 255, 255, 0.45);
-  letter-spacing: 0.5px;
+  font-size: 10px; font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.8px;
   text-transform: uppercase;
 }
 
