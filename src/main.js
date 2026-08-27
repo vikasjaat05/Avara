@@ -1253,6 +1253,7 @@ function switchTab(tab) {
 
 function openPlayer() {
   inPlayer = true;
+  document.body.classList.add('player-open');
   // Show luxury player view overlay
   if (D.playerView) {
     D.playerView.classList.remove('hidden-view');
@@ -1264,6 +1265,7 @@ function openPlayer() {
 
 function closePlayer() {
   inPlayer = false;
+  document.body.classList.remove('player-open');
   // Hide player view overlay smoothly
   if (D.playerView) {
     D.playerView.classList.remove('active-view');
