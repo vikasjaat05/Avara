@@ -26,77 +26,37 @@
 
 <body class="theme-dark">
 
-  <!-- ═══════════ COSMIC BLACK HOLE MUSIC PRELOADER ═══════════ -->
+  <!-- ═══════════ ULTRA-LUXURY STUDIO PRELOADER ═══════════ -->
   <div id="preloader">
-    <!-- Starfield & Gravitational Wave Warp Distortions -->
-    <div class="space-stars"></div>
-    <div class="space-glow-violet"></div>
-    <div class="space-glow-amber"></div>
-    <div class="grav-wave wave-1"></div>
-    <div class="grav-wave wave-2"></div>
-    <div class="grav-wave wave-3"></div>
+    <div class="pre-ambient-glow"></div>
 
-    <div class="black-hole-stage">
-      <!-- 3D Swirling Black Hole Gravitational Well -->
-      <div class="black-hole-container">
-        <!-- Relativistic Cosmic Jets -->
-        <div class="plasma-jet top-jet"></div>
-        <div class="plasma-jet btm-jet"></div>
-
-        <!-- Burning Accretion Disks (Outer & Inner) -->
-        <div class="accretion-disk disk-outer"></div>
-        <div class="accretion-disk disk-inner"></div>
-        <div class="photon-ring"></div>
-
-        <!-- The Event Horizon & Central Logo Singularity -->
-        <div class="event-horizon">
-          <div class="singularity-core">
-            <img src="/logo.png" class="black-hole-logo" alt="Avara Singularity" width="52" height="52" />
-          </div>
-        </div>
-
-        <!-- Floating Song Thumbnails Spiraling into the Black Hole -->
-        <div class="spiral-vortex">
-          <div class="vortex-card v-card-1">
-            <img src="https://img.youtube.com/vi/q8TTdhoxWm8/hqdefault.jpg" alt="" />
-          </div>
-          <div class="vortex-card v-card-2">
-            <img src="https://img.youtube.com/vi/k6q4lENp434/hqdefault.jpg" alt="" />
-          </div>
-          <div class="vortex-card v-card-3">
-            <img src="https://img.youtube.com/vi/BsqrmY91nUQ/hqdefault.jpg" alt="" />
-          </div>
-          <div class="vortex-card v-card-4">
-            <img src="https://img.youtube.com/vi/iUqPfGlg9GQ/hqdefault.jpg" alt="" />
-          </div>
-          <div class="vortex-card v-card-5">
-            <img src="https://img.youtube.com/vi/6d5SS0gS5bU/hqdefault.jpg" alt="" />
-          </div>
-          <div class="vortex-card v-card-6">
-            <img src="https://img.youtube.com/vi/j6muwUGdvXw/hqdefault.jpg" alt="" />
-          </div>
-        </div>
+    <div class="pre-content">
+      <!-- Floating App Logo with Soft Glow -->
+      <div class="pre-icon-wrapper">
+        <div class="pre-icon-glow"></div>
+        <img src="/logo.png" class="pre-app-icon" alt="Avara Music" width="86" height="86" />
       </div>
 
-      <!-- Futuristic Gravitational Typography & Live Status -->
-      <div class="bh-meta">
-        <div class="bh-title">AVARA</div>
-        <div class="bh-sub">
-          <span class="bh-pulse-dot"></span>
-          <span class="bh-status-text" id="pre-status-txt">Warping 15,000+ Songs Into Singularity...</span>
-        </div>
+      <!-- Clean Brand Typography -->
+      <div class="pre-brand">
+        <h1 class="pre-title">AVARA</h1>
+        <span class="pre-tagline">SOUND OF EMOTION</span>
       </div>
 
-      <!-- Quantum Singularity Progress Analyzer -->
-      <div class="bh-loader-box">
-        <div class="bh-progress-track">
-          <div class="bh-progress-fill"></div>
-        </div>
-        <div class="bh-quantum-stats">
-          <span>SINGULARITY AUDIO ENGINE</span>
-          <span id="pre-pct-counter">WARP SPEED 100%</span>
-        </div>
+      <!-- Sleek Rhythmic Sound Equalizer -->
+      <div class="pre-equalizer">
+        <span class="eq-bar eq-1"></span>
+        <span class="eq-bar eq-2"></span>
+        <span class="eq-bar eq-3"></span>
+        <span class="eq-bar eq-4"></span>
+        <span class="eq-bar eq-5"></span>
       </div>
+
+      <!-- Clean Progress Bar & Status -->
+      <div class="pre-loader-track">
+        <div class="pre-loader-bar"></div>
+      </div>
+      <div class="pre-status">Crafting your audio experience…</div>
     </div>
   </div>
 
@@ -685,36 +645,21 @@
     }
 
     !function(){
-      var statusMessages = [
-        'Bending Audio Space-Time...',
-        'Absorbing 15,000+ Songs Into Singularity...',
-        'Gravitational Lensing Synchronized...',
-        'Event Horizon Locked • Ready To Play'
-      ];
-      var msgIndex = 0;
-      var statusEl = document.getElementById('pre-status-txt');
-      var statusInterval = setInterval(function(){
-        msgIndex = (msgIndex + 1) % statusMessages.length;
-        if(statusEl) statusEl.textContent = statusMessages[msgIndex];
-      }, 450);
-
       var done = false;
       function hide(){
         if(done) return;
         done = true;
-        clearInterval(statusInterval);
         var el = document.getElementById('preloader');
         if(!el) return;
-        el.style.transition = 'opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease';
+        el.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
         el.style.opacity = '0';
-        el.style.transform = 'scale(1.12)';
-        el.style.filter = 'blur(10px)';
+        el.style.transform = 'scale(0.97)';
         setTimeout(function(){
           el && el.parentNode && el.parentNode.removeChild(el);
-        }, 750);
+        }, 650);
       }
-      setTimeout(hide, 1800);
-      window.addEventListener('load', function(){ setTimeout(hide, 700); });
+      // Exact 3.5s total duration for clean experience
+      setTimeout(hide, 3500);
     }();
   </script>
 
