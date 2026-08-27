@@ -624,7 +624,7 @@
     </div>
   </div>
 
-  <!-- Service Worker Auto Update & Dynamic Preloader script -->
+  <!-- Service Worker & Reliable Preloader Auto-Dismiss Script -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -634,33 +634,24 @@
       });
     }
 
-  <!-- Service Worker Auto Update & Studio Preloader script -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js').then(function(reg) {
-          reg.update();
-        }).catch(function() {});
-      });
-    }
-
-    !function(){
-      var done = false;
-      function hide(){
-        if(done) return;
-        done = true;
-        var el = document.getElementById('preloader');
-        if(!el) return;
-        el.style.transition = 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-        el.style.opacity = '0';
-        el.style.transform = 'scale(0.97)';
+    (function(){
+      var hidden = false;
+      function dismissPreloader(){
+        if (hidden) return;
+        hidden = true;
+        var p = document.getElementById('preloader');
+        if (!p) return;
+        p.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        p.style.opacity = '0';
+        p.style.transform = 'scale(0.96)';
+        p.style.pointerEvents = 'none';
         setTimeout(function(){
-          el && el.parentNode && el.parentNode.removeChild(el);
-        }, 550);
+          if (p && p.parentNode) p.parentNode.removeChild(p);
+        }, 450);
       }
-      // Exact 3s total duration
-      setTimeout(hide, 3000);
-    }();
+      // Strict 3-second hard timeout
+      setTimeout(dismissPreloader, 3000);
+    })();
   </script>
 
   <!-- YouTube API setup -->

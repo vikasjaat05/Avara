@@ -118,6 +118,13 @@ html, body {
   z-index: 99999;
   overflow: hidden;
   user-select: none;
+  animation: preloaderHardDismiss 0.4s ease 3.0s forwards;
+}
+
+@keyframes preloaderHardDismiss {
+  0% { opacity: 1; pointer-events: all; }
+  99% { opacity: 0; pointer-events: none; }
+  100% { opacity: 0; pointer-events: none; visibility: hidden; }
 }
 
 /* Soft Ambient Crimson Glow */
@@ -126,7 +133,7 @@ html, body {
   width: 320px; height: 320px;
   background: radial-gradient(circle, rgba(239, 68, 68, 0.22) 0%, rgba(249, 115, 22, 0.1) 50%, transparent 75%);
   filter: blur(60px);
-  animation: preAmbientPulse 3.5s ease-in-out infinite alternate;
+  animation: preAmbientPulse 3s ease-in-out infinite alternate;
   pointer-events: none;
 }
 @keyframes preAmbientPulse {
