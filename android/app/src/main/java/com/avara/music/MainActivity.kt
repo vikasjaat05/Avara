@@ -128,6 +128,16 @@ class MainActivity : AppCompatActivity() {
                 startService(intent)
             }
         }
+
+        @JavascriptInterface
+        fun resumeSong() {
+            runOnUiThread { 
+                val intent = Intent(this@MainActivity, MusicService::class.java).apply {
+                    action = "com.avara.music.RESUME"
+                }
+                startService(intent)
+            }
+        }
     }
 
     private fun getJsBridge(): String {

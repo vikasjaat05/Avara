@@ -175,14 +175,34 @@ function setupMediaSession(song) {
       artist: song.artist,
       album: 'Avara Music',
       artwork: [
-        { src: `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`, sizes: '512x512', type: 'image/jpeg' }
+        { src: `https://img.youtube.com/vi/${song.id}/hqdefault.jpg`, sizes: '512x512', type: 'image/jpeg' },
+        { src: `https://img.youtube.com/vi/${song.id}/mqdefault.jpg`, sizes: '256x256', type: 'image/jpeg' }
       ]
     });
 
-    navigator.mediaSession.setActionHandler('play', () => togglePlay());
-    navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+    navigator.mediaSession.playbackState = 'playing';
+
+    navigator.mediaSession.setActionHandler('play', () => {
+      if (!isPlaying) togglePlay();
+    });
+    navigator.mediaSession.setActionHandler('pause', () => {
+      if (isPlaying) togglePlay();
+    });
     navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
     navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+    try {
+      navigator.mediaSession.setActionHandler('seekto', (details) => {
+        if (details.seekTime != null) seek(details.seekTime);
+      });
+      navigator.mediaSession.setActionHandler('seekforward', () => {
+        const cur = (nativeAudio && isNativeAudioPlaying) ? nativeAudio.currentTime : (ytPlayer?.getCurrentTime?.() || 0);
+        seek(cur + 10);
+      });
+      navigator.mediaSession.setActionHandler('seekbackward', () => {
+        const cur = (nativeAudio && isNativeAudioPlaying) ? nativeAudio.currentTime : (ytPlayer?.getCurrentTime?.() || 0);
+        seek(Math.max(0, cur - 10));
+      });
+    } catch(e) {}
   }
 }
 
@@ -415,12 +435,34 @@ function toggleTheme() {
   applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
 }
 
-// ─── Web Audio API Background Keep-Alive Context ────────────────────────────
+// ─── Web Audio API & Silent Audio Loop Background Keep-Alive ─────────────────
 let audioCtx = null;
 let keepAliveOsc = null;
+let silentAudioEl = null;
+let wakeLock = null;
+
+function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator && !wakeLock) {
+      navigator.wakeLock.request('screen').then(wl => {
+        wakeLock = wl;
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+      }).catch(() => {});
+    }
+  } catch(e) {}
+}
 
 function enableBackgroundAudio() {
   try {
+    // 1. Silent HTML5 Audio Element Loop (prevents iOS Safari & Android Chrome tab suspension)
+    if (!silentAudioEl) {
+      silentAudioEl = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
+      silentAudioEl.loop = true;
+      silentAudioEl.volume = 0.01;
+    }
+    silentAudioEl.play().catch(() => {});
+
+    // 2. Web Audio Keep-Alive Oscillator
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       keepAliveOsc = audioCtx.createOscillator();
@@ -433,8 +475,27 @@ function enableBackgroundAudio() {
     if (audioCtx.state === 'suspended') {
       audioCtx.resume();
     }
+
+    requestWakeLock();
   } catch(e) {}
 }
+
+// Ensure audio remains playing during lock screen or app minimization
+document.addEventListener('visibilitychange', () => {
+  if (isPlaying) {
+    if (document.hidden) {
+      enableBackgroundAudio();
+      if (nativeAudio && nativeAudio.src && nativeAudio.paused) {
+        nativeAudio.play().catch(() => {});
+      }
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'playing';
+      }
+    } else {
+      requestWakeLock();
+    }
+  }
+});
 
 // ─── Top Hero Swiper Carousel Logic ───────────────────────────────────────────
 let swiperCurrentIndex = 0;
@@ -667,28 +728,53 @@ window.playNextTrack = () => nextTrack();
 window.playPreviousTrack = () => prevTrack();
 
 async function fetchAudioStreamUrl(songId) {
-  const endpoints = [
-    `https://pipedapi.kavin.rocks/streams/${songId}`,
-    `https://api.piped.yt/streams/${songId}`,
-    `https://pipedapi.mha.fi/streams/${songId}`
+  const providers = [
+    { type: 'piped', url: `https://pipedapi.leptons.xyz/streams/${songId}` },
+    { type: 'piped', url: `https://piped-api.lunar.icu/streams/${songId}` },
+    { type: 'piped', url: `https://api.piped.private.coffee/streams/${songId}` },
+    { type: 'piped', url: `https://pipedapi.tokhmi.xyz/streams/${songId}` },
+    { type: 'invidious', url: `https://inv.nadeko.net/api/v1/videos/${songId}` },
+    { type: 'invidious', url: `https://invidious.nerdvpn.de/api/v1/videos/${songId}` },
+    { type: 'invidious', url: `https://invidious.drgns.space/api/v1/videos/${songId}` }
   ];
 
-  for (const url of endpoints) {
+  const fetchSingle = async ({ type, url }) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 3200);
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500);
       const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeoutId);
-      if (res.ok) {
-        const data = await res.json();
+      clearTimeout(timer);
+      if (!res.ok) throw new Error('Bad response');
+      const data = await res.json();
+      
+      if (type === 'piped') {
         const streams = data.audioStreams || [];
         if (streams.length > 0) {
           return streams[streams.length - 1].url;
         }
+      } else if (type === 'invidious') {
+        const adaptive = data.adaptiveFormats || [];
+        const audio = adaptive.filter(f => (f.type && f.type.includes('audio')) || (f.container && (f.container.includes('m4a') || f.container.includes('webm'))));
+        if (audio.length > 0) {
+          return audio[audio.length - 1].url;
+        }
+        const formatStreams = data.formatStreams || [];
+        if (formatStreams.length > 0) {
+          return formatStreams[0].url;
+        }
       }
-    } catch(e) {}
+      throw new Error('No stream');
+    } catch(e) {
+      clearTimeout(timer);
+      throw e;
+    }
+  };
+
+  try {
+    return await Promise.any(providers.map(p => fetchSingle(p)));
+  } catch(e) {
+    return null;
   }
-  return null;
 }
 
 // ─── Playback ────────────────────────────────────────────────────────────────
@@ -726,7 +812,7 @@ function _doPlay(idx) {
     return;
   }
 
-  // 1. Android Native App Bridge
+  // 1. Android Native App Bridge (Plays in foreground service on Android)
   if (isAndroidApp && window.AndroidBridge) {
     fetchAudioStreamUrl(song.id).then(streamUrl => {
       if (streamUrl) {
@@ -737,7 +823,7 @@ function _doPlay(idx) {
     return;
   }
 
-  // 2. Mobile Web Native Audio Stream Proxy (Background backup)
+  // 2. Mobile Web Native Audio Stream Proxy (Uninterrupted lock screen & background playback)
   fetchAudioStreamUrl(song.id).then(streamUrl => {
     if (streamUrl && nativeAudio && !isVideoMode) {
       try {
@@ -750,7 +836,10 @@ function _doPlay(idx) {
         nativeAudio.currentTime = initialSeek;
         initialSeek = 0;
       }
-      nativeAudio.play().catch(() => {
+      nativeAudio.play().then(() => {
+        isNativeAudioPlaying = true;
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+      }).catch(() => {
         if (ytPlayer && typeof ytPlayer.unMute === 'function') {
           ytPlayer.unMute();
         }

@@ -99,8 +99,11 @@ class MusicService : MediaSessionService() {
                     playMedia(url, title, artist, artUrl)
                 }
             }
-            ACTION_PAUSE -> {
+            ACTION_PAUSE, "com.avara.music.PAUSE" -> {
                 player.pause()
+            }
+            ACTION_RESUME, "com.avara.music.RESUME" -> {
+                player.play()
             }
         }
         return super.onStartCommand(intent, flags, startId)
