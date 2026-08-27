@@ -435,18 +435,48 @@
             </div>
           </div>
 
-          <div class="category-chips-bar">
-            <button class="cat-chip-lib active" data-filter="all">All Tracks</button>
-            <button class="cat-chip-lib" data-filter="💖 Romantic Hits">💖 Romantic</button>
-            <button class="cat-chip-lib" data-filter="💔 Heartbreak Hits">💔 Heartbreak</button>
-            <button class="cat-chip-lib" data-filter="👑 Guru Randhawa Special">👑 Guru Randhawa</button>
-            <button class="cat-chip-lib" data-filter="🎤 Hindi Rap & Hip-Hop">🎤 Hindi Rap</button>
-            <button class="cat-chip-lib" data-filter="✨ New Hits 2026">✨ New 2026</button>
-            <button class="cat-chip-lib" data-filter="🔥 Haryanvi Bangers">🔥 Haryanvi</button>
+          <!-- Library Sub Tabs: All, Recently Played, My Playlists -->
+          <div class="library-segmented-bar">
+            <button id="lib-tab-all" class="lib-segment-btn active" data-tab="all">
+              <span>🎵 All Songs</span>
+            </button>
+            <button id="lib-tab-recent" class="lib-segment-btn" data-tab="recent">
+              <span>🕒 Recently Played</span>
+            </button>
+            <button id="lib-tab-custom" class="lib-segment-btn" data-tab="playlists">
+              <span>📁 My Playlists</span>
+            </button>
           </div>
 
-          <div class="tracks-section">
-            <div id="library-songs-list"></div>
+          <div id="lib-all-section">
+            <div class="category-chips-bar">
+              <button class="cat-chip-lib active" data-filter="all">All Tracks</button>
+              <button class="cat-chip-lib" data-filter="💖 Romantic Hits">💖 Romantic</button>
+              <button class="cat-chip-lib" data-filter="💔 Heartbreak Hits">💔 Heartbreak</button>
+              <button class="cat-chip-lib" data-filter="👑 Guru Randhawa Special">👑 Guru Randhawa</button>
+              <button class="cat-chip-lib" data-filter="🎤 Hindi Rap & Hip-Hop">🎤 Hindi Rap</button>
+              <button class="cat-chip-lib" data-filter="✨ New Hits 2026">✨ New 2026</button>
+              <button class="cat-chip-lib" data-filter="🔥 Haryanvi Bangers">🔥 Haryanvi</button>
+            </div>
+            <div class="tracks-section">
+              <div id="library-songs-list"></div>
+            </div>
+          </div>
+
+          <div id="lib-recent-section" class="hidden">
+            <div class="tracks-section">
+              <div id="recent-songs-list"></div>
+            </div>
+          </div>
+
+          <div id="lib-playlists-section" class="hidden">
+            <div class="playlist-create-bar">
+              <button id="create-playlist-btn" class="create-playlist-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Create New Playlist</span>
+              </button>
+            </div>
+            <div id="custom-playlists-grid" class="playlists-grid"></div>
           </div>
         </div>
       </div>
@@ -511,16 +541,21 @@
             </button>
             <div class="player-badge-pill">
               <span class="pulsing-dot"></span>
-              <span class="player-topbar-label">NOW PLAYING</span>
+              <span class="player-topbar-label">HI-FI STUDIO PLAYBACK</span>
             </div>
-            <button id="player-like-btn" class="player-like-btn" title="Like Song" aria-label="Like">
-              <svg id="player-like-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            </button>
+            <div class="player-top-actions">
+              <button id="queue-toggle-btn" class="player-like-btn" title="Playing Queue (Up Next)" aria-label="Queue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              </button>
+              <button id="player-like-btn" class="player-like-btn" title="Like Song" aria-label="Like">
+                <svg id="player-like-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+              </button>
+            </div>
           </div>
 
           <!-- Main Studio Stage (Desktop: 2 columns, Mobile: 1 column) -->
           <div class="player-stage">
-            <!-- Left Side: Artwork & Video -->
+            <!-- Left Side: Artwork & Video & Visualizer -->
             <div class="player-stage-left">
               <div class="player-art-wrap" id="player-art-wrap">
                 <img id="player-art" class="player-art" src="" alt="Album Art">
@@ -531,6 +566,22 @@
                     <span>Full Screen</span>
                   </button>
                 </div>
+              </div>
+              
+              <!-- Live Audio Spectrum Visualizer Waves -->
+              <div class="audio-spectrum-visualizer" id="audio-visualizer">
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
+                <div class="spectrum-bar"></div>
               </div>
             </div>
 
@@ -587,6 +638,10 @@
                   <span>🎬</span>
                   <span id="video-mode-label">Watch Video</span>
                 </button>
+                <button id="speed-mode-btn" class="pro-tool-btn" title="Playback Speed / Lofi">
+                  <span>⚡</span>
+                  <span id="speed-mode-label">1.0x</span>
+                </button>
                 <button id="sleep-timer-btn" class="pro-tool-btn" title="Sleep Timer">
                   <span>💤</span>
                   <span id="sleep-timer-label">Off</span>
@@ -603,6 +658,36 @@
             </div>
           </div>
         </div>
+
+        <!-- Sliding Up Next / Playing Queue Drawer Overlay -->
+        <div id="queue-drawer" class="queue-drawer hidden">
+          <div class="queue-header">
+            <div class="queue-title-wrap">
+              <span class="queue-title">Up Next Queue</span>
+              <span id="queue-count" class="queue-count-badge">0 Tracks</span>
+            </div>
+            <button id="close-queue-btn" class="close-queue-btn" title="Close Queue">✕</button>
+          </div>
+          <div class="queue-body" id="queue-body-list"></div>
+        </div>
+      </div>
+
+      <!-- Create Playlist Modal -->
+      <div id="playlist-modal" class="playlist-modal-overlay hidden">
+        <div class="playlist-modal-card liquid-glass">
+          <div class="modal-header">
+            <h3 class="modal-title">Create New Playlist</h3>
+            <button id="close-playlist-modal" class="modal-close-btn">✕</button>
+          </div>
+          <div class="modal-body">
+            <input type="text" id="new-playlist-input" class="modal-input" placeholder="e.g. Late Night Vibes, Gym Energy..." maxlength="40">
+          </div>
+          <div class="modal-footer">
+            <button id="cancel-playlist-btn" class="modal-cancel-btn">Cancel</button>
+            <button id="save-playlist-btn" class="modal-save-btn">Create Playlist</button>
+          </div>
+        </div>
+      </div>
       </div>
 
 

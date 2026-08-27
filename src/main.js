@@ -130,6 +130,32 @@ function grabDOM() {
   D.backBtn         = document.getElementById('back-btn');
   D.volSlider       = document.getElementById('vol-slider');
 
+  // Pro Feature Additions: Visualizer, Speed, Queue Drawer
+  D.audioVisualizer     = document.getElementById('audio-visualizer');
+  D.speedModeBtn        = document.getElementById('speed-mode-btn');
+  D.speedModeLabel      = document.getElementById('speed-mode-label');
+  D.queueToggleBtn      = document.getElementById('queue-toggle-btn');
+  D.queueDrawer         = document.getElementById('queue-drawer');
+  D.closeQueueBtn       = document.getElementById('close-queue-btn');
+  D.queueBodyList       = document.getElementById('queue-body-list');
+  D.queueCount          = document.getElementById('queue-count');
+
+  // Library Subtabs & Custom Playlists
+  D.libTabAll           = document.getElementById('lib-tab-all');
+  D.libTabRecent        = document.getElementById('lib-tab-recent');
+  D.libTabCustom        = document.getElementById('lib-tab-custom');
+  D.libAllSection       = document.getElementById('lib-all-section');
+  D.libRecentSection    = document.getElementById('lib-recent-section');
+  D.libPlaylistsSection = document.getElementById('lib-playlists-section');
+  D.recentSongsList     = document.getElementById('recent-songs-list');
+  D.customPlaylistsGrid = document.getElementById('custom-playlists-grid');
+  D.createPlaylistBtn   = document.getElementById('create-playlist-btn');
+  D.playlistModal       = document.getElementById('playlist-modal');
+  D.closePlaylistModal  = document.getElementById('close-playlist-modal');
+  D.cancelPlaylistBtn   = document.getElementById('cancel-playlist-btn');
+  D.savePlaylistBtn     = document.getElementById('save-playlist-btn');
+  D.newPlaylistInput    = document.getElementById('new-playlist-input');
+
   // Mini player
   D.miniPlayer      = document.getElementById('mini-player');
   D.miniArt         = document.getElementById('mini-art');
@@ -165,6 +191,149 @@ function grabDOM() {
   D.navSearch       = document.getElementById('nav-search-mob');
   D.navMusic        = document.getElementById('nav-music-mob');
   D.navLiked        = document.getElementById('nav-liked-mob');
+}
+
+// ─── Pro Feature: Playback Speed & Lofi/Slowed Mode ──────────────────────────
+let currentSpeedIdx = 0;
+const SPEEDS = [
+  { rate: 1.0, label: '1.0x' },
+  { rate: 0.75, label: '0.75x Lofi' },
+  { rate: 1.25, label: '1.25x' },
+  { rate: 1.5, label: '1.5x' }
+];
+
+function toggleSpeedMode() {
+  currentSpeedIdx = (currentSpeedIdx + 1) % SPEEDS.length;
+  const speed = SPEEDS[currentSpeedIdx];
+  if (D.speedModeLabel) D.speedModeLabel.textContent = speed.label;
+  if (D.speedModeBtn) {
+    if (speed.rate !== 1.0) D.speedModeBtn.classList.add('active');
+    else D.speedModeBtn.classList.remove('active');
+  }
+  if (nativeAudio) nativeAudio.playbackRate = speed.rate;
+  if (ytPlayer && typeof ytPlayer.setPlaybackRate === 'function') {
+    try { ytPlayer.setPlaybackRate(speed.rate); } catch(e) {}
+  }
+}
+
+// ─── Pro Feature: Up Next Playing Queue Drawer ───────────────────────────────
+function toggleQueueDrawer() {
+  if (!D.queueDrawer) return;
+  const isHidden = D.queueDrawer.classList.contains('hidden');
+  if (isHidden) {
+    renderQueueDrawer();
+    D.queueDrawer.classList.remove('hidden');
+  } else {
+    D.queueDrawer.classList.add('hidden');
+  }
+}
+
+function renderQueueDrawer() {
+  if (!D.queueBodyList) return;
+  D.queueBodyList.innerHTML = '';
+  if (D.queueCount) D.queueCount.textContent = `${playlist.length} Tracks`;
+
+  const startIndex = currentIdx;
+  const queueTracks = [];
+  for (let i = 0; i < Math.min(30, playlist.length); i++) {
+    const idx = (startIndex + i) % playlist.length;
+    queueTracks.push({ song: playlist[idx], idx, isCurrent: i === 0 });
+  }
+
+  queueTracks.forEach(({ song, idx, isCurrent }) => {
+    const item = document.createElement('div');
+    item.className = 'queue-item' + (isCurrent ? ' active-queue-song' : '');
+    item.innerHTML = `
+      <img src="https://img.youtube.com/vi/${song.id}/hqdefault.jpg" class="queue-item-art" loading="lazy" alt="">
+      <div class="queue-item-info">
+        <div class="queue-item-title">${isCurrent ? '▶ ' : ''}${song.title}</div>
+        <div class="queue-item-artist">${song.artist}</div>
+      </div>
+      ${isCurrent ? '<span style="font-size:10px; font-weight:800; color:var(--accent);">NOW</span>' : ''}
+    `;
+    item.addEventListener('click', () => {
+      playTrack(idx);
+      renderQueueDrawer();
+    });
+    D.queueBodyList.appendChild(item);
+  });
+}
+
+// ─── Pro Feature: Custom Playlists & History Persistence ─────────────────────
+let customPlaylists = [];
+const KEY_CUSTOM_PLAYLISTS = 'avara_custom_playlists';
+
+function loadCustomPlaylists() {
+  try {
+    const raw = localStorage.getItem(KEY_CUSTOM_PLAYLISTS);
+    if (raw) customPlaylists = JSON.parse(raw);
+    else {
+      customPlaylists = [
+        { name: '✨ My Top Favorites', songIds: playlist.slice(0, 8).map(s => s.id) },
+        { name: '🌙 Night Drive & Lofi', songIds: playlist.slice(8, 16).map(s => s.id) }
+      ];
+    }
+  } catch(e) {
+    customPlaylists = [];
+  }
+}
+
+function saveCustomPlaylists() {
+  try {
+    localStorage.setItem(KEY_CUSTOM_PLAYLISTS, JSON.stringify(customPlaylists));
+  } catch(e) {}
+}
+
+function renderRecentlyPlayed() {
+  if (!D.recentSongsList) return;
+  D.recentSongsList.innerHTML = '';
+  const recentSongs = playHistory.map(id => playlist.find(s => s.id === id)).filter(Boolean);
+  if (!recentSongs.length) {
+    D.recentSongsList.innerHTML = '<div style="text-align:center; padding:40px 20px; color:var(--text-muted); font-size:14px;">No recently played songs yet. Play some tracks! 🎵</div>';
+    return;
+  }
+  renderSongRowList(D.recentSongsList, recentSongs, false);
+}
+
+function renderCustomPlaylists() {
+  if (!D.customPlaylistsGrid) return;
+  D.customPlaylistsGrid.innerHTML = '';
+  if (!customPlaylists.length) {
+    D.customPlaylistsGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px 20px; color:var(--text-muted); font-size:14px;">No custom playlists created yet. Click "+ Create New Playlist" above! 📁</div>';
+    return;
+  }
+  customPlaylists.forEach((pl) => {
+    const card = document.createElement('div');
+    card.className = 'playlist-card';
+    card.innerHTML = `
+      <div class="playlist-card-icon">🎧</div>
+      <div class="playlist-card-name">${pl.name}</div>
+      <div class="playlist-card-count">${pl.songIds ? pl.songIds.length : 0} Songs</div>
+    `;
+    card.addEventListener('click', () => {
+      if (pl.songIds && pl.songIds.length > 0) {
+        const firstSong = playlist.find(s => s.id === pl.songIds[0]);
+        if (firstSong) {
+          playTrack(playlist.indexOf(firstSong));
+          openPlayer();
+        }
+      }
+    });
+    D.customPlaylistsGrid.appendChild(card);
+  });
+}
+
+function switchLibraryTab(tab) {
+  if (D.libTabAll) D.libTabAll.classList.toggle('active', tab === 'all');
+  if (D.libTabRecent) D.libTabRecent.classList.toggle('active', tab === 'recent');
+  if (D.libTabCustom) D.libTabCustom.classList.toggle('active', tab === 'playlists');
+
+  if (D.libAllSection) D.libAllSection.classList.toggle('hidden', tab !== 'all');
+  if (D.libRecentSection) D.libRecentSection.classList.toggle('hidden', tab !== 'recent');
+  if (D.libPlaylistsSection) D.libPlaylistsSection.classList.toggle('hidden', tab !== 'playlists');
+
+  if (tab === 'recent') renderRecentlyPlayed();
+  if (tab === 'playlists') renderCustomPlaylists();
 }
 
 // ─── Media Session API (Lock Screen & Bluetooth Sync) ─────────────────────────
@@ -577,6 +746,8 @@ function restoreSavedState() {
       }
     }
   } catch(e) {}
+
+  loadCustomPlaylists();
 }
 
 function saveState() {
@@ -955,6 +1126,7 @@ function setPlayUI(playing) {
   if (D.miniPauseIcon)  D.miniPauseIcon.style.display   = playing ? '' : 'none';
   if (D.sdPlayIcon)     D.sdPlayIcon.style.display      = playing ? 'none' : '';
   if (D.sdPauseIcon)    D.sdPauseIcon.style.display     = playing ? '' : 'none';
+  if (D.audioVisualizer) D.audioVisualizer.classList.toggle('paused-visualizer', !playing);
 }
 
 function setLikeUI(liked) {
@@ -1593,6 +1765,54 @@ function bindAll() {
         playTrack(realIdx);
         openPlayer();
       }
+    });
+  }
+
+  // Pro Speed Mode (Lofi / Normal / Fast)
+  if (D.speedModeBtn) D.speedModeBtn.addEventListener('click', toggleSpeedMode);
+
+  // Up Next Queue Drawer
+  if (D.queueToggleBtn) D.queueToggleBtn.addEventListener('click', toggleQueueDrawer);
+  if (D.closeQueueBtn) D.closeQueueBtn.addEventListener('click', toggleQueueDrawer);
+
+  // Library Subtabs
+  if (D.libTabAll) D.libTabAll.addEventListener('click', () => switchLibraryTab('all'));
+  if (D.libTabRecent) D.libTabRecent.addEventListener('click', () => switchLibraryTab('recent'));
+  if (D.libTabCustom) D.libTabCustom.addEventListener('click', () => switchLibraryTab('playlists'));
+
+  // Custom Playlists Create & Modal
+  if (D.createPlaylistBtn) {
+    D.createPlaylistBtn.addEventListener('click', () => {
+      if (D.playlistModal) D.playlistModal.classList.remove('hidden');
+      if (D.newPlaylistInput) {
+        D.newPlaylistInput.value = '';
+        setTimeout(() => D.newPlaylistInput.focus(), 100);
+      }
+    });
+  }
+  if (D.closePlaylistModal) {
+    D.closePlaylistModal.addEventListener('click', () => {
+      if (D.playlistModal) D.playlistModal.classList.add('hidden');
+    });
+  }
+  if (D.cancelPlaylistBtn) {
+    D.cancelPlaylistBtn.addEventListener('click', () => {
+      if (D.playlistModal) D.playlistModal.classList.add('hidden');
+    });
+  }
+  if (D.savePlaylistBtn) {
+    D.savePlaylistBtn.addEventListener('click', () => {
+      const name = (D.newPlaylistInput?.value || '').trim();
+      if (!name) return;
+      const currentSong = playlist[currentIdx];
+      customPlaylists.unshift({
+        name,
+        songIds: currentSong ? [currentSong.id] : []
+      });
+      saveCustomPlaylists();
+      renderCustomPlaylists();
+      if (D.playlistModal) D.playlistModal.classList.add('hidden');
+      if (D.newPlaylistInput) D.newPlaylistInput.value = '';
     });
   }
 }
