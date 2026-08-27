@@ -108,11 +108,11 @@ html, body {
 }
 
 /* ─────────────────────────────────────────────────
-   NEON SONIC PRISM PRELOADER
+   LIQUID AUDIO SPHERE PRELOADER
 ───────────────────────────────────────────────── */
 #preloader {
   position: fixed; inset: 0;
-  background: #070A12;
+  background: #050811;
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
   z-index: 99999;
@@ -127,155 +127,194 @@ html, body {
   100% { opacity: 0; pointer-events: none; visibility: hidden; display: none; }
 }
 
-/* Ambient Glow & Concentric Sound Pulse Rings */
-.pre-sonic-ambient {
+/* Atmospheric Ambient Fluid Light */
+.sphere-ambient-bg {
   position: absolute;
-  width: 360px; height: 360px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(249, 115, 22, 0.12) 45%, transparent 70%);
-  filter: blur(65px);
-  animation: sonicAmbientPulse 3s ease-in-out infinite alternate;
+  width: 440px; height: 440px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.28) 0%, rgba(249, 115, 22, 0.12) 40%, rgba(147, 51, 234, 0.08) 65%, transparent 75%);
+  filter: blur(70px);
+  animation: sphereAmbientMorph 4s ease-in-out infinite alternate;
   pointer-events: none;
 }
-@keyframes sonicAmbientPulse {
-  0% { transform: scale(0.85); opacity: 0.5; }
-  100% { transform: scale(1.2); opacity: 0.9; }
+@keyframes sphereAmbientMorph {
+  0% { transform: scale(0.9) rotate(0deg); opacity: 0.6; }
+  100% { transform: scale(1.2) rotate(45deg); opacity: 0.95; }
 }
 
-.pre-sonic-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 1.5px solid rgba(239, 68, 68, 0.25);
-  pointer-events: none;
-  animation: sonicRingExpand 2.8s cubic-bezier(0.1, 0.8, 0.25, 1) infinite;
-}
-.ring-1 { width: 140px; height: 140px; animation-delay: 0s; }
-.ring-2 { width: 220px; height: 220px; animation-delay: 1.2s; }
-@keyframes sonicRingExpand {
-  0% { transform: scale(0.65); opacity: 0.8; border-color: rgba(239, 68, 68, 0.6); }
-  100% { transform: scale(1.6); opacity: 0; border-color: rgba(249, 115, 22, 0.05); }
-}
-
-/* Stage Card */
-.pre-sonic-stage {
+/* Center Liquid Sphere & Radial Wave Rings */
+.sphere-wrap {
   position: relative;
-  display: flex; flex-direction: column;
-  align-items: center;
-  padding: 30px 28px 24px;
-  border-radius: 30px;
-  background: rgba(14, 18, 30, 0.78);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(239, 68, 68, 0.15);
-  max-width: 320px; width: 88%;
-  z-index: 10;
-}
-
-/* Glowing Logo Prism Core */
-.pre-logo-prism {
-  position: relative;
-  width: 86px; height: 86px;
-  margin-bottom: 18px;
+  width: 150px; height: 150px;
   display: flex; align-items: center; justify-content: center;
+  margin-bottom: 26px;
 }
-.pre-prism-glow {
-  position: absolute; inset: -6px;
-  border-radius: 26px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.45) 0%, transparent 70%);
-  filter: blur(10px);
-  animation: prismGlowPulse 2.2s ease-in-out infinite alternate;
+
+.sphere-pulse-glow {
+  position: absolute;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.45), transparent 70%);
+  filter: blur(14px);
+  animation: sphereCorePulse 2s ease-in-out infinite alternate;
 }
-@keyframes prismGlowPulse {
-  0% { opacity: 0.4; transform: scale(0.9); }
-  100% { opacity: 0.95; transform: scale(1.1); }
+@keyframes sphereCorePulse {
+  0% { transform: scale(0.85); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 1; }
 }
-.pre-prism-icon {
+
+/* Liquid Gradient Fluid Waves */
+.liquid-wave {
+  position: absolute;
+  border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+  border: 1.5px solid rgba(239, 68, 68, 0.35);
+  pointer-events: none;
+}
+.w1 {
+  width: 120px; height: 120px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(249, 115, 22, 0.04));
+  animation: liquidRotate1 4s linear infinite;
+}
+.w2 {
+  width: 136px; height: 136px;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  border-color: rgba(249, 115, 22, 0.25);
+  animation: liquidRotate2 6s linear infinite reverse;
+}
+.w3 {
+  width: 152px; height: 152px;
+  border-radius: 35% 65% 55% 45% / 50% 60% 40% 50%;
+  border-color: rgba(255, 255, 255, 0.12);
+  animation: liquidRotate1 8s ease-in-out infinite;
+}
+
+@keyframes liquidRotate1 {
+  0% { transform: rotate(0deg) scale(0.96); border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; }
+  50% { transform: rotate(180deg) scale(1.04); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  100% { transform: rotate(360deg) scale(0.96); border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; }
+}
+@keyframes liquidRotate2 {
+  0% { transform: rotate(0deg) scale(1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+/* Center Emblem */
+.sphere-center-emblem {
   position: relative;
-  width: 80px; height: 80px;
+  width: 76px; height: 76px;
   border-radius: 22px;
   background: #FFFFFF;
   border: 2px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.5), 0 0 24px rgba(239, 68, 68, 0.4);
-  object-fit: cover;
-  animation: prismFloat 2.6s ease-in-out infinite alternate;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 28px rgba(239, 68, 68, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  z-index: 5;
+  animation: emblemFloat 2.8s ease-in-out infinite alternate;
 }
-@keyframes prismFloat {
+.sphere-logo-img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+@keyframes emblemFloat {
   0% { transform: translateY(0) scale(0.98); }
   100% { transform: translateY(-4px) scale(1.02); }
 }
 
-/* Typography */
-.pre-brand-box {
+/* Orbiting Audio Particle Dots */
+.orbit-particle {
+  position: absolute;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #F97316;
+  box-shadow: 0 0 8px #F97316, 0 0 14px #EF4444;
+  top: 50%; left: 50%;
+}
+.p-1 { animation: particleOrbit1 3s linear infinite; }
+.p-2 { animation: particleOrbit1 3s linear infinite 1s; }
+.p-3 { animation: particleOrbit1 3s linear infinite 2s; }
+
+@keyframes particleOrbit1 {
+  0% { transform: rotate(0deg) translateX(74px) rotate(0deg) scale(0.8); opacity: 0.4; }
+  50% { transform: rotate(180deg) translateX(74px) rotate(-180deg) scale(1.2); opacity: 1; }
+  100% { transform: rotate(360deg) translateX(74px) rotate(-360deg) scale(0.8); opacity: 0.4; }
+}
+
+/* Brand Typography with Wide Letter Spacing */
+.sphere-brand-wrap {
   text-align: center;
   margin-bottom: 18px;
 }
-.pre-sonic-title {
+.sphere-brand-title {
   font-family: var(--font-heading);
-  font-size: 30px; font-weight: 900;
-  letter-spacing: 5px;
+  font-size: 26px; font-weight: 900;
+  letter-spacing: 10px;
   background: linear-gradient(135deg, #FFFFFF 0%, #FFA07A 50%, #EF4444 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin: 0 0 4px;
+  margin-bottom: 6px;
 }
-.pre-sonic-sub {
+.sphere-brand-tagline {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 4px 14px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 10px; font-weight: 700;
-  letter-spacing: 3.5px;
-  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
 }
+.sphere-dot-active {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  animation: dotFlash 1s infinite alternate;
+}
+@keyframes dotFlash { 0% { opacity: 0.3; } 100% { opacity: 1; } }
 
-/* 7-Band Studio Sound Equalizer */
-.pre-sound-eq {
+/* Minimalist Audio VU Equalizer */
+.sphere-wave-meter {
   display: flex; align-items: flex-end;
-  gap: 5px; height: 26px;
+  gap: 5px; height: 22px;
   margin-bottom: 22px;
 }
-.p-bar {
-  width: 4px; border-radius: 3px;
+.m-wave {
+  width: 3.5px; border-radius: 3px;
   background: linear-gradient(to top, #EF4444, #F97316, #FBBF24);
-  animation: soundBarBounce 0.75s ease-in-out infinite alternate;
+  animation: waveBounce 0.7s ease-in-out infinite alternate;
 }
-.p1 { height: 10px; animation-delay: 0.1s; }
-.p2 { height: 22px; animation-delay: 0.35s; }
-.p3 { height: 14px; animation-delay: 0.05s; }
-.p4 { height: 26px; animation-delay: 0.25s; }
-.p5 { height: 16px; animation-delay: 0.45s; }
-.p6 { height: 24px; animation-delay: 0.15s; }
-.p7 { height: 12px; animation-delay: 0.3s; }
-@keyframes soundBarBounce {
-  0% { transform: scaleY(0.25); opacity: 0.35; }
+.mw-1 { height: 8px; animation-delay: 0.1s; }
+.mw-2 { height: 18px; animation-delay: 0.3s; }
+.mw-3 { height: 12px; animation-delay: 0.05s; }
+.mw-4 { height: 22px; animation-delay: 0.25s; }
+.mw-5 { height: 14px; animation-delay: 0.4s; }
+.mw-6 { height: 20px; animation-delay: 0.15s; }
+.mw-7 { height: 10px; animation-delay: 0.35s; }
+@keyframes waveBounce {
+  0% { transform: scaleY(0.3); opacity: 0.4; }
   100% { transform: scaleY(1); opacity: 1; filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.8)); }
 }
 
-/* Progress Track (Strict 3.0s Timing) */
-.pre-sonic-track {
-  width: 150px; height: 3.5px;
+/* 3.0s Progress Track */
+.sphere-progress-box {
+  width: 140px;
+}
+.sphere-progress-line {
+  width: 100%; height: 3px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
-  margin-bottom: 10px;
 }
-.pre-sonic-fill {
+.sphere-progress-bar {
   position: absolute; top: 0; left: 0; bottom: 0;
   width: 0%;
   background: linear-gradient(90deg, #EF4444, #F97316, #FBBF24);
   border-radius: 10px;
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
-  animation: sonicProgress 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: sphereProgressFill 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
-@keyframes sonicProgress {
+@keyframes sphereProgressFill {
   0% { width: 4%; }
-  40% { width: 50%; }
-  75% { width: 88%; }
+  45% { width: 55%; }
+  80% { width: 90%; }
   100% { width: 100%; }
-}
-
-.pre-sonic-hint {
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.45);
-  letter-spacing: 0.4px;
 }
 
 /* ─────────────────────────────────────────────────
