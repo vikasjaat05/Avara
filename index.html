@@ -26,50 +26,43 @@
 
 <body class="theme-dark">
 
-  <!-- ═══════════ ACOUSTIC VINYL VIBE PRELOADER ═══════════ -->
+  <!-- ═══════════ MINIMAL APPLE WAVEFORM PULSE PRELOADER ═══════════ -->
   <div id="preloader">
-    <div class="vinyl-ambient-glow"></div>
-    <div class="vinyl-ripple r1"></div>
-    <div class="vinyl-ripple r2"></div>
+    <div class="apple-preloader-stage">
+      
+      <!-- Phase 1: Glowing Heartbeat Audio Waveform Line -->
+      <div class="apple-waveform-box">
+        <svg class="apple-wave-svg" viewBox="0 0 360 80" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#EF4444" stop-opacity="0.1" />
+              <stop offset="35%" stop-color="#EF4444" stop-opacity="0.9" />
+              <stop offset="50%" stop-color="#FFFFFF" stop-opacity="1" />
+              <stop offset="65%" stop-color="#F97316" stop-opacity="0.9" />
+              <stop offset="100%" stop-color="#EF4444" stop-opacity="0.1" />
+            </linearGradient>
+            <filter id="waveGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <path class="wave-line" d="M 0 40 L 90 40 L 115 40 L 130 18 L 145 62 L 160 8 L 175 70 L 190 28 L 205 52 L 220 40 L 245 40 L 360 40" />
+        </svg>
+      </div>
 
-    <div class="vinyl-stage">
-      <!-- Spinning Luxury Grooved Vinyl Record -->
-      <div class="vinyl-disc-wrap">
-        <div class="vinyl-record">
-          <div class="vinyl-groove g1"></div>
-          <div class="vinyl-groove g2"></div>
-          <div class="vinyl-light-sheen"></div>
-          
-          <div class="vinyl-center-label">
-            <img src="/logo.png" class="vinyl-logo-img" alt="Avara" width="56" height="56" />
-          </div>
+      <!-- Phase 2: Logo & Typography Reveal -->
+      <div class="apple-reveal-box">
+        <div class="apple-logo-glow"></div>
+        <div class="apple-logo-squircle">
+          <img src="/logo.png" class="apple-logo-img" alt="Avara" width="76" height="76" />
         </div>
+        <h1 class="apple-brand-title">AVARA</h1>
+        <p class="apple-brand-tagline">Sound of Emotion</p>
       </div>
 
-      <!-- Atmospheric Brand Vibe -->
-      <div class="vinyl-brand-block">
-        <h1 class="vinyl-title">AVARA</h1>
-        <div class="vinyl-tagline">
-          <span class="pulse-audio-beat"></span>
-          <span>FEEL THE MUSIC</span>
-        </div>
-      </div>
-
-      <!-- Studio VU Acoustic Wave Spectrum -->
-      <div class="vinyl-spectrum">
-        <span class="v-wave vw1"></span>
-        <span class="v-wave vw2"></span>
-        <span class="v-wave vw3"></span>
-        <span class="v-wave vw4"></span>
-        <span class="v-wave vw5"></span>
-        <span class="v-wave vw6"></span>
-        <span class="v-wave vw7"></span>
-      </div>
-
-      <!-- 3.0s Clean Progress Track -->
-      <div class="vinyl-prog-track">
-        <div class="vinyl-prog-bar"></div>
-      </div>
     </div>
   </div>
 
