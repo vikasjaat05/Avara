@@ -227,6 +227,7 @@ function toggleVideoMode() {
   isVideoMode = !isVideoMode;
 
   const ytContainer = document.getElementById('yt-player');
+  const song = playlist[currentIdx];
 
   if (isVideoMode) {
     if (D.videoModeLabel) D.videoModeLabel.textContent = '🎵 Audio Mode';
@@ -236,17 +237,35 @@ function toggleVideoMode() {
       D.videoPlayerBox.classList.remove('hidden');
       if (ytContainer) {
         D.videoPlayerBox.appendChild(ytContainer);
-        ytContainer.style.position = 'static';
+        ytContainer.style.position = 'absolute';
+        ytContainer.style.inset = '0';
         ytContainer.style.width = '100%';
         ytContainer.style.height = '100%';
+        ytContainer.style.left = '0';
+        ytContainer.style.top = '0';
         ytContainer.style.zIndex = '10';
       }
     }
-    try {
-      if (ytPlayer && typeof ytPlayer.unMute === 'function') {
+
+    // Capture current playback progress and pause native background audio
+    let curTime = 0;
+    if (isNativeAudioPlaying && nativeAudio) {
+      curTime = nativeAudio.currentTime || 0;
+      nativeAudio.pause();
+      isNativeAudioPlaying = false;
+    } else if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+      curTime = ytPlayer.getCurrentTime() || 0;
+    }
+
+    if (song && ytIsReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+      try {
         ytPlayer.unMute();
-      }
-    } catch(e) {}
+        ytPlayer.loadVideoById({ videoId: song.id, startSeconds: Math.floor(curTime) });
+        ytPlayer.playVideo();
+        isPlaying = true;
+        setPlayUI(true);
+      } catch(e) {}
+    }
   } else {
     if (D.videoModeLabel) D.videoModeLabel.textContent = '🎬 Watch Video';
     if (D.videoModeBtn) D.videoModeBtn.classList.remove('active');
@@ -684,6 +703,9 @@ function _doPlay(idx) {
   // Synchronously trigger YouTube player on user gesture
   if (ytIsReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
     try {
+      if (isVideoMode) {
+        ytPlayer.unMute();
+      }
       if (initialSeek > 0) {
         ytPlayer.loadVideoById({ videoId: song.id, startSeconds: Math.floor(initialSeek) });
       } else {
@@ -693,6 +715,15 @@ function _doPlay(idx) {
       isPlaying = true;
       setPlayUI(true);
     } catch(e) {}
+  }
+
+  // If in Video mode, skip native background audio stream to ensure 100% video playback of current song
+  if (isVideoMode) {
+    if (nativeAudio) {
+      nativeAudio.pause();
+      isNativeAudioPlaying = false;
+    }
+    return;
   }
 
   // 1. Android Native App Bridge
@@ -708,9 +739,9 @@ function _doPlay(idx) {
 
   // 2. Mobile Web Native Audio Stream Proxy (Background backup)
   fetchAudioStreamUrl(song.id).then(streamUrl => {
-    if (streamUrl && nativeAudio) {
+    if (streamUrl && nativeAudio && !isVideoMode) {
       try {
-        if (!isVideoMode && ytPlayer && typeof ytPlayer.mute === 'function') {
+        if (ytPlayer && typeof ytPlayer.mute === 'function') {
           ytPlayer.mute();
         }
       } catch(e) {}
@@ -1195,18 +1226,36 @@ function renderSongRowList(container, songs, isAppend = false) {
         <div class="song-row-title">${song.title}</div>
         <div class="song-row-artist">${song.artist}</div>
       </div>
-      <button class="song-row-like-btn ${liked ? 'liked' : ''}" data-idx="${realIdx}" aria-label="Like">
-        <svg viewBox="0 0 24 24" fill="${liked ? 'var(--accent)' : 'none'}" stroke="${liked ? 'var(--accent)' : 'currentColor'}" stroke-width="2" width="18" height="18">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-        </svg>
-      </button>
+      <div class="song-row-actions">
+        <button class="song-row-video-btn" data-idx="${realIdx}" title="Watch Video" aria-label="Watch Video">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-9 11V9l6 3-6 3z"/></svg>
+        </button>
+        <button class="song-row-like-btn ${liked ? 'liked' : ''}" data-idx="${realIdx}" aria-label="Like">
+          <svg viewBox="0 0 24 24" fill="${liked ? 'var(--accent)' : 'none'}" stroke="${liked ? 'var(--accent)' : 'currentColor'}" stroke-width="2">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </button>
+      </div>
     `;
 
     el.addEventListener('click', (e) => {
-      if (e.target.closest('.song-row-like-btn')) return;
+      if (e.target.closest('.song-row-like-btn') || e.target.closest('.song-row-video-btn')) return;
       playTrack(realIdx);
       openPlayer();
     });
+
+    const videoBtn = el.querySelector('.song-row-video-btn');
+    if (videoBtn) {
+      videoBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(e.currentTarget.dataset.idx);
+        playTrack(idx);
+        if (!isVideoMode) {
+          toggleVideoMode();
+        }
+        openPlayer();
+      });
+    }
 
     const likeBtn = el.querySelector('.song-row-like-btn');
     if (likeBtn) {
