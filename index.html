@@ -26,38 +26,96 @@
 
 <body class="theme-dark">
 
-  <!-- ═══════════ LUXURY SOUNDWAVE PRELOADER ═══════════ -->
+  <!-- ═══════════ CYBER-VINYL HOLOGRAPHIC PRELOADER ═══════════ -->
   <div id="preloader">
-    <div class="pre-bg-glow"></div>
-    <div class="pre-card">
-      <div class="pre-ring-wrap">
-        <div class="pre-pulsing-orbit"></div>
-        <div class="pre-logo-wrap">
-          <img src="/logo.png" class="pre-logo-img" alt="Avara Logo" width="70" height="70" />
+    <!-- Ambient Soundscape Glow & Sonic Radiations -->
+    <div class="pre-ambient-glow"></div>
+    <div class="pre-ripple ripple-1"></div>
+    <div class="pre-ripple ripple-2"></div>
+    <div class="pre-ripple ripple-3"></div>
+
+    <div class="pre-stage">
+      <!-- 3D Holographic Spinning Vinyl Turntable -->
+      <div class="pre-turntable">
+        <div class="vinyl-disc">
+          <div class="vinyl-groove g1"></div>
+          <div class="vinyl-groove g2"></div>
+          <div class="vinyl-groove g3"></div>
+          <div class="vinyl-shine"></div>
+          
+          <!-- Center White & Red Logo Hub -->
+          <div class="vinyl-hub">
+            <img src="/logo.png" class="vinyl-logo-img" alt="Avara Logo" width="56" height="56" />
+            <div class="vinyl-center-dot"></div>
+          </div>
+        </div>
+
+        <!-- Floating Tonearm / Needle -->
+        <div class="turntable-needle">
+          <div class="needle-base"></div>
+          <div class="needle-arm"></div>
+          <div class="needle-cartridge">
+            <span class="needle-laser"></span>
+          </div>
+        </div>
+
+        <!-- 360 Radial Audio Pulse Bars -->
+        <div class="radial-visualizer">
+          <span class="rad-bar" style="--deg: 0deg; --delay: 0.1s;"></span>
+          <span class="rad-bar" style="--deg: 30deg; --delay: 0.3s;"></span>
+          <span class="rad-bar" style="--deg: 60deg; --delay: 0.15s;"></span>
+          <span class="rad-bar" style="--deg: 90deg; --delay: 0.4s;"></span>
+          <span class="rad-bar" style="--deg: 120deg; --delay: 0.2s;"></span>
+          <span class="rad-bar" style="--deg: 150deg; --delay: 0.5s;"></span>
+          <span class="rad-bar" style="--deg: 180deg; --delay: 0.25s;"></span>
+          <span class="rad-bar" style="--deg: 210deg; --delay: 0.35s;"></span>
+          <span class="rad-bar" style="--deg: 240deg; --delay: 0.1s;"></span>
+          <span class="rad-bar" style="--deg: 270deg; --delay: 0.45s;"></span>
+          <span class="rad-bar" style="--deg: 300deg; --delay: 0.3s;"></span>
+          <span class="rad-bar" style="--deg: 330deg; --delay: 0.2s;"></span>
         </div>
       </div>
 
-      <div class="pre-brand">
-        <h1 class="pre-title">AVARA</h1>
-        <span class="pre-tagline">SOUND OF EMOTION</span>
-      </div>
-
-      <div class="pre-equalizer">
-        <span class="eq-b b1"></span>
-        <span class="eq-b b2"></span>
-        <span class="eq-b b3"></span>
-        <span class="eq-b b4"></span>
-        <span class="eq-b b5"></span>
-        <span class="eq-b b6"></span>
-        <span class="eq-b b7"></span>
-        <span class="eq-b b8"></span>
-      </div>
-
-      <div class="pre-progress-box">
-        <div class="pre-progress-line">
-          <div class="pre-progress-fill"></div>
+      <!-- Futuristic Typography & Live Audio Frequency Status -->
+      <div class="pre-meta">
+        <div class="pre-brand-title">AVARA</div>
+        <div class="pre-brand-sub">
+          <span class="live-dot"></span>
+          <span class="pre-freq-text" id="pre-status-txt">Tuning Studio Acoustics...</span>
         </div>
-        <div class="pre-loading-text">Loading sound engine...</div>
+      </div>
+
+      <!-- Studio VU Meter & Sound Level Spectrum -->
+      <div class="pre-vu-meter">
+        <div class="vu-channel">
+          <span class="vu-led l-green"></span>
+          <span class="vu-led l-green"></span>
+          <span class="vu-led l-green"></span>
+          <span class="vu-led l-green"></span>
+          <span class="vu-led l-amber"></span>
+          <span class="vu-led l-amber"></span>
+          <span class="vu-led l-red"></span>
+        </div>
+        <div class="vu-channel">
+          <span class="vu-led l-green"></span>
+          <span class="vu-led l-green"></span>
+          <span class="vu-led l-green"></span>
+          <span class="vu-led l-green"></span>
+          <span class="vu-led l-amber"></span>
+          <span class="vu-led l-amber"></span>
+          <span class="vu-led l-red"></span>
+        </div>
+      </div>
+
+      <!-- High-tech Progress Track with Sound Byte Percentage -->
+      <div class="pre-loader-bar-wrap">
+        <div class="pre-loader-bar">
+          <div class="pre-loader-pulse"></div>
+        </div>
+        <div class="pre-spec-hz">
+          <span>96kHz • 24-bit Hi-Res</span>
+          <span id="pre-pct-counter">Studio Ready</span>
+        </div>
       </div>
     </div>
   </div>
@@ -626,7 +684,7 @@
     </div>
   </div>
 
-  <!-- Service Worker Auto Update & Preloader script -->
+  <!-- Service Worker Auto Update & Dynamic Preloader script -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -637,17 +695,34 @@
     }
 
     !function(){
-      var done=false;
+      var statusMessages = [
+        'Tuning Studio Acoustics...',
+        'Synchronizing 15,000+ Tracks...',
+        'Mastering Hi-Fi Sound...'
+      ];
+      var msgIndex = 0;
+      var statusEl = document.getElementById('pre-status-txt');
+      var statusInterval = setInterval(function(){
+        msgIndex = (msgIndex + 1) % statusMessages.length;
+        if(statusEl) statusEl.textContent = statusMessages[msgIndex];
+      }, 500);
+
+      var done = false;
       function hide(){
-        if(done)return;done=true;
-        var el=document.getElementById('preloader');
-        if(!el)return;
-        el.style.transition='opacity 0.5s ease';
-        el.style.opacity='0';
-        setTimeout(function(){el&&el.parentNode&&el.parentNode.removeChild(el);},550);
+        if(done) return;
+        done = true;
+        clearInterval(statusInterval);
+        var el = document.getElementById('preloader');
+        if(!el) return;
+        el.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+        el.style.opacity = '0';
+        el.style.transform = 'scale(1.06)';
+        setTimeout(function(){
+          el && el.parentNode && el.parentNode.removeChild(el);
+        }, 650);
       }
-      setTimeout(hide, 1400);
-      window.addEventListener('load',function(){setTimeout(hide, 400);});
+      setTimeout(hide, 1600);
+      window.addEventListener('load', function(){ setTimeout(hide, 600); });
     }();
   </script>
 

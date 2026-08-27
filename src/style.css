@@ -108,147 +108,280 @@ html, body {
 }
 
 /* ─────────────────────────────────────────────────
-   LUXURY SOUNDWAVE PRELOADER
+   CYBER-VINYL HOLOGRAPHIC PRELOADER
 ───────────────────────────────────────────────── */
 #preloader {
   position: fixed; inset: 0;
-  background: #090D16;
+  background: #060911;
   display: flex; flex-direction: column;
   justify-content: center; align-items: center;
   z-index: 99999;
   overflow: hidden;
+  user-select: none;
 }
 
-.pre-bg-glow {
+/* Cosmic Ambient Glow & Sonic Ripples */
+.pre-ambient-glow {
   position: absolute;
-  width: 320px; height: 320px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(249, 115, 22, 0.15) 50%, transparent 75%);
-  filter: blur(50px);
-  animation: bgGlowPulse 3s ease-in-out infinite alternate;
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, rgba(249, 115, 22, 0.15) 45%, transparent 70%);
+  filter: blur(60px);
+  animation: ambientFloat 4s ease-in-out infinite alternate;
   pointer-events: none;
 }
-@keyframes bgGlowPulse {
-  0% { transform: scale(0.85); opacity: 0.5; }
-  100% { transform: scale(1.25); opacity: 0.9; }
+@keyframes ambientFloat {
+  0% { transform: scale(0.85) translate(0, 0); opacity: 0.6; }
+  100% { transform: scale(1.2) translate(5px, -5px); opacity: 0.95; }
 }
 
-.pre-card {
+.pre-ripple {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  animation: sonicRipple 3s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+  pointer-events: none;
+}
+.ripple-1 { width: 180px; height: 180px; animation-delay: 0s; }
+.ripple-2 { width: 260px; height: 260px; animation-delay: 0.9s; }
+.ripple-3 { width: 340px; height: 340px; animation-delay: 1.8s; }
+
+@keyframes sonicRipple {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+/* Central Stage Container */
+.pre-stage {
   position: relative;
   display: flex; flex-direction: column;
   align-items: center;
-  padding: 36px 32px 30px;
-  border-radius: 28px;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(239, 68, 68, 0.15);
-  max-width: 340px; width: 90%;
+  padding: 34px 28px 28px;
+  border-radius: 32px;
+  background: rgba(13, 18, 30, 0.75);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 50px rgba(239, 68, 68, 0.18);
+  max-width: 350px; width: 90%;
 }
 
-.pre-ring-wrap {
+/* 3D Turntable Core */
+.pre-turntable {
   position: relative;
-  width: 100px; height: 100px;
+  width: 140px; height: 140px;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
-.pre-pulsing-orbit {
-  position: absolute; inset: 0;
+/* Vinyl Disc */
+.vinyl-disc {
+  position: relative;
+  width: 130px; height: 130px;
   border-radius: 50%;
-  border: 2px dashed rgba(239, 68, 68, 0.4);
-  animation: spinOrbit 8s linear infinite;
+  background: radial-gradient(circle, #222 0%, #111 40%, #080808 100%);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(239, 68, 68, 0.35);
+  display: flex; align-items: center; justify-content: center;
+  animation: spinVinyl 3.6s linear infinite;
+  overflow: hidden;
 }
-@keyframes spinOrbit {
+@keyframes spinVinyl {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-.pre-logo-wrap {
-  width: 76px; height: 76px;
-  border-radius: 20px;
+.vinyl-groove {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.g1 { width: 108px; height: 108px; }
+.g2 { width: 88px; height: 88px; }
+.g3 { width: 72px; height: 72px; }
+
+.vinyl-shine {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 45deg, transparent, rgba(255, 255, 255, 0.16) 25deg, transparent 50deg, transparent 180deg, rgba(255, 255, 255, 0.12) 205deg, transparent 230deg);
+  pointer-events: none;
+}
+
+.vinyl-hub {
+  position: relative;
+  width: 58px; height: 58px;
+  border-radius: 50%;
   background: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.4);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 28px rgba(239, 68, 68, 0.45), 0 8px 24px rgba(0, 0, 0, 0.4);
-  animation: logoFloat 2.4s ease-in-out infinite alternate;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.5), inset 0 0 4px rgba(0,0,0,0.2);
+  border: 2px solid rgba(255, 255, 255, 0.8);
   overflow: hidden;
+  z-index: 2;
 }
-.pre-logo-img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; }
-@keyframes logoFloat {
-  0% { transform: translateY(2px) scale(0.96); box-shadow: 0 0 18px rgba(239, 68, 68, 0.35); }
-  100% { transform: translateY(-3px) scale(1.04); box-shadow: 0 0 32px rgba(239, 68, 68, 0.65); }
+.vinyl-logo-img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.vinyl-center-dot {
+  position: absolute;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #111;
+  border: 1.5px solid #F97316;
+  box-shadow: 0 0 6px #F97316;
 }
 
-.pre-brand {
+/* Floating Tonearm Needle */
+.turntable-needle {
+  position: absolute;
+  top: -12px; right: -14px;
+  width: 50px; height: 60px;
+  pointer-events: none;
+  z-index: 5;
+  animation: needleBob 2.8s ease-in-out infinite alternate;
+}
+@keyframes needleBob {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-3deg); }
+}
+.needle-base {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: linear-gradient(135deg, #777, #333);
+  border: 1.5px solid #bbb;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  position: absolute; top: 0; right: 0;
+}
+.needle-arm {
+  position: absolute; top: 8px; right: 4px;
+  width: 2.5px; height: 38px;
+  background: linear-gradient(to bottom, #ccc, #777);
+  transform-origin: top center;
+  transform: rotate(32deg);
+  border-radius: 2px;
+}
+.needle-cartridge {
+  position: absolute; bottom: 8px; left: 10px;
+  width: 8px; height: 14px;
+  background: #1a1a1a; border: 1px solid #ff4444;
+  border-radius: 2px;
+  transform: rotate(20deg);
+  display: flex; align-items: center; justify-content: center;
+}
+.needle-laser {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: #ff2222;
+  box-shadow: 0 0 8px #ff2222, 0 0 14px #ff2222;
+  animation: laserPulse 0.6s infinite alternate;
+}
+@keyframes laserPulse {
+  0% { opacity: 0.6; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.3); }
+}
+
+/* 360 Radial Visualizer Wavebars */
+.radial-visualizer {
+  position: absolute; inset: -14px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.rad-bar {
+  position: absolute; top: 50%; left: 50%;
+  width: 3px; height: 12px;
+  background: linear-gradient(to top, #EF4444, #F97316);
+  border-radius: 3px;
+  transform-origin: center -70px;
+  transform: translate(-50%, -50%) rotate(var(--deg));
+  animation: radPulse 0.8s ease-in-out infinite alternate;
+  animation-delay: var(--delay);
+}
+@keyframes radPulse {
+  0% { height: 4px; opacity: 0.3; }
+  100% { height: 16px; opacity: 1; filter: drop-shadow(0 0 6px #EF4444); }
+}
+
+/* Typography & Live Audio Frequency Status */
+.pre-meta {
   text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
-.pre-title {
+.pre-brand-title {
   font-family: var(--font-heading);
-  font-size: 28px; font-weight: 900;
-  letter-spacing: 4px;
-  background: linear-gradient(135deg, #FFFFFF 0%, #FF8A65 50%, #EF4444 100%);
+  font-size: 30px; font-weight: 900;
+  letter-spacing: 5px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFA07A 50%, #EF4444 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin: 0 0 4px;
+  margin-bottom: 4px;
 }
-.pre-tagline {
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 3px;
-  color: rgba(255, 255, 255, 0.6);
-  text-transform: uppercase;
+.pre-brand-sub {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 4px 14px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-
-.pre-equalizer {
-  display: flex; align-items: flex-end;
-  gap: 5px; height: 28px;
-  margin-bottom: 22px;
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  animation: dotBlink 1s infinite alternate;
 }
-.eq-b {
-  width: 4px; border-radius: 4px;
-  background: linear-gradient(to top, #EF4444, #F97316, #FBBF24);
-  animation: eqBounce 0.7s ease-in-out infinite alternate;
-}
-.b1 { height: 10px; animation-delay: 0.1s; }
-.b2 { height: 24px; animation-delay: 0.3s; }
-.b3 { height: 16px; animation-delay: 0.05s; }
-.b4 { height: 28px; animation-delay: 0.25s; }
-.b5 { height: 14px; animation-delay: 0.4s; }
-.b6 { height: 26px; animation-delay: 0.15s; }
-.b7 { height: 18px; animation-delay: 0.35s; }
-.b8 { height: 12px; animation-delay: 0.2s; }
-@keyframes eqBounce {
-  0% { transform: scaleY(0.25); opacity: 0.4; }
-  100% { transform: scaleY(1); opacity: 1; filter: drop-shadow(0 0 6px rgba(239,68,68,0.8)); }
+@keyframes dotBlink { 0% { opacity: 0.4; } 100% { opacity: 1; } }
+.pre-freq-text {
+  font-size: 11px; font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.8px;
 }
 
-.pre-progress-box {
+/* Studio Stereo VU Meter */
+.pre-vu-meter {
+  display: flex; gap: 10px;
+  margin-bottom: 20px;
+}
+.vu-channel {
+  display: flex; gap: 3.5px; align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px 6px; border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.vu-led {
+  width: 4.5px; height: 10px; border-radius: 1.5px;
+  opacity: 0.25;
+  transition: opacity 0.1s;
+}
+.l-green { background: #10B981; animation: vuLight 0.5s ease-in-out infinite alternate; }
+.l-amber { background: #F59E0B; animation: vuLight 0.5s ease-in-out infinite alternate; animation-delay: 0.15s; }
+.l-red   { background: #EF4444; animation: vuLight 0.5s ease-in-out infinite alternate; animation-delay: 0.3s; }
+@keyframes vuLight {
+  0% { opacity: 0.2; transform: scaleY(0.7); }
+  100% { opacity: 1; transform: scaleY(1.1); filter: drop-shadow(0 0 4px currentColor); }
+}
+
+/* Progress Track & Sound Spec */
+.pre-loader-bar-wrap {
   width: 100%;
-  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  display: flex; flex-direction: column; gap: 8px;
 }
-.pre-progress-line {
+.pre-loader-bar {
   width: 100%; height: 4px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
 }
-.pre-progress-fill {
-  width: 45%; height: 100%;
+.pre-loader-pulse {
+  width: 50%; height: 100%;
   background: linear-gradient(90deg, #EF4444, #F97316, #FBBF24);
   border-radius: 10px;
-  animation: preProgressAnim 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: loaderPulseMove 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
-@keyframes preProgressAnim {
+@keyframes loaderPulseMove {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(250%); }
 }
 
-.pre-loading-text {
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.5);
+.pre-spec-hz {
+  display: flex; justify-content: space-between;
+  font-size: 10px; font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
   letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 /* ─────────────────────────────────────────────────
