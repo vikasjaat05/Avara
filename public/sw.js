@@ -1,4 +1,4 @@
-const CACHE_NAME = 'avara-music-v14';
+const CACHE_NAME = 'avara-music-v15';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
