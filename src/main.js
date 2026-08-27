@@ -641,7 +641,13 @@ function initYT() {
           }
         },
         onStateChange: onYTState,
-        onError(e) { console.warn('YT error', e.data); setTimeout(nextTrack, 1500); },
+        onError(e) {
+          console.warn('YT player error event:', e.data);
+          if (isNativeAudioPlaying) return;
+          setTimeout(() => {
+            if (!isNativeAudioPlaying) nextTrack();
+          }, 800);
+        },
       },
     });
   }
@@ -655,9 +661,11 @@ function onYTState(e) {
     isPlaying = true;
     setPlayUI(true);
     startTick();
-  } else if (e.data === S.PAUSED || e.data === S.CUED) {
-    isPlaying = false;
-    setPlayUI(false);
+  } else if (e.data === S.PAUSED) {
+    if (!isNativeAudioPlaying) {
+      isPlaying = false;
+      setPlayUI(false);
+    }
   } else if (e.data === S.ENDED) {
     if (repeatOn) {
       ytPlayer.seekTo(0, true);
@@ -701,6 +709,18 @@ nativeAudio.addEventListener('ended', () => {
   }
 });
 
+nativeAudio.addEventListener('error', (e) => {
+  console.warn('NativeAudio stream error, falling back to YouTube audio', e);
+  isNativeAudioPlaying = false;
+  if (ytPlayer && typeof ytPlayer.unMute === 'function') {
+    try {
+      ytPlayer.unMute();
+      ytPlayer.setVolume(100);
+      ytPlayer.playVideo();
+    } catch(_) {}
+  }
+});
+
 // Bridge callbacks from Native Java
 window.onNativePlaybackStarted = () => {
   isPlaying = true;
@@ -727,7 +747,7 @@ async function fetchAudioStreamUrl(songId) {
 
   const fetchSingle = async ({ type, url }) => {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 3200);
+    const timer = setTimeout(() => controller.abort(), 2500);
     try {
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timer);
@@ -773,12 +793,11 @@ function _doPlay(idx) {
   recordSongPlay(song);
   setupMediaSession(song);
 
-  // Synchronously trigger YouTube player on user gesture
+  // Synchronously trigger YouTube player on user gesture with sound
   if (ytIsReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
     try {
-      if (isVideoMode) {
-        ytPlayer.unMute();
-      }
+      ytPlayer.unMute();
+      ytPlayer.setVolume(100);
       if (initialSeek > 0) {
         ytPlayer.loadVideoById({ videoId: song.id, startSeconds: Math.floor(initialSeek) });
       } else {
@@ -810,14 +829,9 @@ function _doPlay(idx) {
     return;
   }
 
-  // 2. Mobile Web Native Audio Stream Proxy (Uninterrupted lock screen & background playback)
+  // 2. Mobile Web Native Audio Stream Proxy (Optional Lock Screen Background Stream)
   fetchAudioStreamUrl(song.id).then(streamUrl => {
     if (streamUrl && nativeAudio && !isVideoMode) {
-      try {
-        if (ytPlayer && typeof ytPlayer.mute === 'function') {
-          ytPlayer.mute();
-        }
-      } catch(e) {}
       nativeAudio.src = streamUrl;
       if (initialSeek > 0) {
         nativeAudio.currentTime = initialSeek;
@@ -825,14 +839,21 @@ function _doPlay(idx) {
       }
       nativeAudio.play().then(() => {
         isNativeAudioPlaying = true;
+        try {
+          if (ytPlayer && typeof ytPlayer.mute === 'function' && !isVideoMode) {
+            ytPlayer.mute();
+          }
+        } catch(_) {}
         if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
       }).catch(() => {
+        isNativeAudioPlaying = false;
         if (ytPlayer && typeof ytPlayer.unMute === 'function') {
           ytPlayer.unMute();
+          ytPlayer.setVolume(100);
         }
       });
     }
-  });
+  }).catch(() => {});
 }
 
 
