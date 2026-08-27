@@ -1,5 +1,4 @@
 import './style.css';
-import { AVARA_SONGS } from './songs.js';
 
 // ─── LocalStorage Keys ───────────────────────────────────────────────────────
 const KEY_LAST_SONG_ID = 'avara_last_song_id';
@@ -15,7 +14,8 @@ let ytIsReady         = false;
 let pendingPlay       = null;
 let currentIdx        = 0;
 let isPlaying         = false;
-let playlist          = AVARA_SONGS.filter(Boolean);
+let playlist          = [];
+let categorizedSongs  = { Romantic: [], Heartbreak: [], Guru: [], Rap: [], New: [], Haryanvi: [] };
 let likedSet          = new Set();
 let shuffleOn         = false;
 let repeatOn          = false;
@@ -1071,8 +1071,10 @@ function renderHomeSections() {
 function renderCategoryShelf(container, categoryFullName, badgeTag) {
   if (!container) return;
   container.innerHTML = '';
-  const songs = playlist.filter(s => s.category === categoryFullName || (s.category && s.category.includes(badgeTag)));
+  // Fetch from pre-indexed categories for zero-lag
+  const songs = (categorizedSongs[badgeTag] || []).slice(0, 25);
 
+  const fragment = document.createDocumentFragment();
   songs.forEach((song) => {
     const realIdx = playlist.indexOf(song);
     const card = document.createElement('div');
@@ -1089,8 +1091,9 @@ function renderCategoryShelf(container, categoryFullName, badgeTag) {
       playTrack(realIdx);
       openPlayer();
     });
-    container.appendChild(card);
+    fragment.appendChild(card);
   });
+  container.appendChild(fragment);
 }
 
 // ─── Render Search Results (Debounced & Capped for 60FPS) ──────────────────────
@@ -1476,13 +1479,33 @@ function renderFilteredHome(catFilter) {
 }
 
 // ─── Boot & Initialization ───────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   grabDOM();
   initTheme();
   initDownloadModal();
   initHeroSwiper();
+
+  try {
+    const res = await fetch('/songs.json');
+    const data = await res.json();
+    playlist = data.filter(Boolean);
+
+    // Pre-index categories
+    playlist.forEach(s => {
+      if (!s.category) return;
+      if (s.category.includes('Romantic')) categorizedSongs.Romantic.push(s);
+      if (s.category.includes('Heartbreak')) categorizedSongs.Heartbreak.push(s);
+      if (s.category.includes('Guru')) categorizedSongs.Guru.push(s);
+      if (s.category.includes('Rap')) categorizedSongs.Rap.push(s);
+      if (s.category.includes('New')) categorizedSongs.New.push(s);
+      if (s.category.includes('Haryanvi')) categorizedSongs.Haryanvi.push(s);
+    });
+  } catch(e) {
+    console.error("Failed to load songs", e);
+  }
+
   restoreSavedState();
-  updateTrackUI(playlist[currentIdx]);
+  updateTrackUI(playlist[currentIdx] || playlist[0]);
 
   setPlayUI(false);
 

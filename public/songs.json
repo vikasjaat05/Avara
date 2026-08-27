@@ -1,4 +1,4 @@
-export const AVARA_SONGS = [
+[
   {
     "id": "q8TTdhoxWm8",
     "title": "Nain Matakka",
@@ -78965,4 +78965,4 @@ export const AVARA_SONGS = [
     "artist": "T-Series",
     "category": "\ud83d\udc94 Heartbreak Hits"
   }
-];
+]
