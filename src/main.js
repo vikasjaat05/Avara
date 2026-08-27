@@ -109,7 +109,12 @@ function grabDOM() {
 
   // Full Player Overlay DOM
   D.playerBg        = document.getElementById('player-bg');
+  D.playerArtWrap   = document.getElementById('player-art-wrap');
   D.playerArt       = document.getElementById('player-art');
+  D.videoPlayerBox  = document.getElementById('video-player-box');
+  D.fullscreenVideoBtn = document.getElementById('fullscreen-video-btn');
+  D.videoModeBtn    = document.getElementById('video-mode-btn');
+  D.videoModeLabel  = document.getElementById('video-mode-label');
   D.playerTitle     = document.getElementById('player-title');
   D.playerArtist    = document.getElementById('player-artist');
   D.playerLikeBtn   = document.getElementById('player-like-btn');
@@ -421,13 +426,16 @@ function toggleVideoMode() {
     if (D.videoModeBtn) D.videoModeBtn.classList.add('active');
     if (D.playerArt) D.playerArt.classList.add('hidden');
     if (D.videoPlayerBox) D.videoPlayerBox.classList.remove('hidden');
+    if (D.playerArtWrap) D.playerArtWrap.classList.add('video-mode-active');
 
-    // Capture current playback progress and pause native background audio
-    let curTime = 0;
-    if (isNativeAudioPlaying && nativeAudio) {
-      curTime = nativeAudio.currentTime || 0;
+    // Pause native background audio so YouTube video has direct clear audio
+    if (nativeAudio) {
       nativeAudio.pause();
       isNativeAudioPlaying = false;
+    }
+    let curTime = 0;
+    if (nativeAudio && nativeAudio.currentTime) {
+      curTime = nativeAudio.currentTime;
     } else if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
       curTime = ytPlayer.getCurrentTime() || 0;
     }
@@ -435,6 +443,7 @@ function toggleVideoMode() {
     if (song && ytIsReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
       try {
         ytPlayer.unMute();
+        ytPlayer.setVolume(100);
         ytPlayer.loadVideoById({ videoId: song.id, startSeconds: Math.floor(curTime) });
         ytPlayer.playVideo();
         isPlaying = true;
@@ -792,11 +801,11 @@ function initYT() {
   const initialSong = playlist[currentIdx] || playlist[0];
   function create() {
     ytPlayer = new window.YT.Player('yt-player', {
-      height: '180', width: '320',
+      height: '100%', width: '100%',
       videoId: initialSong.id,
       playerVars: {
-        autoplay: 0, controls: 0, playsinline: 1,
-        rel: 0, modestbranding: 1, iv_load_policy: 3, fs: 0,
+        autoplay: 0, controls: 1, playsinline: 1,
+        rel: 0, modestbranding: 1, iv_load_policy: 3, fs: 1,
       },
       events: {
         onReady() {
@@ -1117,6 +1126,17 @@ function updateTrackUI(song) {
   if (D.sdArtist) D.sdArtist.textContent = song.artist;
 
   setLikeUI(likedSet.has(currentIdx));
+
+  // Sync Video Mode Display State
+  if (isVideoMode) {
+    if (D.playerArt) D.playerArt.classList.add('hidden');
+    if (D.videoPlayerBox) D.videoPlayerBox.classList.remove('hidden');
+    if (D.playerArtWrap) D.playerArtWrap.classList.add('video-mode-active');
+  } else {
+    if (D.playerArt) D.playerArt.classList.remove('hidden');
+    if (D.videoPlayerBox) D.videoPlayerBox.classList.add('hidden');
+    if (D.playerArtWrap) D.playerArtWrap.classList.remove('video-mode-active');
+  }
 }
 
 function setPlayUI(playing) {
